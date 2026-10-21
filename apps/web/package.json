@@ -1,0 +1,45 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "storybook": "storybook dev --host 127.0.0.1 -p 6180 --no-open",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@storybook/addon-themes": "^10.6.3",
+    "@storybook/react-vite": "^10.6.3",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "css-loader": "^7.1.5",
+    "esbuild-loader": "^4.5.0",
+    "html-webpack-plugin": "^5.6.8",
+    "jsdom": "^29.1.1",
+    "postcss": "^8.5.31",
+    "postcss-loader": "^8.2.1",
+    "storybook": "^10.6.3",
+    "style-loader": "^4.0.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5",
+    "webpack": "^5.112.0",
+    "webpack-cli": "^7.2.3",
+    "webpack-dev-server": "^6.1.0"
+  }
+}
