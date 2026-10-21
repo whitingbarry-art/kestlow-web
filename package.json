@@ -1,0 +1,24 @@
+{
+  "name": "planning",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git@github-whitingbarry-art:whitingbarry-art/planning.git"
+  },
+  "packageManager": "npm@11.4.2",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "storybook": "turbo run storybook",
+    "build-storybook": "turbo run build-storybook"
+  },
+  "devDependencies": {
+    "turbo": "^2.11.10"
+  }
+}

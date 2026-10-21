@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --page: #f6f4ef;
+  --card: #ffffff;
+  --ink: #12304a;
+  --muted: #5b6b7a;
+  --line: #e1ddd3;
+  --chip: #eef2f5;
+  --new-bg: #fef1d6;
+  --new-text: #8a5a00;
+  --match-bg: #e3f3ec;
+  --match-text: #2e8b6e;
+  --side: #12304a;
+  --card-shadow: 0 2px 10px rgba(18, 48, 74, 0.08);
+}
+
+[data-theme="dark"] {
+  --page: #0e1a26;
+  --card: #16293b;
+  --ink: #f2f5f8;
+  --muted: #9fb0c0;
+  --line: #26405a;
+  --chip: #1f3650;
+  --new-bg: #4a3510;
+  --new-text: #ffc85c;
+  --match-bg: #17402f;
+  --match-text: #6fd3aa;
+  --side: #0a131c;
+  --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+@theme {
+  --color-navy: #12304a;
+  --color-amber: #f5a623;
+  --color-green: #2e8b6e;
+  --color-side-link: #b7c6d4;
+  --radius-card: 14px;
+  --breakpoint-desk: 900px;
+  --font-sans: Inter, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-chip: var(--chip);
+  --color-new-bg: var(--new-bg);
+  --color-new-text: var(--new-text);
+  --color-match-bg: var(--match-bg);
+  --color-match-text: var(--match-text);
+  --color-side: var(--side);
+  --shadow-card: var(--card-shadow);
+}
+
+@layer base {
+  body {
+    @apply bg-page font-sans leading-[1.4] text-ink;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+@utility map-grid {
+  background:
+    linear-gradient(90deg, transparent 49%, var(--line) 49% 51%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, var(--line) 49% 51%, transparent 51%),
+    var(--chip);
+  background-size: 60px 60px;
+}
