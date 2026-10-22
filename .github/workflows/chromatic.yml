@@ -1,0 +1,35 @@
+name: Chromatic
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    name: Chromatic
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Chromatic uses git history to find baselines and changed stories.
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: chromaui/action@v18
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: apps/web
+          buildScriptName: build-storybook
+          # Only snapshot stories affected by the change (TurboSnap).
+          onlyChanged: true
+          # Visual changes are approved in Chromatic via the "UI Tests" check, so don't fail here.
+          # Storybook build errors and broken stories still fail this job.
+          exitZeroOnChanges: true
+          # Merged changes on main become the new baselines.
+          autoAcceptChanges: main
