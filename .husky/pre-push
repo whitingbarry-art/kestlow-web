@@ -1,1 +1,8 @@
-node scripts/check-changeset.mjs
+# git passes "<local ref> <local sha> <remote ref> <remote sha>" per pushed ref on stdin.
+# Only check pushes of the current branch; deletions and other branches are left to CI.
+current="refs/heads/$(git rev-parse --abbrev-ref HEAD)"
+while read -r local_ref _ _ _; do
+  if [ "$local_ref" = "$current" ]; then
+    exec node scripts/check-changeset.mjs
+  fi
+done

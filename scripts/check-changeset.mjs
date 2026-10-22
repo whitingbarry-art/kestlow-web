@@ -38,7 +38,10 @@ function workspacePackages() {
   });
 }
 
-if (git("rev-parse", "--abbrev-ref", "HEAD") === "main") process.exit(0);
+// GITHUB_HEAD_REF is the PR branch in CI, where HEAD is a detached merge commit.
+const branch = process.env.GITHUB_HEAD_REF || git("rev-parse", "--abbrev-ref", "HEAD");
+// Release PRs from `changeset version` consume changesets rather than adding them.
+if (branch === "main" || branch.startsWith("changeset-release/")) process.exit(0);
 
 if (!process.env.CI) {
   try {
