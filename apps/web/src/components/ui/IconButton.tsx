@@ -1,7 +1,11 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "../../utils/cn";
 
-export function IconButton({ className, type = "button", ...props }: ButtonHTMLAttributes<HTMLButtonElement>) {
+export function IconButton({
+  className,
+  type = "button",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       type={type}
