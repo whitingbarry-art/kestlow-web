@@ -36,4 +36,11 @@ describe("App", () => {
     await userEvent.click(weekend);
     expect(weekend).toHaveAttribute("aria-checked", "true");
   });
+
+  it("switches views from the mobile bottom nav", async () => {
+    render(<App />);
+    const [, bottomNav] = screen.getAllByRole("navigation", { name: "Main" });
+    await userEvent.click(within(bottomNav).getByRole("button", { name: /Saved/ }));
+    expect(screen.getByRole("heading", { name: "Saved leads" })).toBeInTheDocument();
+  });
 });
