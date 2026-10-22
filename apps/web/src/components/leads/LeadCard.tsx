@@ -16,7 +16,14 @@ interface LeadCardProps {
   onToggleSave: (id: number) => void;
 }
 
-export function LeadCard({ lead, selected, saved, clickable, onOpen, onToggleSave }: LeadCardProps) {
+export function LeadCard({
+  lead,
+  selected,
+  saved,
+  clickable,
+  onOpen,
+  onToggleSave,
+}: LeadCardProps) {
   const handleView = (event: MouseEvent) => {
     event.stopPropagation();
     onOpen(lead.id);

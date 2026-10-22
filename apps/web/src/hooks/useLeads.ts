@@ -28,7 +28,10 @@ export function useLeads({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const visibleLeads = useMemo(() => filterLeadsByTrade(leads, trade), [leads, trade]);
-  const savedLeads = useMemo(() => leads.filter((lead) => savedIds.has(lead.id)), [leads, savedIds]);
+  const savedLeads = useMemo(
+    () => leads.filter((lead) => savedIds.has(lead.id)),
+    [leads, savedIds],
+  );
   const summary = formatLeadSummary(countNewLeads(visibleLeads), SEARCH_RADIUS_MILES);
   const selectedLead = findLead(leads, selectedId);
 
