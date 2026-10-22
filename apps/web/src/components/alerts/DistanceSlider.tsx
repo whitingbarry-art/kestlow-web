@@ -7,7 +7,14 @@ interface DistanceSliderProps {
   onChange: (miles: number) => void;
 }
 
-export function DistanceSlider({ value, min, max, label, basePostcode, onChange }: DistanceSliderProps) {
+export function DistanceSlider({
+  value,
+  min,
+  max,
+  label,
+  basePostcode,
+  onChange,
+}: DistanceSliderProps) {
   return (
     <div className="py-3.5">
       <div className="flex items-start justify-between gap-2">
