@@ -7,7 +7,8 @@ on:
 
 concurrency:
   group: chromatic-${{ github.ref }}
-  cancel-in-progress: true
+  # Don't cancel runs on main: each one becomes the baseline for later PRs.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   chromatic:
@@ -25,6 +26,7 @@ jobs:
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: apps/web
+          storybookBaseDir: apps/web
           buildScriptName: build-storybook
           # Only snapshot stories affected by the change (TurboSnap).
           onlyChanged: true
