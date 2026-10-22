@@ -50,6 +50,8 @@ export function App() {
           </p>
         )}
       </DetailPanel>
+
+      <BottomNav items={NAV_ITEMS} activeView={view} onNavigate={navigate} />
     </div>
   );
 }
