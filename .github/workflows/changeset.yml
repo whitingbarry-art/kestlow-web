@@ -1,0 +1,23 @@
+name: Changeset
+
+on:
+  pull_request:
+
+concurrency:
+  group: changeset-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changeset:
+    name: Changeset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - run: node scripts/check-changeset.mjs
+        env:
+          CHANGESET_BASE: origin/${{ github.base_ref }}
