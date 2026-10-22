@@ -1,9 +1,9 @@
 {
-  "name": "planning",
+  "name": "kestlow-web",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git@github-whitingbarry-art:whitingbarry-art/planning.git"
+    "url": "git@github-whitingbarry-art:whitingbarry-art/kestlow-web.git"
   },
   "packageManager": "npm@11.4.2",
   "workspaces": [
