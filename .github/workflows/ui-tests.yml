@@ -1,4 +1,4 @@
-name: Chromatic
+name: UI Tests
 
 on:
   pull_request:
@@ -6,12 +6,14 @@ on:
     branches: [main]
 
 concurrency:
-  group: chromatic-${{ github.ref }}
+  group: ui-tests-${{ github.ref }}
   # Don't cancel runs on main: each one becomes the baseline for later PRs.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  chromatic:
+  ui-tests:
+    # Chromatic's own commit status is called "UI Tests": that's where the author or reviewer
+    # accepts or rejects visual changes, so this job takes a different name.
     name: Chromatic
     runs-on: ubuntu-latest
     steps:
@@ -30,8 +32,8 @@ jobs:
           buildScriptName: build-storybook
           # Only snapshot stories affected by the change (TurboSnap).
           onlyChanged: true
-          # Visual changes are approved in Chromatic via the "UI Tests" check, so don't fail here.
-          # Storybook build errors and broken stories still fail this job.
+          # Visual changes are accepted or rejected in Chromatic's "UI Tests" status, so don't fail
+          # here. Storybook build and render errors are caught by the Storybook workflow.
           exitZeroOnChanges: true
           # Merged changes on main become the new baselines.
           autoAcceptChanges: main
