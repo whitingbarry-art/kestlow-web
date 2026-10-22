@@ -21,7 +21,8 @@
     "lint": "turbo run lint",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "test-storybook": "turbo run test-storybook"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

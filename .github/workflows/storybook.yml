@@ -1,0 +1,25 @@
+name: Storybook
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: storybook-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  storybook:
+    name: Storybook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup
+
+      - name: Install Chromium for story tests
+        run: npx playwright install --with-deps chromium
+
+      # Fails if Storybook doesn't build, or if any story throws while rendering in Chromium.
+      - run: npx turbo run build-storybook test-storybook

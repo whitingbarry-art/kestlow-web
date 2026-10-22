@@ -28,6 +28,9 @@
     },
     "lint": {
       "dependsOn": ["transit"]
+    },
+    "test-storybook": {
+      "dependsOn": ["^build"]
     }
   }
 }
