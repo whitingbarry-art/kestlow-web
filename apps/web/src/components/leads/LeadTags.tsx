@@ -1,3 +1,4 @@
+import { formatReceived } from "../../logic/dates";
 import type { Lead } from "../../types/lead";
 import { Tag } from "../ui/Tag";
 
@@ -15,7 +16,7 @@ export function LeadTags({ lead, showReceived = false }: LeadTagsProps) {
         </Tag>
       ))}
       <Tag>{lead.applicationType}</Tag>
-      {showReceived && <Tag>{lead.received}</Tag>}
+      {showReceived && <Tag>{formatReceived(lead.receivedAt)}</Tag>}
     </div>
   );
 }

@@ -1,23 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { LEADS } from "../../data/leads";
+import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
+import { SAMPLE_LEADS } from "../../data/leads";
 import { useLeads } from "../../hooks/useLeads";
-import type { Lead } from "../../types/lead";
+import { failingLeadsApi, pendingLeadsApi, withLeadsApi } from "../../stories/withLeadsApi";
 import { LeadsView } from "./LeadsView";
 
 interface LeadsViewStoryArgs {
-  leads: Lead[];
   cardsClickable: boolean;
 }
 
-function LeadsViewStory({ leads, cardsClickable }: LeadsViewStoryArgs) {
-  const state = useLeads({ leads });
+function LeadsViewStory({ cardsClickable }: LeadsViewStoryArgs) {
+  const state = useLeads();
   return <LeadsView leads={state} cardsClickable={cardsClickable} />;
 }
 
 const meta = {
   title: "Views/LeadsView",
   component: LeadsViewStory,
-  args: { leads: LEADS, cardsClickable: false },
+  args: { cardsClickable: false },
   decorators: [
     (Story) => (
       <div className="mx-auto max-w-[520px]">
@@ -31,6 +31,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = { decorators: [withLeadsApi()] };
 
-export const NoLeads: Story = { args: { leads: [] } };
+/** Two to a page, so there's more to show. */
+export const MorePages: Story = {
+  decorators: [withLeadsApi(createSampleLeadsApi(SAMPLE_LEADS, 2))],
+};
+
+export const NoLeads: Story = { decorators: [withLeadsApi(createSampleLeadsApi([]))] };
+
+export const Loading: Story = { decorators: [withLeadsApi(pendingLeadsApi)] };
+
+export const LoadFailed: Story = { decorators: [withLeadsApi(failingLeadsApi)] };

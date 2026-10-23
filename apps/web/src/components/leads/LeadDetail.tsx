@@ -1,5 +1,5 @@
 import type { Lead } from "../../types/lead";
-import { Button } from "../ui/Button";
+import { buttonClassName } from "../ui/buttonStyles";
 import { LeadFacts } from "./LeadFacts";
 import { LeadTags } from "./LeadTags";
 import { MapPlaceholder } from "./MapPlaceholder";
@@ -8,7 +8,7 @@ import { SaveButton } from "./SaveButton";
 interface LeadDetailProps {
   lead: Lead;
   saved: boolean;
-  onToggleSave: (id: number) => void;
+  onToggleSave: (id: string) => void;
 }
 
 export function LeadDetail({ lead, saved, onToggleSave }: LeadDetailProps) {
@@ -23,10 +23,16 @@ export function LeadDetail({ lead, saved, onToggleSave }: LeadDetailProps) {
       <LeadTags lead={lead} />
       <LeadFacts lead={lead} />
       <div className="flex gap-2">
-        <Button>Open council page</Button>
+        <a
+          href={lead.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={buttonClassName("primary")}
+        >
+          Open council page <span className="sr-only">(opens in a new tab)</span>
+        </a>
         <SaveButton saved={saved} onToggle={() => onToggleSave(lead.id)} />
       </div>
-      <p className="my-4 text-xs text-muted">Sample data for design purposes only.</p>
     </article>
   );
 }

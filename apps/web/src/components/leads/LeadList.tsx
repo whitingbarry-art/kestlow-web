@@ -5,11 +5,11 @@ import { LeadCard } from "./LeadCard";
 interface LeadListProps {
   leads: Lead[];
   emptyMessage: string;
-  selectedId: number | null;
+  selectedId: string | null;
   clickable: boolean;
-  isSaved: (id: number) => boolean;
-  onOpen: (id: number) => void;
-  onToggleSave: (id: number) => void;
+  isSaved: (id: string) => boolean;
+  onOpen: (id: string) => void;
+  onToggleSave: (id: string) => void;
 }
 
 export function LeadList({

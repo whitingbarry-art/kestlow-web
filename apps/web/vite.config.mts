@@ -11,6 +11,10 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 5180,
     strictPort: true,
+    // The local API (kestlow-api, `npm run dev` there) answers on 5181; same-origin /api avoids CORS.
+    proxy: {
+      "/api": { target: "http://127.0.0.1:5181", rewrite: (path) => path.replace(/^\/api/, "") },
+    },
   },
   test: {
     projects: [

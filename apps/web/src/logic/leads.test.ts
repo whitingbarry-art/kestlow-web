@@ -1,28 +1,21 @@
-import { LEADS } from "../data/leads";
-import { countNewLeads, filterLeadsByTrade, findLead, formatLeadSummary, toggleId } from "./leads";
+import { SAMPLE_LEADS } from "../data/leads";
+import { findLead, formatLeadSummary, toggleId } from "./leads";
 
 describe("leads logic", () => {
-  it("returns every lead for 'All trades'", () => {
-    expect(filterLeadsByTrade(LEADS, "All trades")).toHaveLength(LEADS.length);
-  });
-
-  it("filters leads by trade", () => {
-    expect(filterLeadsByTrade(LEADS, "Electrical").map((lead) => lead.id)).toEqual([2, 4]);
-  });
-
-  it("counts new leads and formats the summary", () => {
-    expect(formatLeadSummary(countNewLeads(LEADS), 15)).toBe("2 new today within 15 miles");
+  it("formats the summary", () => {
+    expect(formatLeadSummary(2, 15)).toBe("2 new today within 15 miles");
   });
 
   it("finds a lead by id", () => {
-    expect(findLead(LEADS, 3)?.address).toBe("3 The Green");
-    expect(findLead(LEADS, null)).toBeUndefined();
+    expect(findLead(SAMPLE_LEADS, "sample-3")?.address).toBe("3 The Green");
+    expect(findLead(SAMPLE_LEADS, "nope")).toBeUndefined();
+    expect(findLead(SAMPLE_LEADS, null)).toBeUndefined();
   });
 
   it("toggles an id without mutating the original set", () => {
-    const original = new Set([1]);
-    expect([...toggleId(original, 2)]).toEqual([1, 2]);
-    expect([...toggleId(original, 1)]).toEqual([]);
-    expect([...original]).toEqual([1]);
+    const original = new Set(["a"]);
+    expect([...toggleId(original, "b")]).toEqual(["a", "b"]);
+    expect([...toggleId(original, "a")]).toEqual([]);
+    expect([...original]).toEqual(["a"]);
   });
 });

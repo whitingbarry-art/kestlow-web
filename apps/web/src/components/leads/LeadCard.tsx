@@ -12,8 +12,8 @@ interface LeadCardProps {
   selected: boolean;
   saved: boolean;
   clickable: boolean;
-  onOpen: (id: number) => void;
-  onToggleSave: (id: number) => void;
+  onOpen: (id: string) => void;
+  onToggleSave: (id: string) => void;
 }
 
 export function LeadCard({

@@ -1,58 +1,104 @@
+import { useInfiniteQuery, useQueries } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { INITIAL_SAVED_IDS, LEADS, SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
-import {
-  countNewLeads,
-  filterLeadsByTrade,
-  findLead,
-  formatLeadSummary,
-  toggleId,
-} from "../logic/leads";
+import { useLeadsApi } from "../api/LeadsApiContext";
+import { SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
+import { findLead, formatLeadSummary, toggleId } from "../logic/leads";
 import type { Lead, TradeFilter } from "../types/lead";
 
 interface UseLeadsOptions {
-  leads?: Lead[];
-  initialSavedIds?: number[];
+  initialSavedIds?: string[];
   selectFirstLead?: boolean;
 }
 
-export function useLeads({
-  leads = LEADS,
-  initialSavedIds = INITIAL_SAVED_IDS,
-  selectFirstLead = false,
-}: UseLeadsOptions = {}) {
+/** Whether a list has loaded, and a way to try again when it hasn't. */
+export interface LoadStatus {
+  isPending: boolean;
+  isError: boolean;
+  retry: () => void;
+}
+
+export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseLeadsOptions = {}) {
+  const api = useLeadsApi();
   const [trade, setTrade] = useState<TradeFilter>("All trades");
-  const [savedIds, setSavedIds] = useState<Set<number>>(() => new Set(initialSavedIds));
-  const [selectedId, setSelectedId] = useState<number | null>(() =>
-    selectFirstLead ? (leads[0]?.id ?? null) : null,
-  );
+  // Saved leads live in memory until accounts can store them (KES-24).
+  const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set(initialSavedIds));
+  const [chosenId, setChosenId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [openCount, setOpenCount] = useState(0);
 
-  const visibleLeads = useMemo(() => filterLeadsByTrade(leads, trade), [leads, trade]);
-  const savedLeads = useMemo(
-    () => leads.filter((lead) => savedIds.has(lead.id)),
-    [leads, savedIds],
+  const leadsQuery = useInfiniteQuery({
+    queryKey: ["leads", trade],
+    queryFn: ({ pageParam }) =>
+      api.listLeads({ trade: trade === "All trades" ? undefined : trade, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (last) =>
+      last.page * last.pageSize < last.total ? last.page + 1 : undefined,
+  });
+  const visibleLeads = useMemo(
+    () => leadsQuery.data?.pages.flatMap((page) => page.leads) ?? [],
+    [leadsQuery.data],
   );
-  const summary = formatLeadSummary(countNewLeads(visibleLeads), SEARCH_RADIUS_MILES);
-  const selectedLead = findLead(leads, selectedId);
+  const newToday = leadsQuery.data?.pages[0]?.newToday;
+  const summary =
+    newToday === undefined
+      ? `Within ${SEARCH_RADIUS_MILES} miles`
+      : formatLeadSummary(newToday, SEARCH_RADIUS_MILES);
+  const { refetch } = leadsQuery;
+  const retryLeads = useCallback(() => void refetch(), [refetch]);
+  const leadsStatus: LoadStatus = {
+    isPending: leadsQuery.isPending,
+    isError: leadsQuery.isError,
+    retry: retryLeads,
+  };
 
-  const isSaved = useCallback((id: number) => savedIds.has(id), [savedIds]);
-  const toggleSaved = useCallback((id: number) => setSavedIds((ids) => toggleId(ids, id)), []);
+  // Each saved lead is fetched by id, so it stays listed whatever trade or page is showing.
+  const saved = useQueries({
+    queries: [...savedIds].map((id) => ({
+      queryKey: ["lead", id],
+      queryFn: () => api.getLead(id),
+      initialData: () => findLead(visibleLeads, id),
+    })),
+    combine: (results) => ({
+      // A lead that has gone from the area comes back as null and drops off the list.
+      leads: results.flatMap((result) => (result.data ? [result.data] : [])),
+      status: {
+        isPending: results.some((result) => result.isPending),
+        isError: results.some((result) => result.isError),
+        retry: () => results.forEach((result) => result.isError && void result.refetch()),
+      } satisfies LoadStatus,
+    }),
+  });
 
-  const openLead = useCallback((id: number) => {
-    setSelectedId(id);
+  // On desktop the first lead shows in the detail panel until another is chosen.
+  const selectedId = chosenId ?? (selectFirstLead ? (visibleLeads[0]?.id ?? null) : null);
+  const selectedLead: Lead | undefined =
+    findLead(visibleLeads, selectedId) ?? findLead(saved.leads, selectedId);
+
+  const isSaved = useCallback((id: string) => savedIds.has(id), [savedIds]);
+  const toggleSaved = useCallback((id: string) => setSavedIds((ids) => toggleId(ids, id)), []);
+
+  const openLead = useCallback((id: string) => {
+    setChosenId(id);
     setIsDetailOpen(true);
     setOpenCount((count) => count + 1);
   }, []);
 
   const closeDetail = useCallback(() => setIsDetailOpen(false), []);
 
+  const { fetchNextPage } = leadsQuery;
+  const loadMoreLeads = useCallback(() => void fetchNextPage(), [fetchNextPage]);
+
   return {
     tradeFilters: TRADE_FILTERS,
     trade,
     setTrade,
     visibleLeads,
-    savedLeads,
+    leadsStatus,
+    hasMoreLeads: leadsQuery.hasNextPage,
+    isLoadingMoreLeads: leadsQuery.isFetchingNextPage,
+    loadMoreLeads,
+    savedLeads: saved.leads,
+    savedStatus: saved.status,
     summary,
     selectedId,
     selectedLead,
