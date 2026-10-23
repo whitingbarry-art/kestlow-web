@@ -16,7 +16,7 @@ export function Switch({ checked, label, onToggle }: SwitchProps) {
       onClick={onToggle}
       className={cn(
         "relative h-7 w-12 flex-none rounded-full transition-colors duration-200",
-        checked ? "bg-green" : "bg-line",
+        checked ? "bg-green" : "bg-switch-off",
       )}
     >
       <span

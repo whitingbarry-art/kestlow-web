@@ -23,6 +23,69 @@ describe("App", () => {
     expect(within(detail).getByText("SD/26/00977")).toBeInTheDocument();
   });
 
+  it("moves focus into the mobile detail panel and back again on Escape", async () => {
+    render(<App />);
+    const main = screen.getByRole("main");
+    const detail = screen.getByRole("region", { name: "Lead details" });
+    expect(detail).toHaveAttribute("inert");
+
+    const viewButton = screen.getAllByRole("button", { name: "View lead" })[1];
+    await userEvent.click(viewButton);
+    expect(detail).toHaveFocus();
+    expect(detail).not.toHaveAttribute("inert");
+    expect(main).toHaveAttribute("inert");
+
+    await userEvent.keyboard("{Escape}");
+    expect(viewButton).toHaveFocus();
+    expect(detail).toHaveAttribute("inert");
+    expect(main).not.toHaveAttribute("inert");
+  });
+
+  it("keeps the detail panel available on desktop and refocuses it on every open", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query === "(min-width: 900px)",
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    try {
+      render(<App />);
+      const detail = screen.getByRole("region", { name: "Lead details" });
+      expect(detail).not.toHaveAttribute("inert");
+
+      const viewButton = screen.getAllByRole("button", { name: "View lead" })[1];
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+      expect(screen.getByRole("main")).not.toHaveAttribute("inert");
+
+      await userEvent.keyboard("{Escape}");
+      expect(detail).toHaveFocus();
+
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+      viewButton.focus();
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("returns focus from the Back button", async () => {
+    render(<App />);
+    const viewButton = screen.getAllByRole("button", { name: "View lead" })[0];
+    await userEvent.click(viewButton);
+    await userEvent.click(screen.getByRole("button", { name: "Back to leads" }));
+    expect(viewButton).toHaveFocus();
+  });
+
+  it("names the page after the current view", async () => {
+    render(<App />);
+    expect(document.title).toBe("Leads – Kestlow");
+    const [mainNav] = screen.getAllByRole("navigation", { name: "Main" });
+    await userEvent.click(within(mainNav).getByRole("button", { name: "Alerts" }));
+    expect(document.title).toBe("Alerts – Kestlow");
+  });
+
   it("shows saved leads and alert settings", async () => {
     render(<App />);
     const [mainNav] = screen.getAllByRole("navigation", { name: "Main" });

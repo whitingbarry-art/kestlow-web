@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NAV_ITEMS } from "../data/navigation";
 import { useAlertSettings } from "../hooks/useAlertSettings";
 import { useLeads } from "../hooks/useLeads";
@@ -20,9 +21,24 @@ export function App() {
   const alertSettings = useAlertSettings();
   const { view, navigate } = useNavigation({ onNavigate: leads.closeDetail });
   const { selectedLead } = leads;
+  // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
+  const coveredByDetail = !isDesktop && leads.isDetailOpen;
+  const viewLabel = NAV_ITEMS.find((item) => item.view === view)?.label;
+
+  useEffect(() => {
+    document.title = viewLabel ? `${viewLabel} – Kestlow` : "Kestlow";
+  }, [viewLabel]);
 
   return (
     <div className="min-h-screen desk:grid desk:h-screen desk:grid-cols-[240px_minmax(380px,1fr)_minmax(360px,1.1fr)] desk:overflow-hidden">
+      <a
+        href="#main"
+        inert={coveredByDetail}
+        className="sr-only z-30 rounded-xl bg-card font-bold text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:px-4 focus:py-3"
+      >
+        Skip to main content
+      </a>
+
       <Sidebar
         items={NAV_ITEMS}
         activeView={view}
@@ -30,14 +46,23 @@ export function App() {
         onToggleTheme={toggleTheme}
       />
 
-      <main className="mx-auto max-w-[520px] pb-[90px] desk:m-0 desk:max-w-none desk:overflow-y-auto desk:border-r desk:border-line desk:p-0">
+      <main
+        id="main"
+        tabIndex={-1}
+        inert={coveredByDetail}
+        className="mx-auto max-w-[520px] pb-[90px] desk:m-0 desk:max-w-none desk:overflow-y-auto desk:border-r desk:border-line desk:p-0"
+      >
         <TopBar onToggleTheme={toggleTheme} />
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
       </main>
 
-      <DetailPanel open={leads.isDetailOpen} onBack={leads.closeDetail}>
+      <DetailPanel
+        open={leads.isDetailOpen}
+        focusKey={leads.isDetailOpen ? leads.openCount : null}
+        onBack={leads.closeDetail}
+      >
         {selectedLead ? (
           <LeadDetail
             lead={selectedLead}
@@ -51,7 +76,12 @@ export function App() {
         )}
       </DetailPanel>
 
-      <BottomNav items={NAV_ITEMS} activeView={view} onNavigate={navigate} />
+      <BottomNav
+        items={NAV_ITEMS}
+        activeView={view}
+        onNavigate={navigate}
+        inert={coveredByDetail}
+      />
     </div>
   );
 }

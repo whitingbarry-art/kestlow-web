@@ -37,7 +37,7 @@ export function LeadCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <div className="text-[17px] font-bold">{lead.address}</div>
+          <h2 className="m-0 text-[17px] font-bold">{lead.address}</h2>
           <div className="mt-0.5 text-sm text-muted">
             {lead.council} &middot; {lead.miles} miles
           </div>

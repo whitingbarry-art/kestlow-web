@@ -1,3 +1,5 @@
+import { useId } from "react";
+
 interface DistanceSliderProps {
   value: number;
   min: number;
@@ -15,10 +17,14 @@ export function DistanceSlider({
   basePostcode,
   onChange,
 }: DistanceSliderProps) {
+  const id = useId();
+
   return (
     <div className="py-3.5">
       <div className="flex items-start justify-between gap-2">
-        <b>Distance from base</b>
+        <label htmlFor={`${id}-input`} className="font-bold">
+          Distance from base
+        </label>
         <b>{label}</b>
       </div>
       <input
@@ -26,11 +32,15 @@ export function DistanceSlider({
         min={min}
         max={max}
         value={value}
-        aria-label="Distance in miles"
+        id={`${id}-input`}
+        aria-valuetext={label}
+        aria-describedby={`${id}-base`}
         onChange={(event) => onChange(Number(event.target.value))}
         className="w-full accent-amber"
       />
-      <small className="text-muted">Base postcode: {basePostcode}</small>
+      <small id={`${id}-base`} className="text-muted">
+        Base postcode: {basePostcode}
+      </small>
     </div>
   );
 }

@@ -10,7 +10,7 @@ export function Card({ selected = false, className, ...props }: CardProps) {
     <div
       className={cn(
         "mx-4 my-3 rounded-card border-2 bg-card p-4 shadow-card",
-        selected ? "border-amber" : "border-transparent",
+        selected ? "border-selected" : "border-transparent",
         className,
       )}
       {...props}

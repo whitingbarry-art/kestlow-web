@@ -26,6 +26,7 @@ export function useLeads({
     selectFirstLead ? (leads[0]?.id ?? null) : null,
   );
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [openCount, setOpenCount] = useState(0);
 
   const visibleLeads = useMemo(() => filterLeadsByTrade(leads, trade), [leads, trade]);
   const savedLeads = useMemo(
@@ -41,6 +42,7 @@ export function useLeads({
   const openLead = useCallback((id: number) => {
     setSelectedId(id);
     setIsDetailOpen(true);
+    setOpenCount((count) => count + 1);
   }, []);
 
   const closeDetail = useCallback(() => setIsDetailOpen(false), []);
@@ -55,6 +57,7 @@ export function useLeads({
     selectedId,
     selectedLead,
     isDetailOpen,
+    openCount,
     isSaved,
     toggleSaved,
     openLead,

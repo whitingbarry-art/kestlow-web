@@ -14,7 +14,13 @@ export function SaveButton({ saved, onToggle }: SaveButtonProps) {
 
   return (
     <Button variant="ghost" aria-pressed={saved} onClick={handleClick}>
-      {saved ? "Saved ✓" : "Save"}
+      {saved ? (
+        <>
+          Saved <span aria-hidden="true">✓</span>
+        </>
+      ) : (
+        "Save"
+      )}
     </Button>
   );
 }
