@@ -33,7 +33,8 @@ export function App() {
     <div className="min-h-screen desk:grid desk:h-screen desk:grid-cols-[240px_minmax(380px,1fr)_minmax(360px,1.1fr)] desk:overflow-hidden">
       <a
         href="#main"
-        className="sr-only z-30 rounded-xl bg-card px-4 py-3 font-bold text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+        inert={coveredByDetail}
+        className="sr-only z-30 rounded-xl bg-card font-bold text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:px-4 focus:py-3"
       >
         Skip to main content
       </a>
@@ -59,7 +60,7 @@ export function App() {
 
       <DetailPanel
         open={leads.isDetailOpen}
-        focusKey={leads.isDetailOpen ? leads.selectedId : null}
+        focusKey={leads.isDetailOpen ? leads.openCount : null}
         onBack={leads.closeDetail}
       >
         {selectedLead ? (

@@ -26,7 +26,11 @@ function contrast(a: string, b: string): number {
 }
 
 const light = readTokens(":root");
-const themes = { light, dark: { ...light, ...readTokens('[data-theme="dark"]') } };
+const dark = { ...light, ...readTokens('[data-theme="dark"]') };
+const themes: Record<string, Record<string, string>> = {
+  light: { ...light, white: "#ffffff" },
+  dark: { ...dark, white: "#ffffff" },
+};
 
 // WCAG 2.2 AA: 4.5:1 for normal text, 3:1 for control boundaries, states and focus indicators.
 const TEXT_PAIRS = [
@@ -43,7 +47,9 @@ const TEXT_PAIRS = [
 const NON_TEXT_PAIRS = [
   ["selected", "page"],
   ["selected", "card"],
-  ["muted", "card"], // switch off track
+  ["switch-off", "card"],
+  ["switch-off", "white"], // switch thumb
+  ["white", "side"], // focus ring on navy surfaces
   ["ink", "page"], // focus ring
   ["ink", "card"],
 ] as const;
@@ -56,4 +62,8 @@ describe.each(Object.entries(themes))("%s theme contrast", (_, tokens) => {
   it.each(NON_TEXT_PAIRS)("%s on %s meets 3:1", (fg, bg) => {
     expect(contrast(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(3);
   });
+});
+
+it("draws the focus ring in the ink colour", () => {
+  expect(css).toMatch(/--focus:\s*var\(--ink\);/);
 });

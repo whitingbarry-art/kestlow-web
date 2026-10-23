@@ -5,7 +5,7 @@ import { IconButton } from "../ui/IconButton";
 
 interface DetailPanelProps {
   open: boolean;
-  /** Changes whenever the user opens a lead; focus moves into the panel each time it does. */
+  /** Changes every time the user opens a lead, even the one already shown; focus moves into the panel each time. */
   focusKey?: number | null;
   onBack: () => void;
   children: ReactNode;

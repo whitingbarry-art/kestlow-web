@@ -25,8 +25,8 @@ export function BottomNav({ items, activeView, onNavigate, inert = false }: Bott
               aria-current={active ? "page" : undefined}
               onClick={() => onNavigate(item.view)}
               className={cn(
-                "flex-1 pt-2.5 pb-3 text-xs font-semibold",
-                active ? "text-ink" : "text-muted",
+                "flex-1 border-t-[3px] pt-2 pb-3 text-xs font-semibold",
+                active ? "border-ink text-ink" : "border-transparent text-muted",
               )}
             >
               <span className={cn("block text-xl", active && "text-amber")} aria-hidden="true">

@@ -41,6 +41,35 @@ describe("App", () => {
     expect(main).not.toHaveAttribute("inert");
   });
 
+  it("keeps the detail panel available on desktop and refocuses it on every open", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query === "(min-width: 900px)",
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    }));
+    try {
+      render(<App />);
+      const detail = screen.getByRole("region", { name: "Lead details" });
+      expect(detail).not.toHaveAttribute("inert");
+
+      const viewButton = screen.getAllByRole("button", { name: "View lead" })[1];
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+      expect(screen.getByRole("main")).not.toHaveAttribute("inert");
+
+      await userEvent.keyboard("{Escape}");
+      expect(detail).toHaveFocus();
+
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+      viewButton.focus();
+      await userEvent.click(viewButton);
+      expect(detail).toHaveFocus();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("returns focus from the Back button", async () => {
     render(<App />);
     const viewButton = screen.getAllByRole("button", { name: "View lead" })[0];

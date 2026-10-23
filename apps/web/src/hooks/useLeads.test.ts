@@ -37,4 +37,11 @@ describe("useLeads", () => {
     expect(result.current.isDetailOpen).toBe(false);
     expect(result.current.selectedId).toBe(2);
   });
+
+  it("counts every open, including re-opening the lead already shown", () => {
+    const { result } = renderHook(() => useLeads());
+    act(() => result.current.openLead(2));
+    act(() => result.current.openLead(2));
+    expect(result.current.openCount).toBe(2);
+  });
 });
