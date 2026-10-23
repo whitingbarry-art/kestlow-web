@@ -35,13 +35,22 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
           />
           {leads.hasMoreLeads && (
             <div className="mx-4 my-4">
+              {leads.loadMoreFailed && !leads.isLoadingMoreLeads && (
+                <p role="alert" className="mt-0 mb-3 text-center">
+                  More leads couldn't be loaded.
+                </p>
+              )}
               <Button
                 variant="ghost"
                 className="w-full"
                 disabled={leads.isLoadingMoreLeads}
                 onClick={leads.loadMoreLeads}
               >
-                {leads.isLoadingMoreLeads ? "Loading…" : "Show more leads"}
+                {leads.isLoadingMoreLeads
+                  ? "Loading…"
+                  : leads.loadMoreFailed
+                    ? "Try again"
+                    : "Show more leads"}
               </Button>
             </div>
           )}

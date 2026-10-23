@@ -69,6 +69,35 @@ describe("useLeads", () => {
     expect(result.current.hasMoreLeads).toBe(false);
   });
 
+  it("keeps the leads already shown when Show more fails", async () => {
+    const api = createSampleLeadsApi(SAMPLE_LEADS, 2);
+    const listLeads = vi
+      .fn<LeadsApi["listLeads"]>()
+      .mockImplementationOnce(api.listLeads)
+      .mockRejectedValueOnce(new Error("Network error"))
+      .mockImplementation(api.listLeads);
+    const { result } = await renderLeads(undefined, { ...api, listLeads });
+
+    act(() => result.current.loadMoreLeads());
+    await waitFor(() => expect(result.current.loadMoreFailed).toBe(true));
+    expect(result.current.leadsStatus.isError).toBe(false);
+    expect(result.current.visibleLeads).toHaveLength(2);
+
+    act(() => result.current.loadMoreLeads());
+    await waitFor(() => expect(result.current.visibleLeads).toHaveLength(4));
+    expect(result.current.loadMoreFailed).toBe(false);
+  });
+
+  it("keeps the chosen lead selected after a trade change takes it off the list", async () => {
+    const { result } = await renderLeads({ selectFirstLead: true });
+    act(() => result.current.openLead("sample-1"));
+
+    act(() => result.current.setTrade("Landscaping"));
+    await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-3"]));
+    expect(result.current.selectedId).toBe("sample-1");
+    expect(result.current.selectedLead?.address).toBe("14 Orchard Lane");
+  });
+
   it("lists saved leads, fetching any that aren't showing", async () => {
     const api = createSampleLeadsApi();
     const getLead = vi.fn(api.getLead);

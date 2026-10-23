@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQueries } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import { SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
@@ -47,7 +47,8 @@ export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseL
   const retryLeads = useCallback(() => void refetch(), [refetch]);
   const leadsStatus: LoadStatus = {
     isPending: leadsQuery.isPending,
-    isError: leadsQuery.isError,
+    // A failed "Show more" keeps the leads already shown; loadMoreFailed reports it instead.
+    isError: leadsQuery.isError && !leadsQuery.isFetchNextPageError,
     retry: retryLeads,
   };
 
@@ -71,8 +72,15 @@ export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseL
 
   // On desktop the first lead shows in the detail panel until another is chosen.
   const selectedId = chosenId ?? (selectFirstLead ? (visibleLeads[0]?.id ?? null) : null);
-  const selectedLead: Lead | undefined =
-    findLead(visibleLeads, selectedId) ?? findLead(saved.leads, selectedId);
+  const listedLead = findLead(visibleLeads, selectedId) ?? findLead(saved.leads, selectedId);
+  // A chosen lead stays in the detail panel after a trade change takes it off the list.
+  const chosenQuery = useQuery({
+    queryKey: ["lead", chosenId],
+    queryFn: () => (chosenId === null ? null : api.getLead(chosenId)),
+    enabled: chosenId !== null && !listedLead,
+    initialData: () => findLead(visibleLeads, chosenId) ?? findLead(saved.leads, chosenId),
+  });
+  const selectedLead: Lead | undefined = listedLead ?? chosenQuery.data ?? undefined;
 
   const isSaved = useCallback((id: string) => savedIds.has(id), [savedIds]);
   const toggleSaved = useCallback((id: string) => setSavedIds((ids) => toggleId(ids, id)), []);
@@ -96,6 +104,7 @@ export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseL
     leadsStatus,
     hasMoreLeads: leadsQuery.hasNextPage,
     isLoadingMoreLeads: leadsQuery.isFetchingNextPage,
+    loadMoreFailed: leadsQuery.isFetchNextPageError,
     loadMoreLeads,
     savedLeads: saved.leads,
     savedStatus: saved.status,
