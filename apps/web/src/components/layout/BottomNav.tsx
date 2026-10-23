@@ -5,13 +5,15 @@ interface BottomNavProps {
   items: NavItem[];
   activeView: View;
   onNavigate: (view: View) => void;
+  inert?: boolean;
 }
 
-export function BottomNav({ items, activeView, onNavigate }: BottomNavProps) {
+export function BottomNav({ items, activeView, onNavigate, inert = false }: BottomNavProps) {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-card desk:hidden"
       aria-label="Main"
+      inert={inert}
     >
       <div className="mx-auto flex max-w-[520px]">
         {items.map((item) => {
@@ -27,7 +29,9 @@ export function BottomNav({ items, activeView, onNavigate }: BottomNavProps) {
                 active ? "text-ink" : "text-muted",
               )}
             >
-              <span className={cn("block text-xl", active && "text-amber")}>{item.icon}</span>
+              <span className={cn("block text-xl", active && "text-amber")} aria-hidden="true">
+                {item.icon}
+              </span>
               {item.label}
             </button>
           );

@@ -4,6 +4,13 @@ import "../src/styles/index.css";
 
 const preview: Preview = {
   parameters: {
+    // Fail the storybook test run on any axe violation against WCAG 2.2 AA or axe best practice.
+    a11y: {
+      test: "error",
+      options: {
+        runOnly: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa", "best-practice"],
+      },
+    },
     viewport: {
       options: {
         mobile: { name: "Mobile", styles: { width: "390px", height: "844px" }, type: "mobile" },

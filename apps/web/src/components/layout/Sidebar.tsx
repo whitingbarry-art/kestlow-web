@@ -13,7 +13,7 @@ const LINK_CLASSES = "rounded-xl px-3.5 py-3 text-left text-[15px] font-semibold
 
 export function Sidebar({ items, activeView, onNavigate, onToggleTheme }: SidebarProps) {
   return (
-    <aside className="hidden flex-col gap-1.5 bg-side px-4 py-[22px] text-white desk:flex">
+    <aside className="hidden flex-col gap-1.5 bg-side px-4 py-[22px] text-white [--focus:#fff] desk:flex">
       <div className="mb-[22px] px-2">
         <BrandLogo />
       </div>
@@ -31,7 +31,8 @@ export function Sidebar({ items, activeView, onNavigate, onToggleTheme }: Sideba
                 active ? "bg-white/14 text-white" : "text-side-link hover:bg-white/8",
               )}
             >
-              {item.icon}&nbsp; {item.label}
+              <span aria-hidden="true">{item.icon}&nbsp; </span>
+              {item.label}
             </button>
           );
         })}

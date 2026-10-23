@@ -7,7 +7,7 @@ interface TopBarProps {
 
 export function TopBar({ onToggleTheme }: TopBarProps) {
   return (
-    <header className="sticky top-0 z-5 flex items-center justify-between bg-side px-4 py-3.5 desk:hidden">
+    <header className="sticky top-0 z-5 flex items-center justify-between bg-side px-4 py-3.5 [--focus:#fff] desk:hidden">
       <BrandLogo size={34} />
       <div className="flex items-center gap-2.5">
         <IconButton aria-label="Switch light or dark" onClick={onToggleTheme}>

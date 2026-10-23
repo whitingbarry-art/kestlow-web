@@ -12,8 +12,10 @@
   --new-bg: #fef1d6;
   --new-text: #8a5a00;
   --match-bg: #e3f3ec;
-  --match-text: #2e8b6e;
+  --match-text: #1f7357;
   --side: #12304a;
+  --selected: #b36b00;
+  --focus: var(--ink);
   --card-shadow: 0 2px 10px rgba(18, 48, 74, 0.08);
 }
 
@@ -29,6 +31,7 @@
   --match-bg: #17402f;
   --match-text: #6fd3aa;
   --side: #0a131c;
+  --selected: #f5a623;
   --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
 }
 
@@ -54,6 +57,7 @@
   --color-match-bg: var(--match-bg);
   --color-match-text: var(--match-text);
   --color-side: var(--side);
+  --color-selected: var(--selected);
   --shadow-card: var(--card-shadow);
 }
 
@@ -64,6 +68,23 @@
 
   button {
     cursor: pointer;
+  }
+
+  /* Surfaces on --side set --focus to white so the ring stays visible on navy. */
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 

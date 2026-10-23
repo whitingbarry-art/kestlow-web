@@ -4,8 +4,8 @@ interface SectionTitleProps {
 
 export function SectionTitle({ children }: SectionTitleProps) {
   return (
-    <div className="mx-4 mt-[18px] text-[13px] font-bold tracking-[0.5px] text-muted uppercase">
+    <h2 className="mx-4 mt-[18px] mb-0 text-[13px] font-bold tracking-[0.5px] text-muted uppercase">
       {children}
-    </div>
+    </h2>
   );
 }
