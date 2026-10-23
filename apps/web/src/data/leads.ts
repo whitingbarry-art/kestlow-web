@@ -1,69 +1,81 @@
+import { daysAgo } from "../logic/dates";
 import type { Lead, Trade, TradeFilter } from "../types/lead";
 
 export const TRADES: Trade[] = ["Roofing", "Electrical", "Landscaping", "Groundworks"];
 
 export const TRADE_FILTERS: TradeFilter[] = ["All trades", ...TRADES];
 
+/** The API's stand-in search area until accounts arrive: 15 miles around Bromley town centre. */
 export const SEARCH_RADIUS_MILES = 15;
 
-export const INITIAL_SAVED_IDS: number[] = [3];
-
-export const LEADS: Lead[] = [
+/**
+ * Sample leads for Storybook and tests, in the API's shape. Received dates count back from
+ * today, so they always read "Today", "Yesterday" and so on.
+ */
+export const SAMPLE_LEADS: Lead[] = [
   {
-    id: 1,
+    id: "sample-1",
+    reference: "EX/26/01482",
     address: "14 Orchard Lane",
     council: "Example Borough Council",
     miles: 2.1,
     isNew: true,
-    received: "Today",
+    receivedAt: daysAgo(0),
+    decisionDue: "2026-12-18",
     applicationType: "Householder",
     trades: ["Roofing"],
     description: "Single-storey rear extension and loft conversion with new roof lights.",
-    reference: "EX/26/01482",
-    decisionDue: "18 Dec 2026",
     applicant: "Private householder (sample)",
+    sourceUrl: "https://planning.example.gov.uk/applications/EX%2F26%2F01482",
+    location: { lat: 51.4247, lng: 0.0261 },
   },
   {
-    id: 2,
+    id: "sample-2",
+    reference: "SD/26/00977",
     address: "Land at Mill Road",
     council: "Sample District Council",
     miles: 6.4,
     isNew: true,
-    received: "Today",
+    receivedAt: daysAgo(0),
+    decisionDue: "2027-01-02",
     applicationType: "Full planning",
     trades: ["Groundworks", "Electrical"],
     description: "Erection of four detached dwellings with access road and landscaping.",
-    reference: "SD/26/00977",
-    decisionDue: "02 Jan 2027",
     applicant: "Example Homes Ltd (sample)",
+    sourceUrl: "https://planning.example.gov.uk/applications/SD%2F26%2F00977",
+    location: { lat: 51.3709, lng: 0.1063 },
   },
   {
-    id: 3,
+    id: "sample-3",
+    reference: "DC/26/03310",
     address: "3 The Green",
     council: "Demo City Council",
     miles: 11.8,
     isNew: false,
-    received: "Yesterday",
+    receivedAt: daysAgo(1),
+    decisionDue: "2026-12-12",
     applicationType: "Householder",
     trades: ["Landscaping"],
     description: "Garden room, patio and new boundary wall to rear garden.",
-    reference: "DC/26/03310",
-    decisionDue: "12 Dec 2026",
-    applicant: "Private householder (sample)",
+    applicant: null,
+    sourceUrl: "https://planning.example.gov.uk/applications/DC%2F26%2F03310",
+    location: { lat: 51.4893, lng: -0.1146 },
   },
   {
-    id: 4,
+    id: "sample-4",
+    reference: "EX/26/01455",
     address: "Unit 6, Foundry Park",
     council: "Example Borough Council",
     miles: 9.2,
     isNew: false,
-    received: "2 days ago",
+    receivedAt: daysAgo(2),
+    decisionDue: null,
     applicationType: "Change of use",
     trades: ["Electrical"],
     description:
       "Change of use from storage to light industrial with new electrical supply and external lighting.",
-    reference: "EX/26/01455",
-    decisionDue: "20 Dec 2026",
     applicant: "Foundry Park Estates (sample)",
+    sourceUrl: "https://planning.example.gov.uk/applications/EX%2F26%2F01455",
+    location: { lat: 51.3801, lng: -0.0918 },
   },
 ];

@@ -1,3 +1,4 @@
+import { formatDate, formatReceived } from "../../logic/dates";
 import type { Lead } from "../../types/lead";
 
 interface LeadFactsProps {
@@ -7,9 +8,9 @@ interface LeadFactsProps {
 export function LeadFacts({ lead }: LeadFactsProps) {
   const facts: Array<[string, string]> = [
     ["Reference", lead.reference],
-    ["Applicant", lead.applicant],
-    ["Received", lead.received],
-    ["Decision due", lead.decisionDue],
+    ["Applicant", lead.applicant ?? "Not given"],
+    ["Received", formatReceived(lead.receivedAt)],
+    ["Decision due", lead.decisionDue ? formatDate(lead.decisionDue) : "Not set"],
   ];
 
   return (
