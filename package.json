@@ -19,6 +19,8 @@
     "storybook": "turbo run storybook",
     "build-storybook": "turbo run build-storybook",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "check": "prettier --check . && turbo run lint typecheck test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
