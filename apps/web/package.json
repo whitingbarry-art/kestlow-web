@@ -12,6 +12,7 @@
     "storybook": "storybook dev --host 127.0.0.1 -p 6180 --no-open",
     "build-storybook": "storybook build",
     "lint": "eslint --max-warnings 0 .",
+    "lint:fix": "eslint --fix .",
     "preview": "vite preview",
     "test-storybook": "vitest run --project storybook"
   },
