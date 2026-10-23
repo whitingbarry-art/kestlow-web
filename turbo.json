@@ -21,7 +21,8 @@
     },
     "storybook": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": ["WSL_INTEROP", "WSLENV", "BROWSER"]
     },
     "transit": {
       "dependsOn": ["^transit"]

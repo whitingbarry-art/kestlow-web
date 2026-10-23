@@ -1,5 +1,5 @@
 // Starts Storybook on 127.0.0.1:6180, first stopping any Storybook already running there, and
-// opens it in Edge once it's ready (set BROWSER=none to skip that).
+// opens it in your browser once it's ready: $BROWSER, or Edge from WSL (BROWSER=none skips it).
 //   node scripts/storybook.mjs                every story (npm run storybook)
 //   node scripts/storybook.mjs --only <name>  only the stories files whose name contains <name>
 //                                             (npm run story <name>); with no name, pick one
@@ -93,12 +93,24 @@ function listener() {
   return { pid: Number(pid), command };
 }
 
-/** Opens `url` in Edge on Windows, from WSL. Elsewhere, or with BROWSER=none, it does nothing. */
-function openInEdge(url) {
+/**
+ * Opens `url` with $BROWSER when it's set, or in Edge on Windows when running under WSL.
+ * BROWSER=none, or neither, leaves it to you.
+ */
+function openBrowser(url) {
+  const { BROWSER } = process.env;
+  if (BROWSER === "none") return;
   const wsl = readFileSync("/proc/version", "utf8").toLowerCase().includes("microsoft");
-  if (!wsl || process.env.BROWSER === "none") return;
-  // cwd /mnt/c, so cmd.exe doesn't warn about starting in a WSL (UNC) path.
-  spawn("cmd.exe", ["/c", "start", "msedge", url], { cwd: "/mnt/c", stdio: "ignore" }).unref();
+  // From WSL, cwd /mnt/c stops cmd.exe warning about starting in a WSL (UNC) path.
+  const [command, commandArgs, cwd] = BROWSER
+    ? [BROWSER, [url], undefined]
+    : wsl
+      ? ["cmd.exe", ["/c", "start", "msedge", url], "/mnt/c"]
+      : [];
+  if (!command) return;
+  const browser = spawn(command, commandArgs, { cwd, detached: true, stdio: "ignore" });
+  browser.on("error", () => console.log(`Couldn't open a browser; open ${url} yourself.`));
+  browser.unref();
 }
 
 const running = listener();
@@ -134,7 +146,7 @@ for (let waited = 0; waited < 120_000; waited += 500) {
     () => false,
   );
   if (ready) {
-    openInEdge(URL);
+    openBrowser(URL);
     break;
   }
   await sleep(500);
