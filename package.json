@@ -21,6 +21,7 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "check": "prettier --check . && turbo run lint typecheck test",
+    "check:build": "prettier --check . && turbo run lint typecheck test build",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "changeset": "changeset",
