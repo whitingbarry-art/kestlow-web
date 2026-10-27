@@ -6,6 +6,15 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    // The app, and the waitlist landing page at /waitlist/ (KES-97).
+    rolldownOptions: {
+      input: {
+        app: path.join(import.meta.dirname, "index.html"),
+        waitlist: path.join(import.meta.dirname, "waitlist/index.html"),
+      },
+    },
+  },
   server: {
     // 127.0.0.1 rather than localhost so it's reachable from Windows under WSL mirrored networking.
     host: "127.0.0.1",
