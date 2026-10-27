@@ -6,6 +6,14 @@ import { providers } from "../test/providers";
 import { App } from "./App";
 
 describe("App", () => {
+  it("shows who's signed in, above Sign out", async () => {
+    render(<App />, { wrapper: providers() });
+
+    const sidebar = screen.getByRole("complementary");
+    expect(await within(sidebar).findByText("Dave Roofer")).toBeInTheDocument();
+    expect(within(sidebar).getByText(/Signed in as/)).toHaveTextContent("Signed in as Dave Roofer");
+  });
+
   it("renders the leads view with every lead", async () => {
     render(<App />, { wrapper: providers() });
     expect(screen.getByRole("heading", { name: "New leads near you" })).toBeInTheDocument();

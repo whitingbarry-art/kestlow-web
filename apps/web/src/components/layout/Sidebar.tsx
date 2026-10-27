@@ -8,11 +8,20 @@ interface SidebarProps {
   onNavigate: (view: View) => void;
   onToggleTheme: () => void;
   onSignOut: () => void;
+  /** The signed-in user's name, shown above Sign out. */
+  userName: string;
 }
 
 const LINK_CLASSES = "rounded-xl px-3.5 py-3 text-left text-[15px] font-semibold";
 
-export function Sidebar({ items, activeView, onNavigate, onToggleTheme, onSignOut }: SidebarProps) {
+export function Sidebar({
+  items,
+  activeView,
+  onNavigate,
+  onToggleTheme,
+  onSignOut,
+  userName,
+}: SidebarProps) {
   return (
     <aside className="hidden flex-col gap-1.5 bg-side px-4 py-[22px] text-white [--focus:#fff] desk:flex">
       <div className="mb-[22px] px-2">
@@ -46,6 +55,9 @@ export function Sidebar({ items, activeView, onNavigate, onToggleTheme, onSignOu
       >
         Switch light / dark
       </button>
+      <p className="mt-2 mb-0 px-3.5 text-sm text-side-link">
+        Signed in as <b className="font-semibold text-white">{userName}</b>
+      </p>
       <button
         type="button"
         onClick={onSignOut}

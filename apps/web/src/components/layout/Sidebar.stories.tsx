@@ -14,6 +14,7 @@ const meta = {
     onNavigate: fn(),
     onToggleTheme: fn(),
     onSignOut: fn(),
+    userName: "Dave Roofer",
   },
   argTypes: { activeView: { control: "inline-radio", options: ["leads", "saved", "alerts"] } },
   render: function Render(args) {

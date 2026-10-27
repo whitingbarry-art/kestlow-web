@@ -4,7 +4,7 @@ import { useAlertSettings } from "../hooks/useAlertSettings";
 import { useLeads } from "../hooks/useLeads";
 import { useIsDesktop } from "../hooks/useMediaQuery";
 import { useNavigation } from "../hooks/useNavigation";
-import { useSignOut } from "../hooks/useSession";
+import { useSession, useSignOut } from "../hooks/useSession";
 import { useTheme } from "../hooks/useTheme";
 import { BottomNav } from "./layout/BottomNav";
 import { DetailPanel } from "./layout/DetailPanel";
@@ -23,6 +23,8 @@ export function App() {
   const { view, navigate } = useNavigation({ onNavigate: leads.closeDetail });
   const { selectedLead } = leads;
   const signOut = useSignOut();
+  // SignedInGate only shows the app once someone's signed in, so there's always a user here.
+  const userName = useSession().data?.name ?? "";
   // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
   const coveredByDetail = !isDesktop && leads.isDetailOpen;
   const viewLabel = NAV_ITEMS.find((item) => item.view === view)?.label;
@@ -47,6 +49,7 @@ export function App() {
         onNavigate={navigate}
         onToggleTheme={toggleTheme}
         onSignOut={() => signOut.mutate()}
+        userName={userName}
       />
 
       <main
