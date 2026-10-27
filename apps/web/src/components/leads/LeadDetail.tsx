@@ -2,7 +2,7 @@ import type { Lead } from "../../types/lead";
 import { buttonClassName } from "../ui/buttonStyles";
 import { LeadFacts } from "./LeadFacts";
 import { LeadTags } from "./LeadTags";
-import { MapPlaceholder } from "./MapPlaceholder";
+import { LeadMap } from "./LeadMap";
 import { SaveButton } from "./SaveButton";
 
 interface LeadDetailProps {
@@ -18,7 +18,7 @@ export function LeadDetail({ lead, saved, onToggleSave }: LeadDetailProps) {
       <div className="mt-0.5 text-sm text-muted">
         {lead.council} &middot; {lead.miles} miles away
       </div>
-      <MapPlaceholder />
+      <LeadMap location={lead.location} address={lead.address} />
       <p className="my-4">{lead.description}</p>
       <LeadTags lead={lead} />
       <LeadFacts lead={lead} />

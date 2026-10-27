@@ -90,10 +90,3 @@
     }
   }
 }
-
-@utility map-grid {
-  background:
-    linear-gradient(90deg, transparent 49%, var(--line) 49% 51%, transparent 51%),
-    linear-gradient(0deg, transparent 49%, var(--line) 49% 51%, transparent 51%), var(--chip);
-  background-size: 60px 60px;
-}
