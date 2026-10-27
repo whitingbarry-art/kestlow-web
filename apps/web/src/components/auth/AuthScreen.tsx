@@ -134,12 +134,6 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
             onSubmit={(event) => void submit(event)}
             className="mt-6 flex flex-col gap-5 rounded-card bg-card p-5 shadow-card"
           >
-            {error && (
-              <p role="alert" className="m-0 font-semibold text-error">
-                {error}
-              </p>
-            )}
-
             {mode === "register" && (
               <div>
                 <label htmlFor={`${id}-name`} className="block font-bold">
@@ -196,19 +190,26 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
               )}
             </div>
 
-            <button
-              type="submit"
-              disabled={sending}
-              className={buttonClassName("primary", "flex-none disabled:opacity-70")}
-            >
-              {sending
-                ? mode === "register"
-                  ? "Creating your account…"
-                  : "Signing in…"
-                : mode === "register"
-                  ? "Create account"
-                  : "Sign in"}
-            </button>
+            <div>
+              {/* Always on the page and two lines tall, so a message appearing doesn't push the
+                  button down, and screen readers reliably announce it. */}
+              <p role="alert" className="-mt-2 mb-1 min-h-[2lh] text-sm font-semibold text-error">
+                {error}
+              </p>
+              <button
+                type="submit"
+                disabled={sending}
+                className={buttonClassName("primary", "w-full flex-none disabled:opacity-70")}
+              >
+                {sending
+                  ? mode === "register"
+                    ? "Creating your account…"
+                    : "Signing in…"
+                  : mode === "register"
+                    ? "Create account"
+                    : "Sign in"}
+              </button>
+            </div>
           </form>
         )}
 

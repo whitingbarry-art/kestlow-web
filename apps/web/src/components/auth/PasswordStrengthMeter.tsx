@@ -27,7 +27,7 @@ export function PasswordStrengthMeter({ check }: PasswordStrengthMeterProps) {
           />
         ))}
       </div>
-      <p aria-live="polite" className="mt-1 mb-0 min-h-5 text-sm">
+      <p aria-live="polite" className="mt-1 mb-0 min-h-[2lh] text-sm">
         {check && (
           <>
             <b>Strength: {LABELS[check.strength]}.</b>

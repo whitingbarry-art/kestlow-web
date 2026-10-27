@@ -146,6 +146,12 @@ describe("AuthScreen", () => {
     expect(screen.getByRole("heading", { name: "Forgot your password?" })).toHaveFocus();
   });
 
+  it("keeps an empty message area ready, so an error doesn't push the button down", () => {
+    renderScreen();
+
+    expect(screen.getByRole("alert")).toBeEmptyDOMElement();
+  });
+
   it("doesn't take focus on first load", () => {
     renderScreen();
 
