@@ -10,7 +10,7 @@ type Field = keyof SignupErrors;
 type Status = "idle" | "sending" | "joined" | "failed";
 
 // The order the questions appear in, so the error summary lists them the same way.
-const FIELDS: Field[] = ["email", "postcodeDistrict", "trades", "currentSpend", "wouldPay", "plan"];
+const FIELDS: Field[] = ["email", "postcode", "trades", "currentSpend", "wouldPay", "plan"];
 
 interface WaitlistFormProps {
   join: JoinWaitlist;
@@ -126,24 +126,24 @@ export function WaitlistForm({ join }: WaitlistFormProps) {
       </div>
 
       <div>
-        <label htmlFor={fieldId("postcodeDistrict")} className="block font-bold">
+        <label htmlFor={fieldId("postcode")} className="block font-bold">
           Postcode you work from
         </label>
         <p id={`${id}-postcode-hint`} className="mt-0.5 mb-0 text-sm text-muted">
           The first half is enough, like BR1. We only keep the first half.
         </p>
         <input
-          id={fieldId("postcodeDistrict")}
+          id={fieldId("postcode")}
           name="postcode"
           type="text"
           autoComplete="postal-code"
           autoCapitalize="characters"
           spellCheck={false}
-          aria-invalid={!!errors.postcodeDistrict || undefined}
-          aria-describedby={describedBy("postcodeDistrict", `${id}-postcode-hint`)}
-          className={cn(inputClassName(!!errors.postcodeDistrict), "max-w-[12rem]")}
+          aria-invalid={!!errors.postcode || undefined}
+          aria-describedby={describedBy("postcode", `${id}-postcode-hint`)}
+          className={cn(inputClassName(!!errors.postcode), "max-w-[12rem]")}
         />
-        {fieldError("postcodeDistrict")}
+        {fieldError("postcode")}
       </div>
 
       <Choices

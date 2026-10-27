@@ -16,7 +16,7 @@ export interface WaitlistSignup {
 
 /** The API's message for each answer that needs fixing, keyed by its own field names. */
 export type SignupErrors = Partial<
-  Record<"email" | "postcodeDistrict" | "trades" | "currentSpend" | "wouldPay" | "plan", string>
+  Record<"email" | "postcode" | "trades" | "currentSpend" | "wouldPay" | "plan", string>
 >;
 
 export type JoinResult = { ok: true } | { ok: false; errors: SignupErrors };

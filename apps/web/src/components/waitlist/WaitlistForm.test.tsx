@@ -61,7 +61,7 @@ describe("WaitlistForm", () => {
     const join = vi.fn<JoinWaitlist>().mockResolvedValue({
       ok: false,
       errors: {
-        postcodeDistrict: "Enter a UK postcode, or its first half, like BR1.",
+        postcode: "Enter a UK postcode, or its first half, like BR1.",
         trades: "Choose at least one trade.",
       },
     });

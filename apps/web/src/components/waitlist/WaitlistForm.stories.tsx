@@ -28,7 +28,7 @@ export const AnswersToFix: Story = {
         ok: false,
         errors: {
           email: "Enter a valid email address.",
-          postcodeDistrict: "Enter a UK postcode, or its first half, like BR1.",
+          postcode: "Enter a UK postcode, or its first half, like BR1.",
           trades: "Choose at least one trade.",
           currentSpend: "Choose what you spend on leads now.",
           wouldPay: "Choose what you'd pay.",
