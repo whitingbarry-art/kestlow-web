@@ -1,6 +1,12 @@
 // The plans and prices are the starting points from the Architecture and Delivery Plan's
 // "Pricing and billing" section; the landing page tests them before launch (KES-97).
 
+/**
+ * Who collects the waitlist's details and how to reach them, as UK GDPR requires. Change these
+ * once Kestlow has its own company or domain.
+ */
+export const DATA_CONTROLLER = { name: "Barry Whiting", email: "whiting.barry@googlemail.com" };
+
 export interface Plan {
   name: string;
   monthly: string;

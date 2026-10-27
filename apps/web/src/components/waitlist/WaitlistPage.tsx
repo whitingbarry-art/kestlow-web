@@ -1,5 +1,5 @@
 import type { JoinWaitlist } from "../../api/waitlist";
-import { PLANS, PROMISES } from "../../data/waitlist";
+import { DATA_CONTROLLER, PLANS, PROMISES } from "../../data/waitlist";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PlanCard } from "./PlanCard";
@@ -122,7 +122,15 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
           <p className="mt-2 mb-0 max-w-2xl">
             We use your email address only to tell you when Kestlow opens and about the founding
             member offer. We keep your answers to set prices and decide where to launch, and we only
-            keep the first half of your postcode. We never sell or share your details.
+            keep the first half of your postcode. We never sell or share your details. Kestlow is
+            run by {DATA_CONTROLLER.name}. To see or delete your details, email{" "}
+            <a
+              href={`mailto:${DATA_CONTROLLER.email}`}
+              className="font-semibold text-ink underline"
+            >
+              {DATA_CONTROLLER.email}
+            </a>
+            .
           </p>
         </div>
       </footer>
