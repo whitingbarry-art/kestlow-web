@@ -7,11 +7,12 @@ interface SidebarProps {
   activeView: View;
   onNavigate: (view: View) => void;
   onToggleTheme: () => void;
+  onSignOut: () => void;
 }
 
 const LINK_CLASSES = "rounded-xl px-3.5 py-3 text-left text-[15px] font-semibold";
 
-export function Sidebar({ items, activeView, onNavigate, onToggleTheme }: SidebarProps) {
+export function Sidebar({ items, activeView, onNavigate, onToggleTheme, onSignOut }: SidebarProps) {
   return (
     <aside className="hidden flex-col gap-1.5 bg-side px-4 py-[22px] text-white [--focus:#fff] desk:flex">
       <div className="mb-[22px] px-2">
@@ -44,6 +45,13 @@ export function Sidebar({ items, activeView, onNavigate, onToggleTheme }: Sideba
         className={cn(LINK_CLASSES, "bg-white/10 text-center text-white")}
       >
         Switch light / dark
+      </button>
+      <button
+        type="button"
+        onClick={onSignOut}
+        className={cn(LINK_CLASSES, "text-center text-side-link hover:bg-white/8")}
+      >
+        Sign out
       </button>
     </aside>
   );

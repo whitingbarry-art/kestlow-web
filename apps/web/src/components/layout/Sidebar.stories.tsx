@@ -8,7 +8,13 @@ import { Sidebar } from "./Sidebar";
 const meta = {
   title: "Layout/Sidebar",
   component: Sidebar,
-  args: { items: NAV_ITEMS, activeView: "leads", onNavigate: fn(), onToggleTheme: fn() },
+  args: {
+    items: NAV_ITEMS,
+    activeView: "leads",
+    onNavigate: fn(),
+    onToggleTheme: fn(),
+    onSignOut: fn(),
+  },
   argTypes: { activeView: { control: "inline-radio", options: ["leads", "saved", "alerts"] } },
   render: function Render(args) {
     const [, updateArgs] = useArgs();
