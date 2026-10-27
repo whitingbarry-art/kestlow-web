@@ -42,6 +42,8 @@ const TEXT_PAIRS = [
   ["muted", "chip"],
   ["new-text", "new-bg"],
   ["match-text", "match-bg"],
+  ["error", "page"],
+  ["error", "card"],
 ] as const;
 
 const NON_TEXT_PAIRS = [
@@ -49,6 +51,8 @@ const NON_TEXT_PAIRS = [
   ["selected", "card"],
   ["switch-off", "card"],
   ["switch-off", "white"], // switch thumb
+  ["muted", "card"], // text input border
+  ["error", "card"], // border of an input that needs fixing
   ["white", "side"], // focus ring on navy surfaces
   ["ink", "page"], // focus ring
   ["ink", "card"],

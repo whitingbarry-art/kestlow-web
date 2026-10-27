@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Join the Kestlow waitlist</title>
+    <meta
+      name="description"
+      content="Kestlow alerts roofers, electricians, landscapers and groundworkers to new planning applications near them. Join the waitlist."
+    />
+    <script>
+      // Follow the device's theme before React mounts, so dark-mode users don't see a light flash.
+      if (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/waitlist.tsx"></script>
+  </body>
+</html>
