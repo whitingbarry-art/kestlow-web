@@ -21,7 +21,7 @@ export interface AuthApi {
 }
 
 export const WEAK_PASSWORD_MESSAGE =
-  "That password is too easy to guess. Try a few unrelated words together.";
+  "Not strong enough yet. Try three random words, like ladder-teapot-rain.";
 
 /** Better Auth's error codes, in words a tradesperson would use. */
 const MESSAGES: Record<string, string> = {

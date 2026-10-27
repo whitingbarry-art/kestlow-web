@@ -34,6 +34,10 @@ function personalWords(inputs: string[]): string[] {
 export function checkPassword(password: string, userInputs: string[] = []): PasswordCheck {
   const { score, feedback } = zxcvbn.check(password, personalWords(userInputs));
   const strength = score <= 1 ? "weak" : score === 2 ? "medium" : "strong";
-  const tip = strength === "strong" ? null : (feedback.warning ?? feedback.suggestions[0] ?? null);
+  // Only strong passwords are accepted, so anything less always says what to do next.
+  const tip =
+    strength === "strong"
+      ? null
+      : (feedback.warning ?? feedback.suggestions[0] ?? "Add another word to make it strong.");
   return { strength, tip };
 }

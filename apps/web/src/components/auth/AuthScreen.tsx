@@ -65,12 +65,12 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
     const name = text("name").trim();
     if (mode === "register" && !name) return setError("Enter your name.");
     if (mode === "register") {
-      // The API refuses weak passwords too; checking here saves the round trip.
+      // Only strong passwords are accepted; the API checks too, this saves the round trip.
       const { checkPassword } = await import("../../logic/password");
       const password = text("password");
       if (
         password.length >= 8 &&
-        checkPassword(password, [name, text("email")]).strength === "weak"
+        checkPassword(password, [name, text("email")]).strength !== "strong"
       )
         return setError(WEAK_PASSWORD_MESSAGE);
     }
@@ -171,8 +171,8 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
               </label>
               {mode === "register" && (
                 <p id={`${id}-password-hint`} className="mt-0.5 mb-0 text-sm text-muted">
-                  At least 8 characters. A few unrelated words together is strong and easy to
-                  remember, like “ladder teapot rain”.
+                  At least 8 characters, and it must reach Strong. Three random words, like
+                  ladder-teapot-rain, work well.
                 </p>
               )}
               <input

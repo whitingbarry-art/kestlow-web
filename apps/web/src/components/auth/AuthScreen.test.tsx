@@ -64,7 +64,7 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create an account" }));
 
     expect(screen.getByLabelText("Password")).toHaveAccessibleDescription(
-      "At least 8 characters. A few unrelated words together is strong and easy to remember, like “ladder teapot rain”.",
+      "At least 8 characters, and it must reach Strong. Three random words, like ladder-teapot-rain, work well.",
     );
     expect(screen.getByLabelText("Password")).toHaveAttribute("autocomplete", "new-password");
   });
@@ -104,6 +104,23 @@ describe("AuthScreen", () => {
     expect(await screen.findByText("Strength: Weak.")).toBeInTheDocument();
   });
 
+  it("refuses a medium password, such as 8 random characters, without asking the API", async () => {
+    const user = userEvent.setup();
+    const authApi = createSampleAuthApi(null);
+    const register = vi.spyOn(authApi, "register");
+    renderScreen(authApi);
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Your name"), "Kim");
+    await user.type(screen.getByLabelText("Email address"), "kim@example.com");
+    await user.type(screen.getByLabelText("Password"), "hG7kq2Lm");
+    expect(await screen.findByText("Strength: Medium.")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+
+    expect(await screen.findByText(/Not strong enough yet/)).toBeInTheDocument();
+    expect(register).not.toHaveBeenCalled();
+  });
+
   it("refuses a weak password without asking the API", async () => {
     const user = userEvent.setup();
     const authApi = createSampleAuthApi(null);
@@ -117,7 +134,7 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "That password is too easy to guess. Try a few unrelated words together.",
+      "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
     );
     expect(register).not.toHaveBeenCalled();
   });

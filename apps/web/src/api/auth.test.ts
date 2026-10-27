@@ -72,7 +72,7 @@ describe("createHttpAuthApi", () => {
     [
       "PASSWORD_TOO_WEAK",
       400,
-      "That password is too easy to guess. Try a few unrelated words together.",
+      "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
     ],
     ["SOMETHING_NEW", 500, "Something went wrong. Please try again."],
   ])("explains %s in plain words", async (code, status, message) => {
