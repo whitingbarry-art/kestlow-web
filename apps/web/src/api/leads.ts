@@ -19,9 +19,9 @@ export class ApiError extends Error {
 
 /**
  * The real API over HTTP. In development Vite proxies `/api` to the local API on port 5181
- * (vite.config.mts); the deployed address arrives with KES-19.
+ * (vite.config.mts). Deployed builds call the API at VITE_API_URL, set at build time (KES-19).
  */
-export function createHttpLeadsApi(baseUrl = "/api"): LeadsApi {
+export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/api"): LeadsApi {
   /** The JSON body, or null for a 404. */
   async function get<T>(path: string): Promise<T | null> {
     const res = await fetch(`${baseUrl}${path}`, { headers: { Accept: "application/json" } });
