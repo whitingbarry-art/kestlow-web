@@ -96,7 +96,7 @@ export function WaitlistForm({ join }: WaitlistFormProps) {
           <h3 id={`${id}-summary`} className="m-0 text-base font-bold">
             Some answers need fixing
           </h3>
-          <ul className="mt-2 mb-0 pl-5">
+          <ul className="mt-2 mb-0 list-disc pl-5">
             {FIELDS.filter((field) => errors[field]).map((field) => (
               <li key={field}>
                 <a href={`#${fieldId(field)}`} className="font-semibold text-error underline">
