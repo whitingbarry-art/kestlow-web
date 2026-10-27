@@ -37,7 +37,13 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
 
       <header className="bg-side pt-5 pb-12 text-white [--focus:#ffffff]">
         <div className="mx-auto max-w-5xl px-4">
-          <BrandLogo />
+          <div className="flex items-center justify-between gap-4">
+            <BrandLogo />
+            {/* The app shows the sign-in screen to anyone who isn't signed in. */}
+            <a href="/" className="inline-block py-2 font-semibold text-white underline">
+              Sign in
+            </a>
+          </div>
           <h1 className="mt-10 mb-0 max-w-2xl text-3xl leading-tight font-bold desk:text-5xl">
             Hear about building work while it’s still being planned
           </h1>

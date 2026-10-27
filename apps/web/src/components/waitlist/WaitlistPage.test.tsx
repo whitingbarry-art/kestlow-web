@@ -3,6 +3,12 @@ import type { JoinWaitlist } from "../../api/waitlist";
 import { WaitlistPage } from "./WaitlistPage";
 
 describe("WaitlistPage", () => {
+  it("lets people who already have an account sign in", () => {
+    render(<WaitlistPage join={vi.fn<JoinWaitlist>()} />);
+
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/");
+  });
+
   it("says who collects the details and how to have them deleted", () => {
     render(<WaitlistPage join={vi.fn<JoinWaitlist>()} />);
 
