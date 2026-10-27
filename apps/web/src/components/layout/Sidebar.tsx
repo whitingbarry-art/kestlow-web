@@ -23,7 +23,7 @@ export function Sidebar({
   userName,
 }: SidebarProps) {
   return (
-    <aside className="hidden flex-col gap-1.5 bg-side px-4 py-[22px] text-white [--focus:#fff] desk:flex">
+    <aside className="hidden flex-col gap-1.5 brand-surface px-4 py-[22px] text-white [--focus:#fff] desk:flex">
       <div className="mb-[22px] px-2">
         <BrandLogo />
       </div>
@@ -38,7 +38,9 @@ export function Sidebar({
               onClick={() => onNavigate(item.view)}
               className={cn(
                 LINK_CLASSES,
-                active ? "bg-white/14 text-white" : "text-side-link hover:bg-white/8",
+                active
+                  ? "bg-white/14 text-white shadow-[inset_3px_0_0_var(--color-amber)]"
+                  : "text-side-link hover:bg-white/8",
               )}
             >
               <span aria-hidden="true">{item.icon}&nbsp; </span>

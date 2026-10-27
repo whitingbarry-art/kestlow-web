@@ -35,7 +35,7 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
         Skip to the sign-up form
       </a>
 
-      <header className="bg-side pt-5 pb-12 text-white [--focus:#ffffff]">
+      <header className="brand-surface pt-5 pb-12 text-white [--focus:#ffffff]">
         <div className="mx-auto max-w-5xl px-4">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />

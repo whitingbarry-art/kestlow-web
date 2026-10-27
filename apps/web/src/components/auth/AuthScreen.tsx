@@ -108,7 +108,7 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-side py-5 [--focus:#ffffff]">
+      <header className="brand-surface py-5 [--focus:#ffffff]">
         <div className="mx-auto max-w-md px-4">
           <BrandLogo />
         </div>
