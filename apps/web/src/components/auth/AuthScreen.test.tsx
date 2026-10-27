@@ -169,6 +169,20 @@ describe("AuthScreen", () => {
     expect(screen.getByRole("alert")).toBeEmptyDOMElement();
   });
 
+  it("hides the password again after trying to sign in", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.type(screen.getByLabelText("Password"), "wrong");
+    await user.click(screen.getByRole("button", { name: "Show password" }));
+    expect(screen.getByLabelText("Password")).toHaveAttribute("type", "text");
+
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+
+    expect(await screen.findByText(/don't match/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Password")).toHaveAttribute("type", "password");
+  });
+
   it("doesn't take focus on first load", () => {
     renderScreen();
 

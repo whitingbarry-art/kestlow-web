@@ -8,6 +8,7 @@ import { SESSION_KEY } from "../../hooks/useSession";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { inputClassName } from "../ui/inputStyles";
+import { PasswordInput } from "../ui/PasswordInput";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 
 export type AuthMode = "sign-in" | "register" | "forgot";
@@ -38,6 +39,8 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
   // Kept as they're typed only for the strength meter, which counts the person's own name and
   // email as easy to guess; the form itself is read on submit.
   const [details, setDetails] = useState({ name: "", email: "", password: "" });
+  // Hidden again on every submit and screen switch, so a password isn't left on show.
+  const [showPassword, setShowPassword] = useState(false);
   const strength = usePasswordStrength(mode === "register" ? details.password : "", [
     details.name,
     details.email,
@@ -52,11 +55,13 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
   function switchTo(next: AuthMode) {
     switched.current = true;
     setError(null);
+    setShowPassword(false);
     setMode(next);
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setShowPassword(false);
     const form = new FormData(event.currentTarget);
     const text = (name: string) => {
       const value = form.get(name);
@@ -175,14 +180,14 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
                   ladder-teapot-rain, work well.
                 </p>
               )}
-              <input
+              <PasswordInput
                 id={`${id}-password`}
                 name="password"
-                type="password"
                 autoComplete={mode === "register" ? "new-password" : "current-password"}
                 aria-describedby={mode === "register" ? `${id}-password-hint` : undefined}
                 onChange={(event) => setDetails({ ...details, password: event.target.value })}
-                className={inputClassName()}
+                shown={showPassword}
+                onShownChange={setShowPassword}
               />
               {mode === "register" && <PasswordStrengthMeter check={strength} />}
               {mode === "sign-in" && (
