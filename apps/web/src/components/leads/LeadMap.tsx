@@ -91,7 +91,7 @@ export function LeadMap({ location, address }: LeadMapProps) {
         href={largerMap}
         target="_blank"
         rel="noreferrer"
-        className="mt-1.5 inline-block text-sm font-semibold text-ink underline"
+        className="mt-0.5 inline-block py-1 text-sm font-semibold text-ink underline"
       >
         Open a larger map <span className="sr-only">(opens in a new tab)</span>
       </a>
