@@ -31,14 +31,17 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create an account" }));
     await user.type(screen.getByLabelText("Your name"), "  Kim  ");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
-    await user.type(screen.getByLabelText("Password"), "a long enough password");
+    await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
-    expect(register).toHaveBeenCalledWith({
-      name: "Kim",
-      email: "kim@example.com",
-      password: "a long enough password",
-    });
+    // The submit loads the password checker first, so the call comes a moment later.
+    await vi.waitFor(() =>
+      expect(register).toHaveBeenCalledWith({
+        name: "Kim",
+        email: "kim@example.com",
+        password: "ladder teapot rain",
+      }),
+    );
   });
 
   it("asks for a name before registering", async () => {
@@ -61,9 +64,72 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create an account" }));
 
     expect(screen.getByLabelText("Password")).toHaveAccessibleDescription(
-      "At least 8 characters. A few words together is easy to remember.",
+      "At least 8 characters. A few unrelated words together is strong and easy to remember, like “ladder teapot rain”.",
     );
     expect(screen.getByLabelText("Password")).toHaveAttribute("autocomplete", "new-password");
+  });
+
+  it.each([
+    ["Password1!", "Strength: Weak."],
+    ["ladder teapot rain", "Strength: Strong."],
+  ])("rates %j as they type", async (password, rating) => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Password"), password);
+
+    expect(await screen.findByText(rating)).toBeInTheDocument();
+  });
+
+  it("explains what makes a weak password weak", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Password"), "password123");
+
+    expect(await screen.findByText("Strength: Weak.")).toBeInTheDocument();
+    expect(screen.getByText(/commonly used password/)).toBeInTheDocument();
+  });
+
+  it("counts their own name as easy to guess", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Your name"), "Dave Roofer");
+    await user.type(screen.getByLabelText("Password"), "daveroofer1");
+
+    expect(await screen.findByText("Strength: Weak.")).toBeInTheDocument();
+  });
+
+  it("refuses a weak password without asking the API", async () => {
+    const user = userEvent.setup();
+    const authApi = createSampleAuthApi(null);
+    const register = vi.spyOn(authApi, "register");
+    renderScreen(authApi);
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Your name"), "Kim");
+    await user.type(screen.getByLabelText("Email address"), "kim@example.com");
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "That password is too easy to guess. Try a few unrelated words together.",
+    );
+    expect(register).not.toHaveBeenCalled();
+  });
+
+  it("doesn't rate passwords when signing in", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.type(screen.getByLabelText("Password"), "Password1!");
+
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(screen.queryByText(/Strength:/)).not.toBeInTheDocument();
   });
 
   it("moves focus to the new heading when switching screens", async () => {

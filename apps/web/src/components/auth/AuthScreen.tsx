@@ -1,12 +1,14 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
-import type { AuthResult } from "../../api/auth";
+import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
 import { DATA_CONTROLLER } from "../../data/waitlist";
+import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { inputClassName } from "../ui/inputStyles";
+import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 
 export type AuthMode = "sign-in" | "register" | "forgot";
 
@@ -33,6 +35,13 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
   const [sending, setSending] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const switched = useRef(false);
+  // Kept as they're typed only for the strength meter, which counts the person's own name and
+  // email as easy to guess; the form itself is read on submit.
+  const [details, setDetails] = useState({ name: "", email: "", password: "" });
+  const strength = usePasswordStrength(mode === "register" ? details.password : "", [
+    details.name,
+    details.email,
+  ]);
 
   useEffect(() => {
     document.title = `${TITLES[mode]} – Kestlow`;
@@ -55,6 +64,16 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
     };
     const name = text("name").trim();
     if (mode === "register" && !name) return setError("Enter your name.");
+    if (mode === "register") {
+      // The API refuses weak passwords too; checking here saves the round trip.
+      const { checkPassword } = await import("../../logic/password");
+      const password = text("password");
+      if (
+        password.length >= 8 &&
+        checkPassword(password, [name, text("email")]).strength === "weak"
+      )
+        return setError(WEAK_PASSWORD_MESSAGE);
+    }
 
     setSending(true);
     setError(null);
@@ -131,6 +150,7 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
                   name="name"
                   type="text"
                   autoComplete="name"
+                  onChange={(event) => setDetails({ ...details, name: event.target.value })}
                   className={inputClassName()}
                 />
               </div>
@@ -146,6 +166,7 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
                 type="email"
                 autoComplete="email"
                 spellCheck={false}
+                onChange={(event) => setDetails({ ...details, email: event.target.value })}
                 className={inputClassName()}
               />
             </div>
@@ -156,7 +177,8 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
               </label>
               {mode === "register" && (
                 <p id={`${id}-password-hint`} className="mt-0.5 mb-0 text-sm text-muted">
-                  At least 8 characters. A few words together is easy to remember.
+                  At least 8 characters. A few unrelated words together is strong and easy to
+                  remember, like “ladder teapot rain”.
                 </p>
               )}
               <input
@@ -165,8 +187,10 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
                 type="password"
                 autoComplete={mode === "register" ? "new-password" : "current-password"}
                 aria-describedby={mode === "register" ? `${id}-password-hint` : undefined}
+                onChange={(event) => setDetails({ ...details, password: event.target.value })}
                 className={inputClassName()}
               />
+              {mode === "register" && <PasswordStrengthMeter check={strength} />}
               {mode === "sign-in" && (
                 <p className="mt-1 mb-0">{switchButton("forgot", "Forgot your password?")}</p>
               )}

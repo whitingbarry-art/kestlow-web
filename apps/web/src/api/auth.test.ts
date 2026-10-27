@@ -69,6 +69,11 @@ describe("createHttpAuthApi", () => {
       "There's already an account with that email. Sign in instead.",
     ],
     ["VALIDATION_ERROR", 400, "Enter a valid email address and password."],
+    [
+      "PASSWORD_TOO_WEAK",
+      400,
+      "That password is too easy to guess. Try a few unrelated words together.",
+    ],
     ["SOMETHING_NEW", 500, "Something went wrong. Please try again."],
   ])("explains %s in plain words", async (code, status, message) => {
     fetch.mockResolvedValue(json({ code, message: "raw" }, status));

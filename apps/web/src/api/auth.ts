@@ -20,11 +20,15 @@ export interface AuthApi {
   signOut: () => Promise<void>;
 }
 
+export const WEAK_PASSWORD_MESSAGE =
+  "That password is too easy to guess. Try a few unrelated words together.";
+
 /** Better Auth's error codes, in words a tradesperson would use. */
 const MESSAGES: Record<string, string> = {
   INVALID_EMAIL_OR_PASSWORD: "That email and password don't match an account.",
   PASSWORD_TOO_SHORT: "Use a password of at least 8 characters.",
   PASSWORD_TOO_LONG: "Use a password of at most 128 characters.",
+  PASSWORD_TOO_WEAK: WEAK_PASSWORD_MESSAGE,
   USER_ALREADY_EXISTS: "There's already an account with that email. Sign in instead.",
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL:
     "There's already an account with that email. Sign in instead.",
