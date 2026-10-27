@@ -6,6 +6,16 @@ import { providers } from "../test/providers";
 import { App } from "./App";
 
 describe("App", () => {
+  it("draws nav icons as SVGs that screen readers skip, so each button is named by its label", () => {
+    render(<App />, { wrapper: providers() });
+
+    const nav = within(screen.getByRole("complementary")).getByRole("navigation", { name: "Main" });
+    const buttons = within(nav).getAllByRole("button");
+    expect(buttons.map((button) => button.textContent)).toEqual(["Leads", "Saved", "Alerts"]);
+    for (const button of buttons)
+      expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
+  });
+
   it("shows who's signed in, above Sign out", async () => {
     render(<App />, { wrapper: providers() });
 

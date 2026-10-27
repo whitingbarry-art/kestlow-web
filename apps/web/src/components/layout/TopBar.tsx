@@ -1,3 +1,4 @@
+import { SunMoon } from "lucide-react";
 import { BrandLogo } from "../ui/BrandLogo";
 import { IconButton } from "../ui/IconButton";
 
@@ -12,7 +13,7 @@ export function TopBar({ onToggleTheme, onSignOut }: TopBarProps) {
       <BrandLogo size={34} />
       <div className="flex items-center gap-2.5">
         <IconButton aria-label="Switch light or dark" onClick={onToggleTheme}>
-          &#9680;
+          <SunMoon size={20} />
         </IconButton>
         <IconButton onClick={onSignOut} className="text-sm font-semibold">
           Sign out

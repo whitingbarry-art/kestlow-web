@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { Plan } from "../../data/waitlist";
 
 interface PlanCardProps {
@@ -19,9 +20,7 @@ export function PlanCard({ plan }: PlanCardProps) {
       <ul className="mt-4 mb-0 flex flex-col gap-1.5 pl-0">
         {plan.features.map((feature) => (
           <li key={feature} className="flex list-none gap-2">
-            <span aria-hidden="true" className="font-bold text-match-text">
-              ✓
-            </span>
+            <Check size={18} strokeWidth={2.5} className="mt-0.5 shrink-0 text-match-text" />
             {feature}
           </li>
         ))}

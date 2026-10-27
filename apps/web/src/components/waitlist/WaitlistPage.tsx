@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { JoinWaitlist } from "../../api/waitlist";
 import { DATA_CONTROLLER, PLANS, PROMISES } from "../../data/waitlist";
 import { BrandLogo } from "../ui/BrandLogo";
@@ -99,9 +100,7 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
           <ul className="mt-6 mb-0 grid gap-2 pl-0 sm:grid-cols-2">
             {PROMISES.map((promise) => (
               <li key={promise} className="flex list-none gap-2">
-                <span aria-hidden="true" className="font-bold text-match-text">
-                  ✓
-                </span>
+                <Check size={18} strokeWidth={2.5} className="mt-0.5 shrink-0 text-match-text" />
                 {promise}
               </li>
             ))}

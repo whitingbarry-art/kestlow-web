@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { MouseEvent } from "react";
 import { Button } from "../ui/Button";
 
@@ -16,7 +17,9 @@ export function SaveButton({ saved, onToggle }: SaveButtonProps) {
     <Button variant="ghost" aria-pressed={saved} onClick={handleClick}>
       {saved ? (
         <>
-          Saved <span aria-hidden="true">✓</span>
+          <span className="inline-flex items-center gap-1.5">
+            Saved <Check size={18} strokeWidth={2.5} />
+          </span>
         </>
       ) : (
         "Save"
