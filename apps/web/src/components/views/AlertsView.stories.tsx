@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
+import { SAMPLE_LEADS } from "../../data/leads";
 import { useAlertSettings } from "../../hooks/useAlertSettings";
+import { withLeadsApi } from "../../stories/withLeadsApi";
 import { AlertsView } from "./AlertsView";
 
 function AlertsViewStory() {
@@ -23,4 +26,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const NoBasePostcode: Story = { decorators: [withLeadsApi()] };
+
+export const WithBasePostcode: Story = {
+  decorators: [withLeadsApi(createSampleLeadsApi(SAMPLE_LEADS, 20, [], "BR1 1AA"))],
+};

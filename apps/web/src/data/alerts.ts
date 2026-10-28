@@ -18,4 +18,3 @@ export const INITIAL_TRADES: TradeSettings = {
 export const DISTANCE_MIN_MILES = 1;
 export const DISTANCE_MAX_MILES = 50;
 export const INITIAL_DISTANCE_MILES = 15;
-export const BASE_POSTCODE = "AB1 2CD (sample)";

@@ -9,7 +9,13 @@ export interface LeadsApi {
   listSaved: () => Promise<Lead[]>;
   saveLead: (id: string) => Promise<void>;
   unsaveLead: (id: string) => Promise<void>;
+  /** The base postcode leads are measured from, or null until it's set (KES-26). */
+  getBasePostcode: () => Promise<string | null>;
+  setBasePostcode: (postcode: string) => Promise<BasePostcodeResult>;
 }
+
+/** Setting the base postcode either works, giving it back tidied up, or has a message to show. */
+export type BasePostcodeResult = { ok: true; postcode: string } | { ok: false; message: string };
 
 export class ApiError extends Error {
   status: number;
@@ -63,5 +69,25 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
     },
     saveLead: (id) => send("PUT", `/me/saved/${encodeURIComponent(id)}`),
     unsaveLead: (id) => send("DELETE", `/me/saved/${encodeURIComponent(id)}`),
+    async getBasePostcode() {
+      const settings = await get<{ postcode: string | null }>("/me/alert-settings");
+      if (!settings) throw new ApiError(404, "GET /me/alert-settings failed with 404");
+      return settings.postcode;
+    },
+    async setBasePostcode(postcode) {
+      const res = await fetch(`${baseUrl}/me/alert-settings`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ postcode }),
+      });
+      if (res.ok) return { ok: true, ...((await res.json()) as { postcode: string }) };
+      // A wrong postcode (400) or postcodes.io being down (503) come with a message to show.
+      if (res.status === 400 || res.status === 503) {
+        const { error } = (await res.json().catch(() => ({}))) as { error?: string };
+        return { ok: false, message: error ?? "Something went wrong. Please try again." };
+      }
+      throw new ApiError(res.status, `PUT /me/alert-settings failed with ${res.status}`);
+    },
   };
 }

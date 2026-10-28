@@ -1,6 +1,7 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
+import { useLeadsApi } from "../api/LeadsApiContext";
 import {
-  BASE_POSTCODE,
   DELIVERY_OPTIONS,
   DISTANCE_MAX_MILES,
   DISTANCE_MIN_MILES,
@@ -13,7 +14,27 @@ import { clamp, formatDistance } from "../logic/alerts";
 import type { DeliveryChannel } from "../types/alerts";
 import type { Trade } from "../types/lead";
 
+/** The base postcode leads are measured from (KES-26). */
+export const BASE_POSTCODE_KEY = ["base-postcode"] as const;
+
+// Every query whose distances come from the base postcode.
+const MEASURED_FROM_BASE = new Set(["leads", "lead", "saved"]);
+
 export function useAlertSettings() {
+  const api = useLeadsApi();
+  const queryClient = useQueryClient();
+  const baseQuery = useQuery({ queryKey: BASE_POSTCODE_KEY, queryFn: () => api.getBasePostcode() });
+  const { mutateAsync: saveBasePostcode } = useMutation({
+    mutationFn: (postcode: string) => api.setBasePostcode(postcode),
+    onSuccess: (result) => {
+      if (!result.ok) return;
+      queryClient.setQueryData(BASE_POSTCODE_KEY, result.postcode);
+      // Leads are now measured from somewhere else, so fetch them again (in the background).
+      void queryClient.invalidateQueries({
+        predicate: (query) => MEASURED_FROM_BASE.has(String(query.queryKey[0])),
+      });
+    },
+  });
   const [delivery, setDelivery] = useState(INITIAL_DELIVERY);
   const [trades, setTrades] = useState(INITIAL_TRADES);
   const [distance, setDistanceState] = useState(INITIAL_DISTANCE_MILES);
@@ -44,8 +65,10 @@ export function useAlertSettings() {
     distanceLabel: formatDistance(distance),
     distanceMin: DISTANCE_MIN_MILES,
     distanceMax: DISTANCE_MAX_MILES,
-    basePostcode: BASE_POSTCODE,
     setDistance,
+    basePostcode: baseQuery.data ?? null,
+    basePostcodeLoaded: baseQuery.isSuccess,
+    saveBasePostcode,
   };
 }
 

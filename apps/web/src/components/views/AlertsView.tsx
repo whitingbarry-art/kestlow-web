@@ -1,4 +1,5 @@
 import type { AlertSettingsState } from "../../hooks/useAlertSettings";
+import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
 import { DistanceSlider } from "../alerts/DistanceSlider";
 import { SettingRow } from "../alerts/SettingRow";
 import { Card } from "../ui/Card";
@@ -41,12 +42,15 @@ export function AlertsView({ settings }: AlertsViewProps) {
 
       <SectionTitle>Area</SectionTitle>
       <Card>
+        {/* Shown once the saved postcode has loaded, so the box starts from it. */}
+        {settings.basePostcodeLoaded && (
+          <BasePostcodeForm postcode={settings.basePostcode} onSave={settings.saveBasePostcode} />
+        )}
         <DistanceSlider
           value={settings.distance}
           min={settings.distanceMin}
           max={settings.distanceMax}
           label={settings.distanceLabel}
-          basePostcode={settings.basePostcode}
           onChange={settings.setDistance}
         />
       </Card>
