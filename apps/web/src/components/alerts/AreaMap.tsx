@@ -46,6 +46,8 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
   const { lat, lng } = base;
   // Where the map starts; the second effect follows changes.
   const start = useRef({ base, radiusMiles });
+  // The map opens at the right zoom and only glides for later changes.
+  const firstFit = useRef(true);
 
   useEffect(() => {
     if (!container.current) return;
@@ -82,6 +84,9 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
     resize?.observe(container.current);
     return () => {
       resize?.disconnect();
+      // Leaflet 1.9 finishes a zoom animation on a timer even after remove(), and then fails on
+      // the removed panes; marking the animation as over first stops that.
+      (created as L.Map & { _animatingZoom?: boolean })._animatingZoom = false;
       created.remove();
       map.current = null;
       area.current = null;
@@ -93,7 +98,8 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
     if (!map.current || !area.current) return;
     area.current.setLatLng([lat, lng]).setRadius(radiusMiles * METRES_PER_MILE);
     pin.current?.setLatLng([lat, lng]);
-    fit(map.current, area.current, !prefersReducedMotion());
+    fit(map.current, area.current, !firstFit.current && !prefersReducedMotion());
+    firstFit.current = false;
   }, [lat, lng, radiusMiles]);
 
   const where = postcode ?? "central Bromley";
