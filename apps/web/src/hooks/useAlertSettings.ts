@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AlertSettings,
   AlertSettingsChanges,
+  AlertSettingsResult,
   BasePostcodeResult,
   LeadsApi,
 } from "../api/leads";
@@ -126,6 +127,16 @@ export function useAlertSettings() {
     [],
   );
 
+  /** Saves several settings at once, as onboarding does; a lost connection becomes a message. */
+  const saveChanges = useCallback(
+    (changes: AlertSettingsChanges): Promise<AlertSettingsResult> =>
+      updateSettings(changes).catch(() => ({
+        ok: false,
+        message: "We couldn't reach Kestlow. Please try again in a minute.",
+      })),
+    [updateSettings],
+  );
+
   const saveBasePostcode = useCallback(
     async (postcode: string): Promise<BasePostcodeResult> => {
       const result = await updateSettings({ postcode });
@@ -159,6 +170,7 @@ export function useAlertSettings() {
     base: settings?.base,
     basePostcodeLoaded: settingsQuery.isSuccess,
     saveBasePostcode,
+    saveChanges,
     settingsStatus: {
       isPending: settingsQuery.isPending,
       isError: settingsQuery.isError,

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { App } from "./components/App";
 import { AppProviders } from "./components/AppProviders";
 import { SignedInGate } from "./components/auth/SignedInGate";
+import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 import "./styles/index.css";
 
 const container = document.getElementById("root");
@@ -12,7 +13,9 @@ createRoot(container).render(
   <StrictMode>
     <AppProviders>
       <SignedInGate>
-        <App />
+        <OnboardingGate>
+          <App />
+        </OnboardingGate>
       </SignedInGate>
     </AppProviders>
   </StrictMode>,
