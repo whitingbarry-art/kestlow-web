@@ -11,6 +11,12 @@ const renderInput = () =>
   );
 
 describe("PasswordInput", () => {
+  it("hides Edge's own reveal eye, so only one eye shows", () => {
+    renderInput();
+
+    expect(screen.getByLabelText("Password")).toHaveClass("[&::-ms-reveal]:hidden");
+  });
+
   it("hides the password to start with", () => {
     renderInput();
 

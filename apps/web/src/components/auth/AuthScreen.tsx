@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
 import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
-import { DATA_CONTROLLER } from "../../data/waitlist";
+import { CONTACT } from "../../data/contact";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
 import { BrandLogo } from "../ui/BrandLogo";
@@ -125,11 +125,8 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
           <div className="mt-4">
             <p className="m-0 text-muted">
               Password resets are on their way. Until then, email{" "}
-              <a
-                href={`mailto:${DATA_CONTROLLER.email}`}
-                className="font-semibold text-ink underline"
-              >
-                {DATA_CONTROLLER.email}
+              <a href={`mailto:${CONTACT.support}`} className="font-semibold text-ink underline">
+                {CONTACT.support}
               </a>{" "}
               from the address you signed up with, and we'll help you back in.
             </p>

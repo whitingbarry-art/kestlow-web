@@ -27,7 +27,8 @@ export function PasswordInput({ shown, onShownChange, className, ...props }: Pas
         type={visible ? "text" : "password"}
         autoCapitalize="none"
         spellCheck={false}
-        className={inputClassName(false, `pr-12 ${className ?? ""}`)}
+        // Edge adds its own reveal eye to password boxes; hide it so there's only ours.
+        className={inputClassName(false, `pr-12 [&::-ms-reveal]:hidden ${className ?? ""}`)}
       />
       <button
         type="button"
