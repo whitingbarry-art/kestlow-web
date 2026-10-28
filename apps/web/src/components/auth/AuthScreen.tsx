@@ -70,12 +70,14 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
     const name = text("name").trim();
     if (mode === "register" && !name) return setError("Enter your name.");
     if (mode === "register") {
-      // Only strong passwords are accepted; the API checks too, this saves the round trip.
-      const { checkPassword } = await import("../../logic/password");
+      // Only strong passwords are accepted; the API checks too, this saves the round trip. If the
+      // checker can't load (a bad signal, or a new deploy replaced it), the API's check is enough.
+      const checker = await import("../../logic/password").catch(() => null);
       const password = text("password");
       if (
+        checker &&
         password.length >= 8 &&
-        checkPassword(password, [name, text("email")]).strength !== "strong"
+        checker.checkPassword(password, [name, text("email")]).strength !== "strong"
       )
         return setError(WEAK_PASSWORD_MESSAGE);
     }

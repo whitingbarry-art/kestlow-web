@@ -16,9 +16,12 @@ export function usePasswordStrength(password: string, userInputs: string[]): Pas
     if (!password) return;
     let current = true;
     const timer = setTimeout(() => {
-      void import("../logic/password").then(({ checkPassword }) => {
-        if (current) setResult({ password, check: checkPassword(password, inputs.split("\n")) });
-      });
+      // No meter if the checker can't load; registering still works, as the API checks too.
+      void import("../logic/password")
+        .then(({ checkPassword }) => {
+          if (current) setResult({ password, check: checkPassword(password, inputs.split("\n")) });
+        })
+        .catch(() => undefined);
     }, WAIT_MS);
     return () => {
       current = false;
