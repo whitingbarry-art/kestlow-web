@@ -12,5 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src", "vite.config.mts"]
+  "include": ["src", "functions", "vite.config.mts"]
 }

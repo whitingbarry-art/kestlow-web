@@ -1,0 +1,9 @@
+# Cloudflare Pages settings for the deployed web app. The /api Pages Function reaches the API
+# Worker through this service binding, so the session cookie stays on the web app's own site.
+name = "kestlow-web"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-20"
+
+[[services]]
+binding = "API"
+service = "kestlow-api"
