@@ -1,18 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { AlertSettingsChanges, BasePostcodeResult, LeadsApi } from "../api/leads";
+import type {
+  AlertSettings,
+  AlertSettingsChanges,
+  BasePostcodeResult,
+  LeadsApi,
+} from "../api/leads";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import {
+  DEFAULT_DELIVERY,
   DELIVERY_OPTIONS,
   DISTANCE_MAX_MILES,
   DISTANCE_MIN_MILES,
-  INITIAL_DELIVERY,
   INITIAL_DISTANCE_MILES,
-  INITIAL_TRADES,
 } from "../data/alerts";
 import { TRADES } from "../data/leads";
 import { clamp, formatDistance } from "../logic/alerts";
-import type { DeliveryChannel } from "../types/alerts";
+import type { DeliveryChannel, TradeSettings } from "../types/alerts";
 import type { Trade } from "../types/lead";
 
 /** The base postcode and distance leads are measured with (KES-26, KES-25). */
@@ -27,6 +31,14 @@ export const alertSettingsQuery = (api: LeadsApi) => ({
 // Every query whose leads or distances depend on the base and distance.
 const MEASURED_FROM_BASE = new Set(["leads", "lead", "saved"]);
 
+/** The fields of `from` that `changes` touches, to put them back as they were. */
+function pick(from: AlertSettings, changes: Pick<AlertSettingsChanges, "trades" | "delivery">) {
+  return {
+    ...("trades" in changes && { trades: from.trades }),
+    ...("delivery" in changes && { delivery: from.delivery }),
+  };
+}
+
 /** The slider saves this long after it stops moving, so dragging doesn't send every mile. */
 export const DISTANCE_SAVE_DELAY_MS = 500;
 
@@ -36,31 +48,55 @@ export function useAlertSettings() {
   const settingsQuery = useQuery(alertSettingsQuery(api));
   const { mutateAsync: updateSettings } = useMutation({
     mutationFn: (changes: AlertSettingsChanges) => api.updateAlertSettings(changes),
-    onSuccess: (result) => {
+    onSuccess: (result, changes) => {
       if (!result.ok) return;
       queryClient.setQueryData(ALERT_SETTINGS_KEY, result.settings);
-      // Leads are now measured differently, so fetch them again (in the background).
-      void queryClient.invalidateQueries({
-        predicate: (query) => MEASURED_FROM_BASE.has(String(query.queryKey[0])),
-      });
+      // A new base or distance measures leads differently, so fetch them again (in the background).
+      if ("postcode" in changes || "radiusMiles" in changes)
+        void queryClient.invalidateQueries({
+          predicate: (query) => MEASURED_FROM_BASE.has(String(query.queryKey[0])),
+        });
     },
   });
-  const [delivery, setDelivery] = useState(INITIAL_DELIVERY);
-  const [trades, setTrades] = useState(INITIAL_TRADES);
+
+  /** Shows a toggle's change straight away, and puts it back if it can't be saved. */
+  const changeNow = useCallback(
+    (changes: Pick<AlertSettingsChanges, "trades" | "delivery">) => {
+      const before = queryClient.getQueryData<AlertSettings>(ALERT_SETTINGS_KEY);
+      if (!before) return;
+      queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, { ...before, ...changes });
+      const putBack = () =>
+        queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, (now) =>
+          now ? { ...now, ...pick(before, changes) } : before,
+        );
+      void updateSettings(changes)
+        .then((result) => !result.ok && putBack())
+        .catch(putBack);
+    },
+    [queryClient, updateSettings],
+  );
   // The distance while the slider moves, until it's saved; null shows the saved one.
   const [draftDistance, setDraftDistance] = useState<number | null>(null);
   const pendingSave = useRef<{ timer: ReturnType<typeof setTimeout>; save: () => void } | null>(
     null,
   );
 
+  const settings = settingsQuery.data;
+  const delivery = settings?.delivery ?? DEFAULT_DELIVERY;
+  const chosenTrades = settings?.trades ?? TRADES;
+
   const toggleDelivery = useCallback(
-    (key: DeliveryChannel) => setDelivery((current) => ({ ...current, [key]: !current[key] })),
-    [],
+    (key: DeliveryChannel) => changeNow({ delivery: { ...delivery, [key]: !delivery[key] } }),
+    [changeNow, delivery],
   );
 
   const toggleTrade = useCallback(
-    (trade: Trade) => setTrades((current) => ({ ...current, [trade]: !current[trade] })),
-    [],
+    (trade: Trade) =>
+      changeNow({
+        // Kept in the usual order, as the API keeps them.
+        trades: TRADES.filter((t) => (t === trade) !== chosenTrades.includes(t)),
+      }),
+    [changeNow, chosenTrades],
   );
 
   const setDistance = useCallback(
@@ -100,8 +136,11 @@ export function useAlertSettings() {
     [updateSettings],
   );
 
-  const settings = settingsQuery.data;
   const distance = draftDistance ?? settings?.radiusMiles ?? INITIAL_DISTANCE_MILES;
+  const trades = Object.fromEntries(
+    TRADES.map((t) => [t, chosenTrades.includes(t)]),
+  ) as TradeSettings;
+  const { refetch } = settingsQuery;
 
   return {
     deliveryOptions: DELIVERY_OPTIONS,
@@ -120,6 +159,11 @@ export function useAlertSettings() {
     base: settings?.base,
     basePostcodeLoaded: settingsQuery.isSuccess,
     saveBasePostcode,
+    settingsStatus: {
+      isPending: settingsQuery.isPending,
+      isError: settingsQuery.isError,
+      retry: () => void refetch(),
+    },
   };
 }
 

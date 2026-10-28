@@ -1,4 +1,5 @@
-import { SAMPLE_LEADS } from "../data/leads";
+import { DEFAULT_DELIVERY } from "../data/alerts";
+import { SAMPLE_LEADS, TRADES } from "../data/leads";
 import type { Lead } from "../types/lead";
 import type { AlertSettings, LeadsApi } from "./leads";
 
@@ -18,7 +19,13 @@ export function createSampleLeadsApi(
   basePostcode: string | null = null,
 ): LeadsApi {
   let saved = [...savedIds];
-  let settings: AlertSettings = { postcode: basePostcode, radiusMiles: 15, base: SAMPLE_BASE };
+  let settings: AlertSettings = {
+    postcode: basePostcode,
+    radiusMiles: 15,
+    base: SAMPLE_BASE,
+    trades: [...TRADES],
+    delivery: DEFAULT_DELIVERY,
+  };
   return {
     listLeads({ trade, page }) {
       const matching = trade ? leads.filter((lead) => lead.trades.includes(trade)) : leads;
@@ -49,7 +56,7 @@ export function createSampleLeadsApi(
     getAlertSettings() {
       return Promise.resolve(settings);
     },
-    updateAlertSettings({ postcode, radiusMiles }) {
+    updateAlertSettings({ postcode, radiusMiles, trades, delivery }) {
       // Checks everything before changing anything, like the real API.
       const refuse = (message: string) => Promise.resolve({ ok: false as const, message });
       if (
@@ -71,6 +78,9 @@ export function createSampleLeadsApi(
         ...settings,
         ...(tidy !== undefined && { postcode: tidy }),
         ...(radiusMiles !== undefined && { radiusMiles }),
+        // Kept in the usual order, each once, like the real API.
+        ...(trades && { trades: TRADES.filter((t) => trades.includes(t)) }),
+        ...(delivery && { delivery }),
       };
       return Promise.resolve({ ok: true, settings });
     },

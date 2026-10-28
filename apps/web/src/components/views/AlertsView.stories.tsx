@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../../data/leads";
 import { useAlertSettings } from "../../hooks/useAlertSettings";
-import { withLeadsApi } from "../../stories/withLeadsApi";
+import { failingLeadsApi, pendingLeadsApi, withLeadsApi } from "../../stories/withLeadsApi";
 import { AlertsView } from "./AlertsView";
 
 function AlertsViewStory() {
@@ -31,3 +31,7 @@ export const NoBasePostcode: Story = { decorators: [withLeadsApi()] };
 export const WithBasePostcode: Story = {
   decorators: [withLeadsApi(createSampleLeadsApi(SAMPLE_LEADS, 20, [], "BR1 1AA"))],
 };
+
+export const Loading: Story = { decorators: [withLeadsApi(pendingLeadsApi)] };
+
+export const LoadFailed: Story = { decorators: [withLeadsApi(failingLeadsApi)] };

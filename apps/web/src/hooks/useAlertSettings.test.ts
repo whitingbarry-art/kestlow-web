@@ -10,12 +10,58 @@ const renderSettings = (api: LeadsApi = createSampleLeadsApi()) =>
   renderHook(() => useAlertSettings(), { wrapper: providers(api) });
 
 describe("useAlertSettings", () => {
-  it("toggles delivery and trade settings", () => {
-    const { result } = renderSettings();
+  it("toggles delivery and trade settings and saves them, so they survive a reload", async () => {
+    const api = createSampleLeadsApi();
+    const { result } = renderSettings(api);
+    await waitFor(() => expect(result.current.basePostcodeLoaded).toBe(true));
+    expect(result.current.delivery).toEqual({ email: true, push: false, weekend: false });
+    expect(result.current.trades.Roofing).toBe(true);
+
     act(() => result.current.toggleDelivery("weekend"));
     act(() => result.current.toggleTrade("Roofing"));
-    expect(result.current.delivery.weekend).toBe(true);
+
+    await waitFor(() => expect(result.current.delivery.weekend).toBe(true));
     expect(result.current.trades.Roofing).toBe(false);
+    // Kept by the API, so a reload shows the same.
+    await waitFor(async () =>
+      expect(await api.getAlertSettings()).toMatchObject({
+        delivery: { email: true, push: false, weekend: true },
+        trades: ["Electrical", "Landscaping", "Groundworks"],
+      }),
+    );
+  });
+
+  it("puts a toggle back when it can't be saved", async () => {
+    let refuse: (error: Error) => void = () => {};
+    const api = createSampleLeadsApi();
+    const { result } = renderSettings({
+      ...api,
+      updateAlertSettings: () => new Promise((_resolve, reject) => (refuse = reject)),
+    });
+    await waitFor(() => expect(result.current.basePostcodeLoaded).toBe(true));
+
+    // Shown before the API has answered...
+    act(() => result.current.toggleTrade("Groundworks"));
+    await waitFor(() => expect(result.current.trades.Groundworks).toBe(false));
+
+    // ...and put back when it says no.
+    act(() => refuse(new Error("Network error")));
+    await waitFor(() => expect(result.current.trades.Groundworks).toBe(true));
+  });
+
+  it("doesn't fetch the leads again for a trade or delivery change", async () => {
+    const api = createSampleLeadsApi();
+    const listLeads = vi.fn(api.listLeads);
+    const { result } = renderHook(() => ({ leads: useLeads(), settings: useAlertSettings() }), {
+      wrapper: providers({ ...api, listLeads }),
+    });
+    await waitFor(() => expect(result.current.settings.basePostcodeLoaded).toBe(true));
+    await waitFor(() => expect(listLeads).toHaveBeenCalledTimes(1));
+
+    act(() => result.current.settings.toggleDelivery("push"));
+    await waitFor(async () => expect((await api.getAlertSettings()).delivery.push).toBe(true));
+
+    expect(listLeads).toHaveBeenCalledTimes(1);
   });
 
   it("clamps the distance and formats its label", () => {

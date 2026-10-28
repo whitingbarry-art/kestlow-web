@@ -1,3 +1,4 @@
+import type { DeliverySettings } from "../types/alerts";
 import type { Lead, LeadsPage, Trade } from "../types/lead";
 
 /** What the app needs from the leads API; tests and Storybook swap in `createSampleLeadsApi`. */
@@ -21,11 +22,16 @@ export interface AlertSettings {
   radiusMiles: number;
   /** Where leads are measured from: the postcode, or the default area until one is set. */
   base: { lat: number; lng: number };
+  /** The trades they want alerts for. */
+  trades: Trade[];
+  delivery: DeliverySettings;
 }
 
 export interface AlertSettingsChanges {
   postcode?: string;
   radiusMiles?: number;
+  trades?: Trade[];
+  delivery?: DeliverySettings;
 }
 
 /** Changing settings either works, giving them back, or has a message to show. */
