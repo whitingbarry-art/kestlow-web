@@ -11,6 +11,7 @@ import { DetailPanel } from "./layout/DetailPanel";
 import { Sidebar } from "./layout/Sidebar";
 import { TopBar } from "./layout/TopBar";
 import { LeadDetail } from "./leads/LeadDetail";
+import { AccountView } from "./views/AccountView";
 import { AlertsView } from "./views/AlertsView";
 import { LeadsView } from "./views/LeadsView";
 import { SavedView } from "./views/SavedView";
@@ -62,6 +63,7 @@ export function App() {
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
+        {view === "account" && <AccountView />}
       </main>
 
       <DetailPanel

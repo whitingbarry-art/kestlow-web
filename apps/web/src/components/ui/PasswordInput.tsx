@@ -1,7 +1,7 @@
-import { useState, type InputHTMLAttributes } from "react";
+import { useState, type ComponentProps } from "react";
 import { inputClassName } from "./inputStyles";
 
-interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface PasswordInputProps extends Omit<ComponentProps<"input">, "type"> {
   /** Starts hidden; set it to false after a submit to hide the password again. */
   shown?: boolean;
   onShownChange?: (shown: boolean) => void;

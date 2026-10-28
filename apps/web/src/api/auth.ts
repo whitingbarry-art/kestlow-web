@@ -18,6 +18,15 @@ export interface AuthApi {
   signIn: (details: { email: string; password: string }) => Promise<AuthResult>;
   register: (details: { name: string; email: string; password: string }) => Promise<AuthResult>;
   signOut: () => Promise<void>;
+  /** Changes the password and signs out every other device (KES-43). */
+  changePassword: (details: {
+    currentPassword: string;
+    newPassword: string;
+  }) => Promise<AuthResult>;
+  /** Signs out of every device, this one included. */
+  signOutEverywhere: () => Promise<void>;
+  /** Deletes the account and everything about the person, once the password checks out. */
+  deleteAccount: (password: string) => Promise<AuthResult>;
 }
 
 export const WEAK_PASSWORD_MESSAGE =
@@ -34,6 +43,8 @@ const MESSAGES: Record<string, string> = {
     "There's already an account with that email. Sign in instead.",
   INVALID_EMAIL: "Enter a valid email address.",
   VALIDATION_ERROR: "Enter a valid email address and password.",
+  INVALID_PASSWORD: "That isn't your current password.",
+  PASSWORD_REQUIRED: "Enter your password to delete your account.",
 };
 const FALLBACK = "Something went wrong. Please try again.";
 
@@ -74,5 +85,15 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
       const res = await post("/sign-out", {});
       if (!res.ok) throw new ApiError(res.status, `POST /auth/sign-out failed with ${res.status}`);
     },
+    changePassword: async ({ currentPassword, newPassword }) =>
+      result(
+        await post("/change-password", { currentPassword, newPassword, revokeOtherSessions: true }),
+      ),
+    signOutEverywhere: async () => {
+      const res = await post("/revoke-sessions", {});
+      if (!res.ok)
+        throw new ApiError(res.status, `POST /auth/revoke-sessions failed with ${res.status}`);
+    },
+    deleteAccount: async (password) => result(await post("/delete-user", { password })),
   };
 }
