@@ -23,7 +23,7 @@ describe("useLeads", () => {
   });
 
   it("shows the radius while the leads are loading", () => {
-    const pending: LeadsApi = { listLeads: () => new Promise(() => {}), getLead: vi.fn() };
+    const pending: LeadsApi = { ...createSampleLeadsApi(), listLeads: () => new Promise(() => {}) };
     const { result } = renderHook(() => useLeads(), { wrapper: providers(pending) });
     expect(result.current.leadsStatus.isPending).toBe(true);
     expect(result.current.summary).toBe("Within 15 miles");
@@ -98,25 +98,67 @@ describe("useLeads", () => {
     expect(result.current.selectedLead?.address).toBe("14 Orchard Lane");
   });
 
-  it("lists saved leads, fetching any that aren't showing", async () => {
-    const api = createSampleLeadsApi();
-    const getLead = vi.fn(api.getLead);
-    const { result } = await renderLeads({ initialSavedIds: ["sample-3"] }, { ...api, getLead });
+  it("lists the saved leads the API keeps, whatever trade is showing", async () => {
+    const api = createSampleLeadsApi(SAMPLE_LEADS, 20, ["sample-3"]);
+    const { result } = await renderLeads(undefined, api);
 
     act(() => result.current.setTrade("Roofing"));
     await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-1"]));
     expect(ids(result.current.savedLeads)).toEqual(["sample-3"]);
+    expect(result.current.isSaved("sample-3")).toBe(true);
+  });
+
+  it("saves and unsaves through the API, newest first", async () => {
+    const api = createSampleLeadsApi(SAMPLE_LEADS, 20, ["sample-3"]);
+    const saveLead = vi.fn(api.saveLead);
+    const unsaveLead = vi.fn(api.unsaveLead);
+    const { result } = await renderLeads(undefined, { ...api, saveLead, unsaveLead });
+    await waitFor(() => expect(result.current.savedStatus.isPending).toBe(false));
 
     act(() => result.current.toggleSaved("sample-1"));
-    expect(result.current.isSaved("sample-1")).toBe(true);
+    await waitFor(() => expect(ids(result.current.savedLeads)).toEqual(["sample-1", "sample-3"]));
     act(() => result.current.toggleSaved("sample-3"));
-    expect(ids(result.current.savedLeads)).toEqual(["sample-1"]);
-    // sample-1 was already on screen, so only the first saved lead needed its own fetch.
-    expect(getLead.mock.calls.map(([id]) => id)).not.toContain("sample-1");
+    await waitFor(() => expect(ids(result.current.savedLeads)).toEqual(["sample-1"]));
+
+    expect(saveLead).toHaveBeenCalledWith("sample-1");
+    expect(unsaveLead).toHaveBeenCalledWith("sample-3");
+    // Kept by the API, so a reload or another device sees the same.
+    expect(ids(await api.listSaved())).toEqual(["sample-1"]);
+  });
+
+  it("shows a save straight away, before the API answers", async () => {
+    const api = createSampleLeadsApi();
+    const { result } = await renderLeads(undefined, {
+      ...api,
+      saveLead: () => new Promise(() => {}),
+    });
+    await waitFor(() => expect(result.current.savedStatus.isPending).toBe(false));
+
+    act(() => result.current.toggleSaved("sample-2"));
+
+    await waitFor(() => expect(result.current.isSaved("sample-2")).toBe(true));
+  });
+
+  it("puts a save back when the API refuses it", async () => {
+    const api = createSampleLeadsApi();
+    let refuse: (error: Error) => void = () => {};
+    const { result } = await renderLeads(undefined, {
+      ...api,
+      saveLead: () => new Promise((_resolve, reject) => (refuse = reject)),
+    });
+    await waitFor(() => expect(result.current.savedStatus.isPending).toBe(false));
+
+    act(() => result.current.toggleSaved("sample-2"));
+    await waitFor(() => expect(result.current.isSaved("sample-2")).toBe(true));
+
+    act(() => refuse(new Error("Network error")));
+    await waitFor(() => expect(result.current.isSaved("sample-2")).toBe(false));
+    expect(result.current.savedLeads).toEqual([]);
   });
 
   it("drops a saved lead the API no longer has", async () => {
-    const { result } = await renderLeads({ initialSavedIds: ["sample-2", "gone"] });
+    const api = createSampleLeadsApi(SAMPLE_LEADS, 20, ["sample-2", "gone"]);
+    const { result } = await renderLeads(undefined, api);
     await waitFor(() => expect(result.current.savedStatus.isPending).toBe(false));
     expect(ids(result.current.savedLeads)).toEqual(["sample-2"]);
   });

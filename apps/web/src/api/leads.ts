@@ -5,6 +5,10 @@ export interface LeadsApi {
   listLeads: (query: { trade?: Trade; page: number }) => Promise<LeadsPage>;
   /** Resolves to null when there's no such lead. */
   getLead: (id: string) => Promise<Lead | null>;
+  /** The signed-in user's saved leads, most recently saved first (KES-24). */
+  listSaved: () => Promise<Lead[]>;
+  saveLead: (id: string) => Promise<void>;
+  unsaveLead: (id: string) => Promise<void>;
 }
 
 export class ApiError extends Error {
@@ -35,6 +39,12 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
     return (await res.json()) as T;
   }
 
+  /** Saves or unsaves; both answer 204 with no body. */
+  async function send(method: "PUT" | "DELETE", path: string): Promise<void> {
+    const res = await fetch(`${baseUrl}${path}`, { method, credentials: "include" });
+    if (!res.ok) throw new ApiError(res.status, `${method} ${path} failed with ${res.status}`);
+  }
+
   return {
     async listLeads({ trade, page }) {
       const params = new URLSearchParams({ page: String(page) });
@@ -46,5 +56,12 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
     getLead(id) {
       return get<Lead>(`/leads/${encodeURIComponent(id)}`);
     },
+    async listSaved() {
+      const saved = await get<{ leads: Lead[] }>("/me/saved");
+      if (!saved) throw new ApiError(404, "GET /me/saved failed with 404");
+      return saved.leads;
+    },
+    saveLead: (id) => send("PUT", `/me/saved/${encodeURIComponent(id)}`),
+    unsaveLead: (id) => send("DELETE", `/me/saved/${encodeURIComponent(id)}`),
   };
 }

@@ -1,14 +1,18 @@
-import { useInfiniteQuery, useQueries, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import { SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
-import { findLead, formatLeadSummary, toggleId } from "../logic/leads";
+import { findLead, formatLeadSummary } from "../logic/leads";
 import type { Lead, TradeFilter } from "../types/lead";
 
 interface UseLeadsOptions {
-  initialSavedIds?: string[];
   selectFirstLead?: boolean;
 }
+
+/** The signed-in user's saved leads, kept by the API so they show on every device (KES-24). */
+export const SAVED_KEY = ["saved"] as const;
+
+const NO_LEADS: Lead[] = [];
 
 /** Whether a list has loaded, and a way to try again when it hasn't. */
 export interface LoadStatus {
@@ -17,11 +21,10 @@ export interface LoadStatus {
   retry: () => void;
 }
 
-export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseLeadsOptions = {}) {
+export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
   const api = useLeadsApi();
+  const queryClient = useQueryClient();
   const [trade, setTrade] = useState<TradeFilter>("All trades");
-  // Saved leads live in memory until accounts can store them (KES-24).
-  const [savedIds, setSavedIds] = useState<Set<string>>(() => new Set(initialSavedIds));
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [openCount, setOpenCount] = useState(0);
@@ -52,38 +55,57 @@ export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseL
     retry: retryLeads,
   };
 
-  // Each saved lead is fetched by id, so it stays listed whatever trade or page is showing.
-  const saved = useQueries({
-    queries: [...savedIds].map((id) => ({
-      queryKey: ["lead", id],
-      queryFn: () => api.getLead(id),
-      initialData: () => findLead(visibleLeads, id),
-    })),
-    combine: (results) => ({
-      // A lead that has gone from the area comes back as null and drops off the list.
-      leads: results.flatMap((result) => (result.data ? [result.data] : [])),
-      status: {
-        isPending: results.some((result) => result.isPending),
-        isError: results.some((result) => result.isError),
-        retry: () => results.forEach((result) => result.isError && void result.refetch()),
-      } satisfies LoadStatus,
-    }),
+  const savedQuery = useQuery({ queryKey: SAVED_KEY, queryFn: () => api.listSaved() });
+  const savedLeads = savedQuery.data ?? NO_LEADS;
+  const savedIds = useMemo(() => new Set(savedLeads.map((lead) => lead.id)), [savedLeads]);
+  const { refetch: refetchSaved } = savedQuery;
+  const retrySaved = useCallback(() => void refetchSaved(), [refetchSaved]);
+  const savedStatus: LoadStatus = {
+    isPending: savedQuery.isPending,
+    isError: savedQuery.isError,
+    retry: retrySaved,
+  };
+
+  // Saving shows straight away, and is put back if the API refuses or can't be reached.
+  const { mutate: changeSaved } = useMutation({
+    mutationFn: ({ id, save }: { id: string; save: boolean; lead?: Lead }) =>
+      save ? api.saveLead(id) : api.unsaveLead(id),
+    onMutate: async ({ id, save, lead }) => {
+      await queryClient.cancelQueries({ queryKey: SAVED_KEY });
+      const previous = queryClient.getQueryData<Lead[]>(SAVED_KEY);
+      queryClient.setQueryData<Lead[]>(SAVED_KEY, (leads = []) => {
+        const others = leads.filter((saved) => saved.id !== id);
+        return save && lead ? [lead, ...others] : others;
+      });
+      return { previous };
+    },
+    onError: (_error, _change, context) => queryClient.setQueryData(SAVED_KEY, context?.previous),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: SAVED_KEY }),
   });
 
   // On desktop the first lead shows in the detail panel until another is chosen.
   const selectedId = chosenId ?? (selectFirstLead ? (visibleLeads[0]?.id ?? null) : null);
-  const listedLead = findLead(visibleLeads, selectedId) ?? findLead(saved.leads, selectedId);
+  const listedLead = findLead(visibleLeads, selectedId) ?? findLead(savedLeads, selectedId);
   // A chosen lead stays in the detail panel after a trade change takes it off the list.
   const chosenQuery = useQuery({
     queryKey: ["lead", chosenId],
     queryFn: () => (chosenId === null ? null : api.getLead(chosenId)),
     enabled: chosenId !== null && !listedLead,
-    initialData: () => findLead(visibleLeads, chosenId) ?? findLead(saved.leads, chosenId),
+    initialData: () => findLead(visibleLeads, chosenId) ?? findLead(savedLeads, chosenId),
   });
   const selectedLead: Lead | undefined = listedLead ?? chosenQuery.data ?? undefined;
 
   const isSaved = useCallback((id: string) => savedIds.has(id), [savedIds]);
-  const toggleSaved = useCallback((id: string) => setSavedIds((ids) => toggleId(ids, id)), []);
+  const toggleSaved = useCallback(
+    (id: string) => {
+      const lead =
+        findLead(visibleLeads, id) ??
+        findLead(savedLeads, id) ??
+        (selectedLead?.id === id ? selectedLead : undefined);
+      changeSaved({ id, save: !savedIds.has(id), lead });
+    },
+    [visibleLeads, savedLeads, selectedLead, savedIds, changeSaved],
+  );
 
   const openLead = useCallback((id: string) => {
     setChosenId(id);
@@ -106,8 +128,8 @@ export function useLeads({ initialSavedIds = [], selectFirstLead = false }: UseL
     isLoadingMoreLeads: leadsQuery.isFetchingNextPage,
     loadMoreFailed: leadsQuery.isFetchNextPageError,
     loadMoreLeads,
-    savedLeads: saved.leads,
-    savedStatus: saved.status,
+    savedLeads,
+    savedStatus,
     summary,
     selectedId,
     selectedLead,
