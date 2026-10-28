@@ -1,7 +1,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
-import { AMBER, NAVY, addPin, createFixedMap } from "../maps/mapLayers";
+import { AMBER, NAVY, addPin, createFixedMap, prefersReducedMotion } from "../maps/mapLayers";
 
 interface AreaMapProps {
   /** Where leads are measured from, as WGS84 latitude and longitude. */
@@ -13,11 +13,25 @@ interface AreaMapProps {
 
 const METRES_PER_MILE = 1609.344;
 
-/** Zooms so the whole circle shows. A map with no size yet can't be fitted, so it waits. */
-function fit(map: L.Map, area: L.Circle) {
+/**
+ * Zooms so the whole circle shows, gliding there unless the person prefers less motion. A map with
+ * no size yet can't be fitted, so it waits.
+ */
+const PADDING = L.point(12, 12);
+
+function fit(map: L.Map, area: L.Circle, animate: boolean) {
   const size = map.getSize();
   if (size.x > 0 && size.y > 0)
-    map.fitBounds(area.getBounds(), { padding: [12, 12], animate: false });
+    map.fitBounds(area.getBounds(), { padding: PADDING, animate, duration: 0.3 });
+}
+
+/**
+ * A slider moving quickly starts a new zoom before the last has finished, and Leaflet drops it.
+ * So when a zoom ends, check the circle still fits exactly, and zoom again if it doesn't.
+ */
+function fitAfterZoom(map: L.Map, area: L.Circle, animate: boolean) {
+  const wanted = map.getBoundsZoom(area.getBounds(), false, PADDING.multiplyBy(2));
+  if (Math.abs(map.getZoom() - wanted) > 0.01) fit(map, area, animate);
 }
 
 /**
@@ -36,7 +50,14 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
   useEffect(() => {
     if (!container.current) return;
     const { base: startBase, radiusMiles: startMiles } = start.current;
-    const created = createFixedMap(container.current, [startBase.lat, startBase.lng], 10);
+    // Any zoom level, not just whole ones, so the map follows the slider smoothly instead of
+    // jumping a whole level at a time; the circle keeps its size on screen.
+    const animate = !prefersReducedMotion();
+    const created = createFixedMap(container.current, [startBase.lat, startBase.lng], 10, {
+      zoomSnap: 0,
+      zoomAnimation: animate,
+      fadeAnimation: animate,
+    });
     area.current = L.circle([startBase.lat, startBase.lng], {
       radius: startMiles * METRES_PER_MILE,
       color: NAVY,
@@ -50,12 +71,13 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
 
     // Fit again whenever the map changes size, including when it first gets one.
     const circle = area.current;
+    created.on("zoomend", () => fitAfterZoom(created, circle, animate));
     const resize =
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(() => {
             created.invalidateSize({ animate: false });
-            fit(created, circle);
+            fit(created, circle, false);
           });
     resize?.observe(container.current);
     return () => {
@@ -71,7 +93,7 @@ export function AreaMap({ base, radiusMiles, postcode }: AreaMapProps) {
     if (!map.current || !area.current) return;
     area.current.setLatLng([lat, lng]).setRadius(radiusMiles * METRES_PER_MILE);
     pin.current?.setLatLng([lat, lng]);
-    fit(map.current, area.current);
+    fit(map.current, area.current, !prefersReducedMotion());
   }, [lat, lng, radiusMiles]);
 
   const where = postcode ?? "central Bromley";

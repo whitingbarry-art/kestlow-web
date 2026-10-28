@@ -25,11 +25,22 @@ class BlueprintGrid extends L.GridLayer {
   }
 }
 
+/** Whether the person has asked their device for less motion. */
+export function prefersReducedMotion(): boolean {
+  return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 /**
  * A fixed map: it doesn't pan or zoom, so there's nothing to trap the keyboard or need a precise
- * gesture. Comes with OpenStreetMap's tiles, their attribution and the blueprint grid.
+ * gesture. Comes with OpenStreetMap's tiles, their attribution and the blueprint grid. `options`
+ * can turn animation back on, as the area map does.
  */
-export function createFixedMap(container: HTMLElement, center: L.LatLngExpression, zoom: number) {
+export function createFixedMap(
+  container: HTMLElement,
+  center: L.LatLngExpression,
+  zoom: number,
+  options: L.MapOptions = {},
+) {
   const map = L.map(container, {
     center,
     zoom,
@@ -42,6 +53,7 @@ export function createFixedMap(container: HTMLElement, center: L.LatLngExpressio
     zoomControl: false,
     zoomAnimation: false,
     fadeAnimation: false,
+    ...options,
   });
   map.attributionControl.setPrefix(false);
   if (TILE_URL) L.tileLayer(TILE_URL, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(map);
