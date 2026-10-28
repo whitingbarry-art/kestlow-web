@@ -19,12 +19,17 @@ export class ApiError extends Error {
 
 /**
  * The real API over HTTP. In development Vite proxies `/api` to the local API on port 5181
- * (vite.config.mts). Deployed builds call the API at VITE_API_URL, set at build time (KES-19).
+ * (vite.config.mts); on Cloudflare Pages a Pages Function passes `/api` to the API Worker
+ * (functions/api). VITE_API_URL, set at build time, points a build at another address instead.
  */
 export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/api"): LeadsApi {
   /** The JSON body, or null for a 404. */
   async function get<T>(path: string): Promise<T | null> {
-    const res = await fetch(`${baseUrl}${path}`, { headers: { Accept: "application/json" } });
+    // The session cookie has to come along: leads need someone signed in (KES-22).
+    const res = await fetch(`${baseUrl}${path}`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+    });
     if (res.status === 404) return null;
     if (!res.ok) throw new ApiError(res.status, `GET ${path} failed with ${res.status}`);
     return (await res.json()) as T;

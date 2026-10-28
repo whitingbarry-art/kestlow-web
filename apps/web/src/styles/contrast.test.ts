@@ -71,3 +71,34 @@ describe.each(Object.entries(themes))("%s theme contrast", (_, tokens) => {
 it("draws the focus ring in the ink colour", () => {
   expect(css).toMatch(/--focus:\s*var\(--ink\);/);
 });
+
+// The brand surface is decoration over --side: its lightest point is the amber glow over
+// --side-light with a grid line on top, so text must pass there as well as on plain --side.
+function blend(top: string, alpha: number, bottom: string): string {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(i, i + 2), 16);
+  return `#${[1, 3, 5]
+    .map((i) => Math.round(channel(top, i) * alpha + channel(bottom, i) * (1 - alpha)))
+    .map((c) => c.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+const sideLink = /--color-side-link:\s*(#[0-9a-f]{6});/i.exec(css)?.[1] ?? "";
+const amber = /--color-amber:\s*(#[0-9a-f]{6});/i.exec(css)?.[1] ?? "";
+
+describe.each(Object.entries(themes))("%s theme brand surface", (_, tokens) => {
+  const lightest = blend("#ffffff", 0.045, blend(amber, 0.14, tokens["side-light"]));
+  // The sidebar's current page sits on a 14% white highlight.
+  const highlighted = blend("#ffffff", 0.14, lightest);
+
+  it.each([
+    ["white", "#ffffff", lightest],
+    ["side-link", sideLink, lightest],
+    ["white on the current page's highlight", "#ffffff", highlighted],
+  ])("%s text meets 4.5:1 at the lightest point", (_, fg, bg) => {
+    expect(contrast(fg, bg)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("keeps the white focus ring at 3:1", () => {
+    expect(contrast("#ffffff", lightest)).toBeGreaterThanOrEqual(3);
+  });
+});

@@ -5,6 +5,7 @@ import { CURRENT_SPEND, PLAN_CHOICES, WOULD_PAY, type Option } from "../../data/
 import type { Trade } from "../../types/lead";
 import { cn } from "../../utils/cn";
 import { buttonClassName } from "../ui/buttonStyles";
+import { inputClassName } from "../ui/inputStyles";
 
 type Field = keyof SignupErrors;
 type Status = "idle" | "sending" | "joined" | "failed";
@@ -141,7 +142,7 @@ export function WaitlistForm({ join }: WaitlistFormProps) {
           spellCheck={false}
           aria-invalid={!!errors.postcode || undefined}
           aria-describedby={describedBy("postcode", `${id}-postcode-hint`)}
-          className={cn(inputClassName(!!errors.postcode), "max-w-[12rem]")}
+          className={inputClassName(!!errors.postcode, "max-w-[12rem]")}
         />
         {fieldError("postcode")}
       </div>
@@ -209,13 +210,6 @@ export function WaitlistForm({ join }: WaitlistFormProps) {
         {status === "sending" ? "Joining…" : "Join the waitlist"}
       </button>
     </form>
-  );
-}
-
-function inputClassName(invalid: boolean) {
-  return cn(
-    "mt-1.5 block w-full rounded-xl border-2 bg-card px-3 py-2.5 text-base text-ink",
-    invalid ? "border-error" : "border-muted",
   );
 }
 

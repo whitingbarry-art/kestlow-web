@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import type { JoinWaitlist } from "../../api/waitlist";
 import { DATA_CONTROLLER, PLANS, PROMISES } from "../../data/waitlist";
 import { BrandLogo } from "../ui/BrandLogo";
@@ -35,9 +36,15 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
         Skip to the sign-up form
       </a>
 
-      <header className="bg-side pt-5 pb-12 text-white [--focus:#ffffff]">
+      <header className="brand-surface pt-5 pb-12 text-white [--focus:#ffffff]">
         <div className="mx-auto max-w-5xl px-4">
-          <BrandLogo />
+          <div className="flex items-center justify-between gap-4">
+            <BrandLogo />
+            {/* The app shows the sign-in screen to anyone who isn't signed in. */}
+            <a href="/" className="inline-block py-2 font-semibold text-white underline">
+              Sign in
+            </a>
+          </div>
           <h1 className="mt-10 mb-0 max-w-2xl text-3xl leading-tight font-bold desk:text-5xl">
             Hear about building work while it’s still being planned
           </h1>
@@ -93,9 +100,7 @@ export function WaitlistPage({ join }: WaitlistPageProps) {
           <ul className="mt-6 mb-0 grid gap-2 pl-0 sm:grid-cols-2">
             {PROMISES.map((promise) => (
               <li key={promise} className="flex list-none gap-2">
-                <span aria-hidden="true" className="font-bold text-match-text">
-                  ✓
-                </span>
+                <Check size={18} strokeWidth={2.5} className="mt-0.5 shrink-0 text-match-text" />
                 {promise}
               </li>
             ))}

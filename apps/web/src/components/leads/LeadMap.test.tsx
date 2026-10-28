@@ -11,6 +11,16 @@ describe("LeadMap", () => {
     expect(container.querySelector(".leaflet-container")).not.toBeNull();
   });
 
+  it("lays the blueprint grid over the tiles but under the pin, ignoring the pointer", () => {
+    const { container } = render(<LeadMap location={orchardLane} address="14 Orchard Lane" />);
+
+    const grid = container.querySelector<HTMLElement>(".leaflet-grid-pane");
+    expect(grid?.style.zIndex).toBe("250");
+    expect(grid?.style.pointerEvents).toBe("none");
+    // Leaflet's tile pane is at 200 and the pin's overlay pane at 400.
+    expect(container.querySelector(".leaflet-overlay-pane path")).toBeInTheDocument();
+  });
+
   it("can't be dragged, zoomed or tabbed into, so it never traps the keyboard", () => {
     const { container } = render(<LeadMap location={orchardLane} address="14 Orchard Lane" />);
 

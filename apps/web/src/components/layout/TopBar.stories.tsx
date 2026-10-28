@@ -6,7 +6,7 @@ import { TopBar } from "./TopBar";
 const meta = {
   title: "Layout/TopBar",
   component: TopBar,
-  args: { onToggleTheme: fn() },
+  args: { onToggleTheme: fn(), onSignOut: fn() },
   parameters: { layout: "fullscreen" },
   globals: mobileViewport,
 } satisfies Meta<typeof TopBar>;

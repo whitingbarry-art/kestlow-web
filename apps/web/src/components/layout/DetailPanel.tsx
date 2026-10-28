@@ -54,7 +54,7 @@ export function DetailPanel({ open, focusKey = null, onBack, children }: DetailP
         "desk:static desk:z-auto desk:translate-x-0",
       )}
     >
-      <div className="sticky top-0 flex items-center gap-3 bg-side px-4 py-3.5 text-white [--focus:#fff] desk:hidden">
+      <div className="sticky top-0 flex items-center gap-3 brand-surface px-4 py-3.5 text-white [--focus:#fff] desk:hidden">
         <IconButton aria-label="Back to leads" onClick={handleBack}>
           <span aria-hidden="true">&larr;</span>
         </IconButton>

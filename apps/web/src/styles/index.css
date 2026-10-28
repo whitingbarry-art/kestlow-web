@@ -14,6 +14,7 @@
   --match-bg: #e3f3ec;
   --match-text: #1f7357;
   --side: #12304a;
+  --side-light: #163858;
   --selected: #b36b00;
   --switch-off: #5b6b7a;
   --error: #b3261e;
@@ -33,6 +34,7 @@
   --match-bg: #17402f;
   --match-text: #6fd3aa;
   --side: #0a131c;
+  --side-light: #13263a;
   --selected: #f5a623;
   --switch-off: #76879a;
   --error: #ff8a80;
@@ -65,6 +67,30 @@
   --color-switch-off: var(--switch-off);
   --color-error: var(--error);
   --shadow-card: var(--card-shadow);
+}
+
+/*
+ * The navy brand surface (sidebar, top bars, headers): a faint blueprint grid, like the plans
+ * behind every planning application, over a gradient from --side-light down to --side, with a
+ * soft amber glow echoing the logo's dot. Decoration only: contrast.test.ts checks text against
+ * the lightest point, the glow over --side-light. Windows high-contrast mode drops it all.
+ */
+@utility brand-surface {
+  background-color: var(--side);
+  background-image:
+    radial-gradient(circle at 100% 0%, rgb(245 166 35 / 0.14), transparent 45%),
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, var(--side-light), var(--side));
+  background-size:
+    auto,
+    24px 24px,
+    24px 24px,
+    auto;
+
+  @media (forced-colors: active) {
+    background-image: none;
+  }
 }
 
 @layer base {

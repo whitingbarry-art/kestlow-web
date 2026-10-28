@@ -4,6 +4,7 @@ import { useAlertSettings } from "../hooks/useAlertSettings";
 import { useLeads } from "../hooks/useLeads";
 import { useIsDesktop } from "../hooks/useMediaQuery";
 import { useNavigation } from "../hooks/useNavigation";
+import { useSession, useSignOut } from "../hooks/useSession";
 import { useTheme } from "../hooks/useTheme";
 import { BottomNav } from "./layout/BottomNav";
 import { DetailPanel } from "./layout/DetailPanel";
@@ -21,6 +22,9 @@ export function App() {
   const alertSettings = useAlertSettings();
   const { view, navigate } = useNavigation({ onNavigate: leads.closeDetail });
   const { selectedLead } = leads;
+  const signOut = useSignOut();
+  // SignedInGate only shows the app once someone's signed in, so there's always a user here.
+  const userName = useSession().data?.name ?? "";
   // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
   const coveredByDetail = !isDesktop && leads.isDetailOpen;
   const viewLabel = NAV_ITEMS.find((item) => item.view === view)?.label;
@@ -44,6 +48,8 @@ export function App() {
         activeView={view}
         onNavigate={navigate}
         onToggleTheme={toggleTheme}
+        onSignOut={() => signOut.mutate()}
+        userName={userName}
       />
 
       <main
@@ -52,7 +58,7 @@ export function App() {
         inert={coveredByDetail}
         className="mx-auto max-w-[520px] pb-[90px] desk:m-0 desk:max-w-none desk:overflow-y-auto desk:border-r desk:border-line desk:p-0"
       >
-        <TopBar onToggleTheme={toggleTheme} />
+        <TopBar onToggleTheme={toggleTheme} onSignOut={() => signOut.mutate()} />
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}

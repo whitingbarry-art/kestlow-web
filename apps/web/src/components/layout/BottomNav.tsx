@@ -29,9 +29,12 @@ export function BottomNav({ items, activeView, onNavigate, inert = false }: Bott
                 active ? "border-ink text-ink" : "border-transparent text-muted",
               )}
             >
-              <span className={cn("block text-xl", active && "text-amber")} aria-hidden="true">
-                {item.icon}
-              </span>
+              {/* The darker amber (--selected) keeps the active icon at 3:1 on the white bar. */}
+              <item.icon
+                size={22}
+                strokeWidth={2}
+                className={cn("mx-auto mb-0.5 block", active && "text-selected")}
+              />
               {item.label}
             </button>
           );
