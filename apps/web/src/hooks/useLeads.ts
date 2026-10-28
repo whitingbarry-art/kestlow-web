@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import { SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
 import { findLead, formatLeadSummary } from "../logic/leads";
+import { alertSettingsQuery } from "./useAlertSettings";
 import type { Lead, TradeFilter } from "../types/lead";
 
 interface UseLeadsOptions {
@@ -24,6 +25,8 @@ export interface LoadStatus {
 export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
   const api = useLeadsApi();
   const queryClient = useQueryClient();
+  // The person's own distance (KES-25), or the usual 15 miles while it loads.
+  const radiusMiles = useQuery(alertSettingsQuery(api)).data?.radiusMiles ?? SEARCH_RADIUS_MILES;
   const [trade, setTrade] = useState<TradeFilter>("All trades");
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -44,8 +47,8 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
   const newToday = leadsQuery.data?.pages[0]?.newToday;
   const summary =
     newToday === undefined
-      ? `Within ${SEARCH_RADIUS_MILES} miles`
-      : formatLeadSummary(newToday, SEARCH_RADIUS_MILES);
+      ? `Within ${radiusMiles} miles`
+      : formatLeadSummary(newToday, radiusMiles);
   const { refetch } = leadsQuery;
   const retryLeads = useCallback(() => void refetch(), [refetch]);
   const leadsStatus: LoadStatus = {

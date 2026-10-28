@@ -1,6 +1,7 @@
-import L from "leaflet";
+import type L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
+import { addPin, createFixedMap, fillContainer } from "../maps/mapLayers";
 
 interface LeadMapProps {
   /** WGS84 latitude and longitude of the application site. */
@@ -10,29 +11,6 @@ interface LeadMapProps {
 }
 
 const ZOOM = 16;
-// The theme's navy and amber (index.css). SVG attributes can't read CSS variables.
-const PIN = { color: "#12304a", fillColor: "#f5a623" };
-
-// OpenStreetMap's tile usage policy: their URL, visible attribution, no bulk or offline use.
-// Tests and Storybook's test runs skip tiles so they never call OpenStreetMap.
-const TILE_URL =
-  import.meta.env.MODE === "test" ? null : "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
-// The blueprint grid from the navy brand surface, drawn as its own layer between the tiles (200)
-// and the pin (overlay pane, 400), so it never covers the pin or the attribution. Faint enough
-// that street names stay readable; decoration only, so it ignores the pointer.
-const GRID_PANE = "grid";
-const GRID_LINE = "rgb(18 48 74 / 0.12)";
-class BlueprintGrid extends L.GridLayer {
-  createTile(): HTMLElement {
-    const tile = document.createElement("div");
-    tile.style.backgroundImage = `linear-gradient(${GRID_LINE} 1px, transparent 1px), linear-gradient(90deg, ${GRID_LINE} 1px, transparent 1px)`;
-    tile.style.backgroundSize = "32px 32px";
-    return tile;
-  }
-}
-
-const ATTRIBUTION =
-  '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
 
 /**
  * A fixed map with a pin on the application site (KES-31). It doesn't pan or zoom, so there's
@@ -48,42 +26,14 @@ export function LeadMap({ location, address }: LeadMapProps) {
 
   useEffect(() => {
     if (!container.current) return;
-    const created = L.map(container.current, {
-      center: [start.current.lat, start.current.lng],
-      zoom: ZOOM,
-      dragging: false,
-      touchZoom: false,
-      scrollWheelZoom: false,
-      doubleClickZoom: false,
-      boxZoom: false,
-      keyboard: false,
-      zoomControl: false,
-      zoomAnimation: false,
-      fadeAnimation: false,
-    });
-    created.attributionControl.setPrefix(false);
-    if (TILE_URL) L.tileLayer(TILE_URL, { maxZoom: 19, attribution: ATTRIBUTION }).addTo(created);
-    const gridPane = created.createPane(GRID_PANE);
-    gridPane.style.zIndex = "250";
-    gridPane.style.pointerEvents = "none";
-    new BlueprintGrid({ pane: GRID_PANE }).addTo(created);
-    pin.current = L.circleMarker([start.current.lat, start.current.lng], {
-      radius: 9,
-      ...PIN,
-      weight: 3,
-      fillOpacity: 1,
-      interactive: false,
-    }).addTo(created);
+    const created = createFixedMap(container.current, [start.current.lat, start.current.lng], ZOOM);
+    pin.current = addPin(created, [start.current.lat, start.current.lng]);
     map.current = created;
 
     // The detail panel can change size (and slides in on mobile), so keep the tiles filling it.
-    const resize =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(() => created.invalidateSize({ animate: false }));
-    resize?.observe(container.current);
+    const stopFilling = fillContainer(created, container.current);
     return () => {
-      resize?.disconnect();
+      stopFilling();
       created.remove();
       map.current = null;
       pin.current = null;

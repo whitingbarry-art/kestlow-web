@@ -1,4 +1,5 @@
 import type { AlertSettingsState } from "../../hooks/useAlertSettings";
+import { AreaMap } from "../alerts/AreaMap";
 import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
 import { DistanceSlider } from "../alerts/DistanceSlider";
 import { SettingRow } from "../alerts/SettingRow";
@@ -53,6 +54,13 @@ export function AlertsView({ settings }: AlertsViewProps) {
           label={settings.distanceLabel}
           onChange={settings.setDistance}
         />
+        {settings.base && (
+          <AreaMap
+            base={settings.base}
+            radiusMiles={settings.distance}
+            postcode={settings.basePostcode}
+          />
+        )}
       </Card>
     </section>
   );

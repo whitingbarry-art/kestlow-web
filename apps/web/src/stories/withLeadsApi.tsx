@@ -19,8 +19,8 @@ export const pendingLeadsApi: LeadsApi = {
   listSaved: () => new Promise(() => {}),
   saveLead: () => new Promise(() => {}),
   unsaveLead: () => new Promise(() => {}),
-  getBasePostcode: () => new Promise(() => {}),
-  setBasePostcode: () => new Promise(() => {}),
+  getAlertSettings: () => new Promise(() => {}),
+  updateAlertSettings: () => new Promise(() => {}),
 };
 
 /** An API that always fails, for error states. */
@@ -30,6 +30,6 @@ export const failingLeadsApi: LeadsApi = {
   listSaved: () => Promise.reject(new Error("Network error")),
   saveLead: () => Promise.reject(new Error("Network error")),
   unsaveLead: () => Promise.reject(new Error("Network error")),
-  getBasePostcode: () => Promise.reject(new Error("Network error")),
-  setBasePostcode: () => Promise.reject(new Error("Network error")),
+  getAlertSettings: () => Promise.reject(new Error("Network error")),
+  updateAlertSettings: () => Promise.reject(new Error("Network error")),
 };

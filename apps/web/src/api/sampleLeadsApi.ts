@@ -1,11 +1,15 @@
 import { SAMPLE_LEADS } from "../data/leads";
 import type { Lead } from "../types/lead";
-import type { LeadsApi } from "./leads";
+import type { AlertSettings, LeadsApi } from "./leads";
+
+/** Bromley town centre, the API's default base, which the sample leads are placed around. */
+const SAMPLE_BASE = { lat: 51.4057, lng: 0.0144 };
 
 /**
  * An in-memory stand-in for the leads API, for tests and Storybook until MSW arrives (KES-21).
  * It filters, pages and counts like the real one, keeping the order it's given, and remembers
- * saved leads, most recently saved first, starting from `savedIds`, and the base postcode.
+ * saved leads, most recently saved first, starting from `savedIds`, and alert settings. It can't
+ * look postcodes up, so the base stays at Bromley whatever postcode is set.
  */
 export function createSampleLeadsApi(
   leads: Lead[] = SAMPLE_LEADS,
@@ -14,7 +18,7 @@ export function createSampleLeadsApi(
   basePostcode: string | null = null,
 ): LeadsApi {
   let saved = [...savedIds];
-  let base = basePostcode;
+  let settings: AlertSettings = { postcode: basePostcode, radiusMiles: 15, base: SAMPLE_BASE };
   return {
     listLeads({ trade, page }) {
       const matching = trade ? leads.filter((lead) => lead.trades.includes(trade)) : leads;
@@ -42,24 +46,33 @@ export function createSampleLeadsApi(
       saved = saved.filter((savedId) => savedId !== id);
       return Promise.resolve();
     },
-    getBasePostcode() {
-      return Promise.resolve(base);
+    getAlertSettings() {
+      return Promise.resolve(settings);
     },
-    setBasePostcode(postcode) {
-      // Tidies and checks like the real API; ZZ9 9ZZ stands in for a postcode that doesn't exist.
-      const match = /^([A-Z]{1,2}[0-9][A-Z0-9]?)([0-9][A-Z]{2})$/.exec(
-        postcode.toUpperCase().replace(/\s+/g, ""),
-      );
-      if (!match)
-        return Promise.resolve({ ok: false, message: "Enter a UK postcode, like BR1 1AA." });
-      const tidy = `${match[1]} ${match[2]}`;
-      if (tidy === "ZZ9 9ZZ")
-        return Promise.resolve({
-          ok: false,
-          message: `We can't find ${tidy}. Check it and try again.`,
-        });
-      base = tidy;
-      return Promise.resolve({ ok: true, postcode: tidy });
+    updateAlertSettings({ postcode, radiusMiles }) {
+      // Checks everything before changing anything, like the real API.
+      const refuse = (message: string) => Promise.resolve({ ok: false as const, message });
+      if (
+        radiusMiles !== undefined &&
+        (!Number.isInteger(radiusMiles) || radiusMiles < 1 || radiusMiles > 50)
+      )
+        return refuse("Choose a distance from 1 to 50 miles.");
+      let tidy: string | undefined;
+      if (postcode !== undefined) {
+        // ZZ9 9ZZ stands in for a postcode that doesn't exist.
+        const match = /^([A-Z]{1,2}[0-9][A-Z0-9]?)([0-9][A-Z]{2})$/.exec(
+          postcode.toUpperCase().replace(/\s+/g, ""),
+        );
+        if (!match) return refuse("Enter a UK postcode, like BR1 1AA.");
+        tidy = `${match[1]} ${match[2]}`;
+        if (tidy === "ZZ9 9ZZ") return refuse(`We can't find ${tidy}. Check it and try again.`);
+      }
+      settings = {
+        ...settings,
+        ...(tidy !== undefined && { postcode: tidy }),
+        ...(radiusMiles !== undefined && { radiusMiles }),
+      };
+      return Promise.resolve({ ok: true, settings });
     },
   };
 }
