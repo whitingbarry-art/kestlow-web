@@ -1,4 +1,5 @@
 import { useSession, useSignOutEverywhere } from "../../hooks/useSession";
+import { ChangeEmailForm } from "../account/ChangeEmailForm";
 import { ChangePasswordForm } from "../account/ChangePasswordForm";
 import { DeleteAccount } from "../account/DeleteAccount";
 import { Button } from "../ui/Button";
@@ -27,9 +28,7 @@ export function AccountView() {
             <dd className="m-0 font-semibold break-all">{user?.email}</dd>
           </div>
         </dl>
-        <p className="m-0 pb-3 text-sm text-muted">
-          Changing your email is coming soon. Until then, email support@kestlow.co.uk.
-        </p>
+        <ChangeEmailForm />
       </Card>
 
       <SectionTitle>Change password</SectionTitle>

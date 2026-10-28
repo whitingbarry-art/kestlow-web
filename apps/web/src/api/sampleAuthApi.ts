@@ -74,5 +74,7 @@ export function createSampleAuthApi(user: SessionUser | null = SAMPLE_USER): Aut
       return Promise.resolve({ ok: true });
     },
     resendVerification: () => Promise.resolve({ ok: true }),
+    changeEmail: ({ password }) =>
+      Promise.resolve(password === storedPassword ? { ok: true } : wrongPassword),
   };
 }

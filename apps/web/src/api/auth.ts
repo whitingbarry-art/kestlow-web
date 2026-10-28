@@ -35,6 +35,8 @@ export interface AuthApi {
   verifyEmail: (token: string) => Promise<AuthResult>;
   /** Emails the confirmation link again. */
   resendVerification: (email: string) => Promise<AuthResult>;
+  /** Emails a link to the new address; the email changes once it's opened (KES-43). */
+  changeEmail: (details: { newEmail: string; password: string }) => Promise<AuthResult>;
 }
 
 export const WEAK_PASSWORD_MESSAGE =
@@ -52,7 +54,7 @@ const MESSAGES: Record<string, string> = {
   INVALID_EMAIL: "Enter a valid email address.",
   VALIDATION_ERROR: "Enter a valid email address and password.",
   INVALID_PASSWORD: "That isn't your current password.",
-  PASSWORD_REQUIRED: "Enter your password to delete your account.",
+  PASSWORD_REQUIRED: "Enter your password to carry on.",
   INVALID_TOKEN: "This link has expired or has already been used. Ask for a new one.",
   TOKEN_EXPIRED: "This link has expired. Ask for a new one.",
 };
@@ -118,5 +120,7 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
       return result(res);
     },
     resendVerification: async (email) => result(await post("/send-verification-email", { email })),
+    changeEmail: async ({ newEmail, password }) =>
+      result(await post("/change-email", { newEmail, password })),
   };
 }

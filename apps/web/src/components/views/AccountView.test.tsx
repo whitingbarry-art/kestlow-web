@@ -110,4 +110,40 @@ describe("AccountView", () => {
     expect(screen.queryByLabelText("Enter your password to confirm")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Delete my account…" })).toHaveFocus();
   });
+
+  it("changes the email by sending a link to the new address", async () => {
+    const authApi = createSampleAuthApi();
+    const changeEmail = vi.spyOn(authApi, "changeEmail");
+    const { user } = renderAccount(authApi);
+
+    await user.click(await screen.findByRole("button", { name: "Change email…" }));
+    expect(screen.getByLabelText("New email address")).toHaveFocus();
+    await user.type(screen.getByLabelText("New email address"), "dave@newroofing.co.uk");
+    await user.type(screen.getByLabelText("Your password"), SAMPLE_PASSWORD);
+    await user.click(screen.getByRole("button", { name: "Send link" }));
+
+    expect(changeEmail).toHaveBeenCalledWith({
+      newEmail: "dave@newroofing.co.uk",
+      password: SAMPLE_PASSWORD,
+    });
+    expect(
+      await screen.findByText(/Check dave@newroofing.co.uk for a link. Your email changes once/),
+    ).toBeVisible();
+    // Unchanged until the link is used.
+    expect(screen.getByText("dave@example.com")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Change email…" })).toHaveFocus();
+  });
+
+  it("needs the right password to change the email", async () => {
+    const { user } = renderAccount();
+
+    await user.click(await screen.findByRole("button", { name: "Change email…" }));
+    await user.type(screen.getByLabelText("New email address"), "dave@newroofing.co.uk");
+    await user.click(screen.getByRole("button", { name: "Send link" }));
+    expect(screen.getByText("Enter your password to change your email.")).toBeVisible();
+
+    await user.type(screen.getByLabelText("Your password"), "not my password");
+    await user.click(screen.getByRole("button", { name: "Send link" }));
+    expect(await screen.findByText("That isn't your current password.")).toBeVisible();
+  });
 });
