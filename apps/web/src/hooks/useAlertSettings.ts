@@ -17,6 +17,13 @@ import {
 } from "../data/alerts";
 import { TRADES } from "../data/leads";
 import { clamp, formatDistance } from "../logic/alerts";
+import {
+  browserPush,
+  disablePush,
+  enablePush,
+  PushUnavailable,
+  type PushBrowser,
+} from "../logic/push";
 import type { DeliveryChannel, TradeSettings } from "../types/alerts";
 import type { Trade } from "../types/lead";
 
@@ -43,7 +50,9 @@ function pick(from: AlertSettings, changes: Pick<AlertSettingsChanges, "trades" 
 /** The slider saves this long after it stops moving, so dragging doesn't send every mile. */
 export const DISTANCE_SAVE_DELAY_MS = 500;
 
-export function useAlertSettings() {
+export function useAlertSettings({
+  pushBrowser = browserPush,
+}: { pushBrowser?: PushBrowser } = {}) {
   const api = useLeadsApi();
   const queryClient = useQueryClient();
   const settingsQuery = useQuery(alertSettingsQuery(api));
@@ -86,9 +95,27 @@ export function useAlertSettings() {
   const delivery = settings?.delivery ?? DEFAULT_DELIVERY;
   const chosenTrades = settings?.trades ?? TRADES;
 
+  // Why push couldn't be turned on in this browser, shown under the delivery choices.
+  const [pushProblem, setPushProblem] = useState<string | null>(null);
+
   const toggleDelivery = useCallback(
-    (key: DeliveryChannel) => changeNow({ delivery: { ...delivery, [key]: !delivery[key] } }),
-    [changeNow, delivery],
+    (key: DeliveryChannel) => {
+      const turnOn = !delivery[key];
+      if (key !== "push") return changeNow({ delivery: { ...delivery, [key]: turnOn } });
+      // Push needs this browser's permission and subscription first (KES-32); turning it off
+      // forgets the browser, and goes ahead even if that fails, so alerts stop either way.
+      setPushProblem(null);
+      void (turnOn ? enablePush(api, pushBrowser) : disablePush(api, pushBrowser).catch(() => {}))
+        .then(() => changeNow({ delivery: { ...delivery, push: turnOn } }))
+        .catch((error: unknown) =>
+          setPushProblem(
+            error instanceof PushUnavailable
+              ? error.message
+              : "We couldn't reach Kestlow. Please try again in a minute.",
+          ),
+        );
+    },
+    [api, changeNow, delivery, pushBrowser],
   );
 
   const toggleTrade = useCallback(
@@ -155,6 +182,7 @@ export function useAlertSettings() {
 
   return {
     deliveryOptions: DELIVERY_OPTIONS,
+    pushProblem,
     delivery,
     toggleDelivery,
     tradeOptions: TRADES,

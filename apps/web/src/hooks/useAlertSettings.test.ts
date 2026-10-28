@@ -2,6 +2,7 @@ import { act, renderHook, waitFor } from "@testing-library/react";
 import type { LeadsApi } from "../api/leads";
 import { createSampleLeadsApi } from "../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../data/leads";
+import type { PushBrowser } from "../logic/push";
 import { providers } from "../test/providers";
 import { DISTANCE_SAVE_DELAY_MS, useAlertSettings } from "./useAlertSettings";
 import { useLeads } from "./useLeads";
@@ -58,8 +59,8 @@ describe("useAlertSettings", () => {
     await waitFor(() => expect(result.current.settings.basePostcodeLoaded).toBe(true));
     await waitFor(() => expect(listLeads).toHaveBeenCalledTimes(1));
 
-    act(() => result.current.settings.toggleDelivery("push"));
-    await waitFor(async () => expect((await api.getAlertSettings()).delivery.push).toBe(true));
+    act(() => result.current.settings.toggleDelivery("weekend"));
+    await waitFor(async () => expect((await api.getAlertSettings()).delivery.weekend).toBe(true));
 
     expect(listLeads).toHaveBeenCalledTimes(1);
   });
@@ -164,5 +165,54 @@ describe("useAlertSettings", () => {
       message: "We can't find ZZ9 9ZZ. Check it and try again.",
     });
     expect(result.current.basePostcode).toBe("BR1 1AA");
+  });
+
+  describe("push alerts (KES-32)", () => {
+    const browser = (permission: NotificationPermission): PushBrowser => {
+      const subscription = {
+        endpoint: "https://push.test/this-browser",
+        toJSON: () => ({
+          endpoint: "https://push.test/this-browser",
+          keys: { p256dh: "k", auth: "a" },
+        }),
+        unsubscribe: () => Promise.resolve(true),
+      } as unknown as PushSubscription;
+      return {
+        supported: true,
+        requestPermission: () => Promise.resolve(permission),
+        pushManager: () =>
+          Promise.resolve({
+            getSubscription: () => Promise.resolve(null),
+            subscribe: () => Promise.resolve(subscription),
+          } as unknown as PushManager),
+      };
+    };
+
+    it("turns push on once this browser has permission and is saved", async () => {
+      const api = createSampleLeadsApi();
+      const subscribePush = vi.fn(api.subscribePush);
+      const { result } = renderHook(() => useAlertSettings({ pushBrowser: browser("granted") }), {
+        wrapper: providers({ ...api, subscribePush }),
+      });
+      await waitFor(() => expect(result.current.basePostcodeLoaded).toBe(true));
+
+      act(() => result.current.toggleDelivery("push"));
+
+      await waitFor(() => expect(result.current.delivery.push).toBe(true));
+      expect(subscribePush).toHaveBeenCalled();
+      expect(result.current.pushProblem).toBeNull();
+    });
+
+    it("leaves push off and says why when notifications are blocked", async () => {
+      const { result } = renderHook(() => useAlertSettings({ pushBrowser: browser("denied") }), {
+        wrapper: providers(createSampleLeadsApi()),
+      });
+      await waitFor(() => expect(result.current.basePostcodeLoaded).toBe(true));
+
+      act(() => result.current.toggleDelivery("push"));
+
+      await waitFor(() => expect(result.current.pushProblem).toMatch(/Notifications are blocked/));
+      expect(result.current.delivery.push).toBe(false);
+    });
   });
 });

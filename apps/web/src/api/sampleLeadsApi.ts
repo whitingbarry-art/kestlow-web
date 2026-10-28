@@ -53,6 +53,14 @@ export function createSampleLeadsApi(
       saved = saved.filter((savedId) => savedId !== id);
       return Promise.resolve();
     },
+    // Push is switched on; subscriptions are kept but go nowhere.
+    // web-push's documented example key: a real P-256 public key that nothing can push with.
+    getPushKey: () =>
+      Promise.resolve(
+        "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U",
+      ),
+    subscribePush: () => Promise.resolve(),
+    unsubscribePush: () => Promise.resolve(),
     getAlertSettings() {
       return Promise.resolve(settings);
     },

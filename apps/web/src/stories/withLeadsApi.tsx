@@ -19,6 +19,9 @@ export const pendingLeadsApi: LeadsApi = {
   listSaved: () => new Promise(() => {}),
   saveLead: () => new Promise(() => {}),
   unsaveLead: () => new Promise(() => {}),
+  getPushKey: () => new Promise(() => {}),
+  subscribePush: () => new Promise(() => {}),
+  unsubscribePush: () => new Promise(() => {}),
   getAlertSettings: () => new Promise(() => {}),
   updateAlertSettings: () => new Promise(() => {}),
 };
@@ -30,6 +33,9 @@ export const failingLeadsApi: LeadsApi = {
   listSaved: () => Promise.reject(new Error("Network error")),
   saveLead: () => Promise.reject(new Error("Network error")),
   unsaveLead: () => Promise.reject(new Error("Network error")),
+  getPushKey: () => Promise.reject(new Error("Network error")),
+  subscribePush: () => Promise.reject(new Error("Network error")),
+  unsubscribePush: () => Promise.reject(new Error("Network error")),
   getAlertSettings: () => Promise.reject(new Error("Network error")),
   updateAlertSettings: () => Promise.reject(new Error("Network error")),
 };

@@ -50,6 +50,13 @@ function AlertSettingsForm({
             onToggle={() => settings.toggleDelivery(option.key)}
           />
         ))}
+        {/* Always there, so screen readers announce a problem when one appears. */}
+        <p
+          role="status"
+          className={`m-0 text-sm font-semibold text-error ${settings.pushProblem ? "pb-3.5" : ""}`}
+        >
+          {settings.pushProblem}
+        </p>
       </Card>
 
       <SectionTitle>My trades</SectionTitle>

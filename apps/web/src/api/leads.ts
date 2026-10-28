@@ -14,6 +14,12 @@ export interface LeadsApi {
   getAlertSettings: () => Promise<AlertSettings>;
   /** Changes only what's given. */
   updateAlertSettings: (changes: AlertSettingsChanges) => Promise<AlertSettingsResult>;
+  /** The VAPID public key to subscribe to push alerts with, or null when push is off (KES-32). */
+  getPushKey: () => Promise<string | null>;
+  /** Saves this browser's push subscription, as `PushSubscription.toJSON()` gives it. */
+  subscribePush: (subscription: PushSubscriptionJSON) => Promise<void>;
+  /** Forgets one of the user's browsers. */
+  unsubscribePush: (endpoint: string) => Promise<void>;
 }
 
 export interface AlertSettings {
@@ -93,6 +99,30 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
     },
     saveLead: (id) => send("PUT", `/me/saved/${encodeURIComponent(id)}`),
     unsaveLead: (id) => send("DELETE", `/me/saved/${encodeURIComponent(id)}`),
+    async getPushKey() {
+      const key = await get<{ publicKey: string }>("/push/key");
+      return key?.publicKey ?? null;
+    },
+    async subscribePush(subscription) {
+      const res = await fetch(`${baseUrl}/me/push-subscriptions`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subscription),
+      });
+      if (!res.ok)
+        throw new ApiError(res.status, `POST /me/push-subscriptions failed with ${res.status}`);
+    },
+    async unsubscribePush(endpoint) {
+      const res = await fetch(`${baseUrl}/me/push-subscriptions`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ endpoint }),
+      });
+      if (!res.ok)
+        throw new ApiError(res.status, `DELETE /me/push-subscriptions failed with ${res.status}`);
+    },
     async getAlertSettings() {
       const settings = await get<AlertSettings>("/me/alert-settings");
       if (!settings) throw new ApiError(404, "GET /me/alert-settings failed with 404");
