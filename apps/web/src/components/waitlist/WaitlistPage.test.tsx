@@ -13,9 +13,9 @@ describe("WaitlistPage", () => {
     render(<WaitlistPage join={vi.fn<JoinWaitlist>()} />);
 
     expect(screen.getByText(/Kestlow is run by Barry Whiting\./)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "whiting.barry@googlemail.com" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "privacy@kestlow.co.uk" })).toHaveAttribute(
       "href",
-      "mailto:whiting.barry@googlemail.com",
+      "mailto:privacy@kestlow.co.uk",
     );
   });
 });

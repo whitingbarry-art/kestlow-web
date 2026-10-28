@@ -163,6 +163,18 @@ describe("AuthScreen", () => {
     expect(screen.getByRole("heading", { name: "Forgot your password?" })).toHaveFocus();
   });
 
+  it("sends people who've forgotten their password to support", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(screen.getByRole("button", { name: "Forgot your password?" }));
+
+    expect(screen.getByRole("link", { name: "support@kestlow.co.uk" })).toHaveAttribute(
+      "href",
+      "mailto:support@kestlow.co.uk",
+    );
+  });
+
   it("keeps an empty message area ready, so an error doesn't push the button down", () => {
     renderScreen();
 
