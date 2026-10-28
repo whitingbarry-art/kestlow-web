@@ -27,6 +27,14 @@ export interface AuthApi {
   signOutEverywhere: () => Promise<void>;
   /** Deletes the account and everything about the person, once the password checks out. */
   deleteAccount: (password: string) => Promise<AuthResult>;
+  /** Emails a reset link if there's an account; the reply's the same either way (KES-41). */
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
+  /** Sets a new password with the token from the emailed link. */
+  resetPassword: (details: { token: string; newPassword: string }) => Promise<AuthResult>;
+  /** Confirms an email address with the token from the emailed link (KES-40). */
+  verifyEmail: (token: string) => Promise<AuthResult>;
+  /** Emails the confirmation link again. */
+  resendVerification: (email: string) => Promise<AuthResult>;
 }
 
 export const WEAK_PASSWORD_MESSAGE =
@@ -45,6 +53,8 @@ const MESSAGES: Record<string, string> = {
   VALIDATION_ERROR: "Enter a valid email address and password.",
   INVALID_PASSWORD: "That isn't your current password.",
   PASSWORD_REQUIRED: "Enter your password to delete your account.",
+  INVALID_TOKEN: "This link has expired or has already been used. Ask for a new one.",
+  TOKEN_EXPIRED: "This link has expired. Ask for a new one.",
 };
 const FALLBACK = "Something went wrong. Please try again.";
 
@@ -95,5 +105,18 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
         throw new ApiError(res.status, `POST /auth/revoke-sessions failed with ${res.status}`);
     },
     deleteAccount: async (password) => result(await post("/delete-user", { password })),
+    requestPasswordReset: async (email) => result(await post("/request-password-reset", { email })),
+    resetPassword: async ({ token, newPassword }) =>
+      result(await post("/reset-password", { token, newPassword })),
+    verifyEmail: async (token) => {
+      const res = await fetch(`${baseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      // A made-up or expired token answers 401 without a code Better Auth's own messages use.
+      if (res.status === 401) return { ok: false, message: MESSAGES.INVALID_TOKEN };
+      return result(res);
+    },
+    resendVerification: async (email) => result(await post("/send-verification-email", { email })),
   };
 }

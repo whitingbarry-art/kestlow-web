@@ -7,6 +7,9 @@ export const SAMPLE_USER: SessionUser = {
   emailVerified: true,
 };
 
+/** The one token the sample's emailed links carry; any other has expired. */
+export const SAMPLE_TOKEN = "good";
+
 /** The one password the sample accounts accept. */
 export const SAMPLE_PASSWORD = "correct horse battery staple";
 
@@ -19,6 +22,10 @@ export function createSampleAuthApi(user: SessionUser | null = SAMPLE_USER): Aut
   let current = user;
   let storedPassword = SAMPLE_PASSWORD;
   const wrongPassword = { ok: false, message: "That isn't your current password." } as const;
+  const usedLink = {
+    ok: false,
+    message: "This link has expired or has already been used. Ask for a new one.",
+  } as const;
   return {
     getMe: () => Promise.resolve(current),
     signIn: ({ email, password }) => {
@@ -54,5 +61,18 @@ export function createSampleAuthApi(user: SessionUser | null = SAMPLE_USER): Aut
       current = null;
       return Promise.resolve({ ok: true });
     },
+    // The token "good" works; anything else has expired or been used.
+    requestPasswordReset: () => Promise.resolve({ ok: true }),
+    resetPassword: ({ token, newPassword }) => {
+      if (token !== SAMPLE_TOKEN) return Promise.resolve(usedLink);
+      storedPassword = newPassword;
+      return Promise.resolve({ ok: true });
+    },
+    verifyEmail: (token) => {
+      if (token !== SAMPLE_TOKEN) return Promise.resolve(usedLink);
+      if (current) current = { ...current, emailVerified: true };
+      return Promise.resolve({ ok: true });
+    },
+    resendVerification: () => Promise.resolve({ ok: true }),
   };
 }
