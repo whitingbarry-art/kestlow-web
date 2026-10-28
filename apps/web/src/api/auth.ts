@@ -57,6 +57,8 @@ const MESSAGES: Record<string, string> = {
   PASSWORD_REQUIRED: "Enter your password to carry on.",
   INVALID_TOKEN: "This link has expired or has already been used. Ask for a new one.",
   TOKEN_EXPIRED: "This link has expired. Ask for a new one.",
+  // The API's own limit on sign-in tries (KES-45).
+  TOO_MANY_ATTEMPTS: "Too many tries. Wait a minute and try again.",
 };
 const FALLBACK = "Something went wrong. Please try again.";
 
