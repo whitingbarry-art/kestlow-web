@@ -21,6 +21,7 @@ import {
   browserPush,
   disablePush,
   enablePush,
+  isPushOnHere,
   PushUnavailable,
   type PushBrowser,
 } from "../logic/push";
@@ -97,6 +98,36 @@ export function useAlertSettings({
 
   // Why push couldn't be turned on in this browser, shown under the delivery choices.
   const [pushProblem, setPushProblem] = useState<string | null>(null);
+  // Whether this browser gets the account's push alerts; null until known (KES-118).
+  const [pushHere, setPushHere] = useState<boolean | null>(null);
+  const pushOnForAccount = delivery.push;
+
+  useEffect(() => {
+    if (!pushOnForAccount) return;
+    let current = true;
+    void isPushOnHere(pushBrowser).then((here) => current && setPushHere(here));
+    return () => {
+      current = false;
+    };
+  }, [pushOnForAccount, pushBrowser]);
+
+  const pushFailed = useCallback(
+    (error: unknown) =>
+      setPushProblem(
+        error instanceof PushUnavailable
+          ? error.message
+          : "We couldn't reach Kestlow. Please try again in a minute.",
+      ),
+    [],
+  );
+
+  /** Adds this browser when push is already on for the account, from another device. */
+  const turnOnPushHere = useCallback(() => {
+    setPushProblem(null);
+    void enablePush(api, pushBrowser)
+      .then(() => setPushHere(true))
+      .catch(pushFailed);
+  }, [api, pushBrowser, pushFailed]);
 
   const toggleDelivery = useCallback(
     (key: DeliveryChannel) => {
@@ -106,16 +137,13 @@ export function useAlertSettings({
       // forgets the browser, and goes ahead even if that fails, so alerts stop either way.
       setPushProblem(null);
       void (turnOn ? enablePush(api, pushBrowser) : disablePush(api, pushBrowser).catch(() => {}))
-        .then(() => changeNow({ delivery: { ...delivery, push: turnOn } }))
-        .catch((error: unknown) =>
-          setPushProblem(
-            error instanceof PushUnavailable
-              ? error.message
-              : "We couldn't reach Kestlow. Please try again in a minute.",
-          ),
-        );
+        .then(() => {
+          setPushHere(turnOn);
+          changeNow({ delivery: { ...delivery, push: turnOn } });
+        })
+        .catch(pushFailed);
     },
-    [api, changeNow, delivery, pushBrowser],
+    [api, changeNow, delivery, pushBrowser, pushFailed],
   );
 
   const toggleTrade = useCallback(
@@ -183,6 +211,9 @@ export function useAlertSettings({
   return {
     deliveryOptions: DELIVERY_OPTIONS,
     pushProblem,
+    /** Push is on for the account, but this device doesn't get the alerts (KES-118). */
+    pushOffHere: delivery.push && pushHere === false,
+    turnOnPushHere,
     delivery,
     toggleDelivery,
     tradeOptions: TRADES,

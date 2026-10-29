@@ -1,9 +1,21 @@
 import type { LeadsApi } from "../api/leads";
 import { createSampleLeadsApi } from "../api/sampleLeadsApi";
-import { disablePush, enablePush, keyBytes, PushUnavailable, type PushBrowser } from "./push";
+import {
+  disablePush,
+  enablePush,
+  isPushOnHere,
+  keyBytes,
+  pushBlocker,
+  PushUnavailable,
+  type PushBrowser,
+} from "./push";
 
 /** A browser whose push manager remembers one subscription. */
-function fakeBrowser(permission: NotificationPermission = "granted", supported = true) {
+function fakeBrowser(
+  permission: NotificationPermission = "granted",
+  supported = true,
+  platform: { ios?: boolean; standalone?: boolean } = {},
+) {
   let current: PushSubscription | null = null;
   const unsubscribe = vi.fn(() => {
     current = null;
@@ -22,7 +34,10 @@ function fakeBrowser(permission: NotificationPermission = "granted", supported =
   });
   const browser: PushBrowser = {
     supported,
+    ios: platform.ios ?? false,
+    standalone: platform.standalone ?? false,
     requestPermission: vi.fn(() => Promise.resolve(permission)),
+    permission: () => permission,
     pushManager: () =>
       Promise.resolve({
         getSubscription: () => Promise.resolve(current),
@@ -72,11 +87,11 @@ describe("enablePush", () => {
     );
   });
 
-  it("explains a browser without push, mentioning iPhones", async () => {
+  it("explains a browser without push", async () => {
     const { browser } = fakeBrowser("granted", false);
 
     await expect(enablePush(apiWithSpies(), browser)).rejects.toThrow(
-      /add Kestlow to your Home Screen/,
+      "This browser can't show push alerts. Try Chrome, Edge, Firefox or Safari.",
     );
   });
 
@@ -112,5 +127,54 @@ describe("disablePush", () => {
 
     expect(api.unsubscribePush).toHaveBeenCalledWith("https://push.test/this-browser");
     expect(unsubscribe).toHaveBeenCalled();
+  });
+});
+
+describe("pushBlocker (KES-118)", () => {
+  it("lets a browser with push go ahead", () => {
+    expect(pushBlocker(fakeBrowser().browser)).toBeNull();
+  });
+
+  it("explains, step by step, that an iPhone needs Kestlow on its Home Screen", () => {
+    // Even when it reports push, as Chrome pretending to be an iPhone does.
+    for (const supported of [true, false])
+      expect(pushBlocker(fakeBrowser("default", supported, { ios: true }).browser)).toBe(
+        "On an iPhone or iPad, push alerts need Kestlow on your Home Screen. Tap the Share button, choose Add to Home Screen, then open Kestlow from your Home Screen and turn push on there.",
+      );
+  });
+
+  it("lets an iPhone go ahead from the Home Screen", () => {
+    expect(
+      pushBlocker(fakeBrowser("default", true, { ios: true, standalone: true }).browser),
+    ).toBeNull();
+  });
+
+  it("asks for a newer iOS when the Home Screen app still has no push", () => {
+    expect(
+      pushBlocker(fakeBrowser("default", false, { ios: true, standalone: true }).browser),
+    ).toBe("Push alerts need iOS 16.4 or later. Update your iPhone or iPad, then try again.");
+  });
+});
+
+describe("isPushOnHere (KES-118)", () => {
+  it("is true once this browser is subscribed", async () => {
+    const { browser } = fakeBrowser();
+    expect(await isPushOnHere(browser)).toBe(false);
+
+    await enablePush(apiWithSpies(), browser);
+
+    expect(await isPushOnHere(browser)).toBe(true);
+  });
+
+  it("is false without permission, never asking for it", async () => {
+    const { browser } = fakeBrowser("default");
+
+    expect(await isPushOnHere(browser)).toBe(false);
+    expect(browser.requestPermission).not.toHaveBeenCalled();
+  });
+
+  it("is false where push can't work", async () => {
+    expect(await isPushOnHere(fakeBrowser("granted", true, { ios: true }).browser)).toBe(false);
+    expect(await isPushOnHere(fakeBrowser("granted", false).browser)).toBe(false);
   });
 });
