@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
-import { multiTradeLead, olderLead, sampleLead } from "../../stories/fixtures";
+import { approximateLead, multiTradeLead, olderLead, sampleLead } from "../../stories/fixtures";
 import { LeadCard } from "./LeadCard";
 
 const meta = {
@@ -46,3 +46,5 @@ export const Selected: Story = { args: { selected: true } };
 export const Saved: Story = { args: { lead: olderLead, saved: true } };
 
 export const MultipleTrades: Story = { args: { lead: multiTradeLead } };
+
+export const ApproximateLocation: Story = { args: { lead: approximateLead } };

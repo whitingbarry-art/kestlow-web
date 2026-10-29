@@ -1,5 +1,5 @@
 import { SAMPLE_LEADS } from "../data/leads";
-import { findLead, formatLeadSummary, matchesSearch, sortLeads } from "./leads";
+import { findLead, formatLeadDistance, formatLeadSummary, matchesSearch, sortLeads } from "./leads";
 
 describe("leads logic", () => {
   it("formats the summary", () => {
@@ -40,5 +40,16 @@ describe("sortLeads", () => {
 
   it("puts the soonest decision first, and leads with no date last", () => {
     expect(order("decision")).toEqual(["sample-3", "sample-1", "sample-2", "sample-4"]);
+  });
+});
+
+describe("formatLeadDistance", () => {
+  it.each([
+    [2.1, false, "2.1 miles"],
+    [1, false, "1 mile"],
+    [4.3, true, "about 4.3 miles"],
+    [1, true, "about 1 mile"],
+  ])("%s miles, approximate %s: %s", (miles, approximate, text) => {
+    expect(formatLeadDistance({ miles, approximate })).toBe(text);
   });
 });

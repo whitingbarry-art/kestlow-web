@@ -7,3 +7,11 @@ export const olderLead: Lead = SAMPLE_LEADS[2];
 
 export const mobileViewport = { viewport: { value: "mobile", isRotated: false } };
 export const desktopViewport = { viewport: { value: "desktop", isRotated: false } };
+
+/** A lead placed only roughly, from the area its address names (KES-28). */
+export const approximateLead: Lead = {
+  ...SAMPLE_LEADS[3],
+  address: "Garages fronting 1 to 27, Viola Avenue, Abbey Wood",
+  miles: 4.3,
+  approximate: true,
+};

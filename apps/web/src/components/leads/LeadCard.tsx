@@ -1,4 +1,5 @@
 import type { MouseEvent } from "react";
+import { formatLeadDistance } from "../../logic/leads";
 import type { Lead } from "../../types/lead";
 import { cn } from "../../utils/cn";
 import { Button } from "../ui/Button";
@@ -39,7 +40,7 @@ export function LeadCard({
         <div>
           <h2 className="m-0 text-[17px] font-bold">{lead.address}</h2>
           <div className="mt-0.5 text-sm text-muted">
-            {lead.council} &middot; {lead.miles} miles
+            {lead.council} &middot; {formatLeadDistance(lead)}
           </div>
         </div>
         {lead.isNew && <NewBadge />}

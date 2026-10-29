@@ -4,6 +4,11 @@ export function formatLeadSummary(newCount: number, radiusMiles: number): string
   return `${newCount} new today within ${radiusMiles} miles`;
 }
 
+/** How far away a lead is: "about" when its location is only rough (KES-28). */
+export function formatLeadDistance({ miles, approximate }: Pick<Lead, "miles" | "approximate">) {
+  return `${approximate ? "about " : ""}${miles} ${miles === 1 ? "mile" : "miles"}`;
+}
+
 export function findLead(leads: Lead[], id: string | null): Lead | undefined {
   return id === null ? undefined : leads.find((lead) => lead.id === id);
 }
