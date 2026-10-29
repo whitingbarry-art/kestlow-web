@@ -1,7 +1,11 @@
 import type { AlertSettingsState } from "../../hooks/useAlertSettings";
+import { AreaMap } from "../alerts/AreaMap";
+import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
 import { DistanceSlider } from "../alerts/DistanceSlider";
 import { SettingRow } from "../alerts/SettingRow";
 import { Card } from "../ui/Card";
+import { ErrorState } from "../ui/ErrorState";
+import { LoadingState } from "../ui/LoadingState";
 import { PageHeader } from "../ui/PageHeader";
 import { SectionTitle } from "../ui/SectionTitle";
 
@@ -10,10 +14,31 @@ interface AlertsViewProps {
 }
 
 export function AlertsView({ settings }: AlertsViewProps) {
+  const { settingsStatus } = settings;
   return (
     <section>
       <PageHeader title="Alerts" subtitle="Choose how and when you hear about new leads" />
+      {settingsStatus.isError ? (
+        <ErrorState
+          message="Your alert settings couldn't be loaded."
+          onRetry={settingsStatus.retry}
+        />
+      ) : settingsStatus.isPending || !settings.base ? (
+        // Nothing to toggle until the saved settings are in, so nothing changes under a finger.
+        <LoadingState message="Loading your alert settings…" />
+      ) : (
+        <AlertSettingsForm settings={settings} base={settings.base} />
+      )}
+    </section>
+  );
+}
 
+function AlertSettingsForm({
+  settings,
+  base,
+}: AlertsViewProps & { base: NonNullable<AlertSettingsState["base"]> }) {
+  return (
+    <>
       <SectionTitle>Delivery</SectionTitle>
       <Card>
         {settings.deliveryOptions.map((option) => (
@@ -25,6 +50,13 @@ export function AlertsView({ settings }: AlertsViewProps) {
             onToggle={() => settings.toggleDelivery(option.key)}
           />
         ))}
+        {/* Always there, so screen readers announce a problem when one appears. */}
+        <p
+          role="status"
+          className={`m-0 text-sm font-semibold text-error ${settings.pushProblem ? "pb-3.5" : ""}`}
+        >
+          {settings.pushProblem}
+        </p>
       </Card>
 
       <SectionTitle>My trades</SectionTitle>
@@ -41,15 +73,16 @@ export function AlertsView({ settings }: AlertsViewProps) {
 
       <SectionTitle>Area</SectionTitle>
       <Card>
+        <BasePostcodeForm postcode={settings.basePostcode} onSave={settings.saveBasePostcode} />
         <DistanceSlider
           value={settings.distance}
           min={settings.distanceMin}
           max={settings.distanceMax}
           label={settings.distanceLabel}
-          basePostcode={settings.basePostcode}
           onChange={settings.setDistance}
         />
+        <AreaMap base={base} radiusMiles={settings.distance} postcode={settings.basePostcode} />
       </Card>
-    </section>
+    </>
   );
 }

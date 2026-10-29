@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-export type View = "leads" | "saved" | "alerts";
+export type View = "leads" | "saved" | "alerts" | "account";
 
 export interface NavItem {
   view: View;

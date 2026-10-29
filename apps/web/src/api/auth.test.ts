@@ -74,6 +74,7 @@ describe("createHttpAuthApi", () => {
       400,
       "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
     ],
+    ["TOO_MANY_ATTEMPTS", 429, "Too many tries. Wait a minute and try again."],
     ["SOMETHING_NEW", 500, "Something went wrong. Please try again."],
   ])("explains %s in plain words", async (code, status, message) => {
     fetch.mockResolvedValue(json({ code, message: "raw" }, status));

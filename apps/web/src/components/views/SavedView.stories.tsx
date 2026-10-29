@@ -1,22 +1,23 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
+import { SAMPLE_LEADS } from "../../data/leads";
 import { useLeads } from "../../hooks/useLeads";
 import { failingLeadsApi, pendingLeadsApi, withLeadsApi } from "../../stories/withLeadsApi";
 import { SavedView } from "./SavedView";
 
 interface SavedViewStoryArgs {
-  savedIds: string[];
   cardsClickable: boolean;
 }
 
-function SavedViewStory({ savedIds, cardsClickable }: SavedViewStoryArgs) {
-  const state = useLeads({ initialSavedIds: savedIds });
+function SavedViewStory({ cardsClickable }: SavedViewStoryArgs) {
+  const state = useLeads();
   return <SavedView leads={state} cardsClickable={cardsClickable} />;
 }
 
 const meta = {
   title: "Views/SavedView",
   component: SavedViewStory,
-  args: { savedIds: ["sample-1", "sample-3"], cardsClickable: false },
+  args: { cardsClickable: false },
   decorators: [
     (Story) => (
       <div className="mx-auto max-w-[520px]">
@@ -30,9 +31,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const WithSavedLeads: Story = { decorators: [withLeadsApi()] };
+export const WithSavedLeads: Story = {
+  decorators: [withLeadsApi(createSampleLeadsApi(SAMPLE_LEADS, 20, ["sample-1", "sample-3"]))],
+};
 
-export const Empty: Story = { args: { savedIds: [] }, decorators: [withLeadsApi()] };
+export const Empty: Story = { decorators: [withLeadsApi()] };
 
 export const Loading: Story = { decorators: [withLeadsApi(pendingLeadsApi)] };
 

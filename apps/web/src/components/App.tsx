@@ -6,11 +6,13 @@ import { useIsDesktop } from "../hooks/useMediaQuery";
 import { useNavigation } from "../hooks/useNavigation";
 import { useSession, useSignOut } from "../hooks/useSession";
 import { useTheme } from "../hooks/useTheme";
+import { VerifyEmailBanner } from "./auth/VerifyEmailBanner";
 import { BottomNav } from "./layout/BottomNav";
 import { DetailPanel } from "./layout/DetailPanel";
 import { Sidebar } from "./layout/Sidebar";
 import { TopBar } from "./layout/TopBar";
 import { LeadDetail } from "./leads/LeadDetail";
+import { AccountView } from "./views/AccountView";
 import { AlertsView } from "./views/AlertsView";
 import { LeadsView } from "./views/LeadsView";
 import { SavedView } from "./views/SavedView";
@@ -59,9 +61,11 @@ export function App() {
         className="mx-auto max-w-[520px] pb-[90px] desk:m-0 desk:max-w-none desk:overflow-y-auto desk:border-r desk:border-line desk:p-0"
       >
         <TopBar onToggleTheme={toggleTheme} onSignOut={() => signOut.mutate()} />
+        <VerifyEmailBanner />
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
+        {view === "account" && <AccountView />}
       </main>
 
       <DetailPanel

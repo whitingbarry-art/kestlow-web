@@ -12,7 +12,6 @@ const meta = {
     min: 1,
     max: 50,
     label: formatDistance(15),
-    basePostcode: "AB1 2CD (sample)",
     onChange: fn(),
   },
   render: function Render(args) {

@@ -163,15 +163,20 @@ describe("AuthScreen", () => {
     expect(screen.getByRole("heading", { name: "Forgot your password?" })).toHaveFocus();
   });
 
-  it("sends people who've forgotten their password to support", async () => {
+  it("sends a reset link to someone who's forgotten their password", async () => {
     const user = userEvent.setup();
-    renderScreen();
+    const authApi = createSampleAuthApi(null);
+    const requestPasswordReset = vi.spyOn(authApi, "requestPasswordReset");
+    renderScreen(authApi);
 
     await user.click(screen.getByRole("button", { name: "Forgot your password?" }));
+    await user.type(screen.getByLabelText("Email address"), " dave@example.com ");
+    await user.click(screen.getByRole("button", { name: "Send reset link" }));
 
-    expect(screen.getByRole("link", { name: "support@kestlow.co.uk" })).toHaveAttribute(
-      "href",
-      "mailto:support@kestlow.co.uk",
+    expect(requestPasswordReset).toHaveBeenCalledWith("dave@example.com");
+    // The same words whether or not there's an account.
+    expect(await screen.findByRole("status")).toHaveTextContent(
+      "If there's a Kestlow account for dave@example.com, we've sent a link. It works for one hour.",
     );
   });
 

@@ -18,6 +18,25 @@ export interface AuthApi {
   signIn: (details: { email: string; password: string }) => Promise<AuthResult>;
   register: (details: { name: string; email: string; password: string }) => Promise<AuthResult>;
   signOut: () => Promise<void>;
+  /** Changes the password and signs out every other device (KES-43). */
+  changePassword: (details: {
+    currentPassword: string;
+    newPassword: string;
+  }) => Promise<AuthResult>;
+  /** Signs out of every device, this one included. */
+  signOutEverywhere: () => Promise<void>;
+  /** Deletes the account and everything about the person, once the password checks out. */
+  deleteAccount: (password: string) => Promise<AuthResult>;
+  /** Emails a reset link if there's an account; the reply's the same either way (KES-41). */
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
+  /** Sets a new password with the token from the emailed link. */
+  resetPassword: (details: { token: string; newPassword: string }) => Promise<AuthResult>;
+  /** Confirms an email address with the token from the emailed link (KES-40). */
+  verifyEmail: (token: string) => Promise<AuthResult>;
+  /** Emails the confirmation link again. */
+  resendVerification: (email: string) => Promise<AuthResult>;
+  /** Emails a link to the new address; the email changes once it's opened (KES-43). */
+  changeEmail: (details: { newEmail: string; password: string }) => Promise<AuthResult>;
 }
 
 export const WEAK_PASSWORD_MESSAGE =
@@ -34,6 +53,12 @@ const MESSAGES: Record<string, string> = {
     "There's already an account with that email. Sign in instead.",
   INVALID_EMAIL: "Enter a valid email address.",
   VALIDATION_ERROR: "Enter a valid email address and password.",
+  INVALID_PASSWORD: "That isn't your current password.",
+  PASSWORD_REQUIRED: "Enter your password to carry on.",
+  INVALID_TOKEN: "This link has expired or has already been used. Ask for a new one.",
+  TOKEN_EXPIRED: "This link has expired. Ask for a new one.",
+  // The API's own limit on sign-in tries (KES-45).
+  TOO_MANY_ATTEMPTS: "Too many tries. Wait a minute and try again.",
 };
 const FALLBACK = "Something went wrong. Please try again.";
 
@@ -74,5 +99,30 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
       const res = await post("/sign-out", {});
       if (!res.ok) throw new ApiError(res.status, `POST /auth/sign-out failed with ${res.status}`);
     },
+    changePassword: async ({ currentPassword, newPassword }) =>
+      result(
+        await post("/change-password", { currentPassword, newPassword, revokeOtherSessions: true }),
+      ),
+    signOutEverywhere: async () => {
+      const res = await post("/revoke-sessions", {});
+      if (!res.ok)
+        throw new ApiError(res.status, `POST /auth/revoke-sessions failed with ${res.status}`);
+    },
+    deleteAccount: async (password) => result(await post("/delete-user", { password })),
+    requestPasswordReset: async (email) => result(await post("/request-password-reset", { email })),
+    resetPassword: async ({ token, newPassword }) =>
+      result(await post("/reset-password", { token, newPassword })),
+    verifyEmail: async (token) => {
+      const res = await fetch(`${baseUrl}/auth/verify-email?token=${encodeURIComponent(token)}`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      // A made-up or expired token answers 401 without a code Better Auth's own messages use.
+      if (res.status === 401) return { ok: false, message: MESSAGES.INVALID_TOKEN };
+      return result(res);
+    },
+    resendVerification: async (email) => result(await post("/send-verification-email", { email })),
+    changeEmail: async ({ newEmail, password }) =>
+      result(await post("/change-email", { newEmail, password })),
   };
 }

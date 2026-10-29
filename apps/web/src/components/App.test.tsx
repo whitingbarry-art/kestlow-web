@@ -11,7 +11,12 @@ describe("App", () => {
 
     const nav = within(screen.getByRole("complementary")).getByRole("navigation", { name: "Main" });
     const buttons = within(nav).getAllByRole("button");
-    expect(buttons.map((button) => button.textContent)).toEqual(["Leads", "Saved", "Alerts"]);
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "Leads",
+      "Saved",
+      "Alerts",
+      "Account",
+    ]);
     for (const button of buttons)
       expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });

@@ -44,6 +44,8 @@ const TEXT_PAIRS = [
   ["match-text", "match-bg"],
   ["error", "page"],
   ["error", "card"],
+  ["card", "error"], // danger button
+  ["error", "chip"], // danger-ghost button
 ] as const;
 
 const NON_TEXT_PAIRS = [

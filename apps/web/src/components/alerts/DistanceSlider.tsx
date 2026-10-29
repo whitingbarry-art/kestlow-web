@@ -5,18 +5,10 @@ interface DistanceSliderProps {
   min: number;
   max: number;
   label: string;
-  basePostcode: string;
   onChange: (miles: number) => void;
 }
 
-export function DistanceSlider({
-  value,
-  min,
-  max,
-  label,
-  basePostcode,
-  onChange,
-}: DistanceSliderProps) {
+export function DistanceSlider({ value, min, max, label, onChange }: DistanceSliderProps) {
   const id = useId();
 
   return (
@@ -34,13 +26,9 @@ export function DistanceSlider({
         value={value}
         id={`${id}-input`}
         aria-valuetext={label}
-        aria-describedby={`${id}-base`}
         onChange={(event) => onChange(Number(event.target.value))}
         className="w-full accent-amber"
       />
-      <small id={`${id}-base`} className="text-muted">
-        Base postcode: {basePostcode}
-      </small>
     </div>
   );
 }
