@@ -5,6 +5,7 @@ import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
 import { mobileViewport } from "../../stories/fixtures";
 import { StoryProviders } from "../../stories/StoryProviders";
 import { PRIVACY, REFUNDS, TERMS } from "../../data/legal";
+import { ErrorBoundary } from "../ErrorBoundary";
 import { AboutPage } from "./AboutPage";
 import { ContactPage } from "./ContactPage";
 import { LegalPage } from "./LegalPage";
@@ -77,4 +78,17 @@ export const Refunds: Story = { render: () => <LegalPage document={REFUNDS} /> }
 export const TermsOnMobile: Story = {
   globals: mobileViewport,
   render: () => <LegalPage document={TERMS} />,
+};
+
+function Broken(): never {
+  throw new Error("Story: a page that breaks");
+}
+
+/** What people see if a page breaks (KES-38). */
+export const SomethingWentWrong: Story = {
+  render: () => (
+    <ErrorBoundary reporter={{ report: () => {} }}>
+      <Broken />
+    </ErrorBoundary>
+  ),
 };
