@@ -1,9 +1,16 @@
 import { daysAgo } from "../logic/dates";
-import type { Lead, Trade, TradeFilter } from "../types/lead";
+import type { Lead, LeadSort, Trade, TradeFilter } from "../types/lead";
 
 export const TRADES: Trade[] = ["Roofing", "Electrical", "Landscaping", "Groundworks"];
 
 export const TRADE_FILTERS: TradeFilter[] = ["All trades", ...TRADES];
+
+/** The sort choices on Leads, in the order they're offered; the first is the default (KES-115). */
+export const LEAD_SORTS: { value: LeadSort; label: string }[] = [
+  { value: "newest", label: "Newest first" },
+  { value: "nearest", label: "Nearest first" },
+  { value: "decision", label: "Decision due soonest" },
+];
 
 /** The API's stand-in search area until accounts arrive: 15 miles around Bromley town centre. */
 export const SEARCH_RADIUS_MILES = 15;

@@ -2,6 +2,9 @@ export type Trade = "Roofing" | "Electrical" | "Landscaping" | "Groundworks";
 
 export type TradeFilter = "All trades" | Trade;
 
+/** The orders the API can list leads in (KES-115). */
+export type LeadSort = "newest" | "nearest" | "decision";
+
 /** A planning application as the API returns it. Dates are YYYY-MM-DD. */
 export interface Lead {
   id: string;

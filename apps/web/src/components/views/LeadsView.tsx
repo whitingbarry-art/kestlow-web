@@ -1,5 +1,6 @@
 import type { LeadsState } from "../../hooks/useLeads";
 import { LeadList } from "../leads/LeadList";
+import { LeadSearch } from "../leads/LeadSearch";
 import { TradeFilters } from "../leads/TradeFilters";
 import { Button } from "../ui/Button";
 import { ErrorState } from "../ui/ErrorState";
@@ -12,11 +13,22 @@ interface LeadsViewProps {
 }
 
 export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
-  const { leadsStatus } = leads;
+  const { leadsStatus, search } = leads;
+  const noMatches = Boolean(search) && leads.visibleLeads.length === 0;
 
   return (
     <section>
       <PageHeader title="New leads near you" subtitle={leads.summary} />
+      <LeadSearch
+        text={leads.searchText}
+        onTextChange={leads.setSearchText}
+        onClear={leads.clearSearch}
+        search={search}
+        total={leads.total}
+        sortOptions={leads.sortOptions}
+        sort={leads.sort}
+        onSortChange={leads.setSort}
+      />
       <TradeFilters options={leads.tradeFilters} active={leads.trade} onSelect={leads.setTrade} />
       {leadsStatus.isPending ? (
         <LoadingState message="Loading leads…" />
@@ -24,15 +36,27 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
         <ErrorState message="Leads couldn't be loaded." onRetry={leadsStatus.retry} />
       ) : (
         <>
-          <LeadList
-            leads={leads.visibleLeads}
-            emptyMessage="No leads for this trade yet."
-            selectedId={leads.selectedId}
-            clickable={cardsClickable}
-            isSaved={leads.isSaved}
-            onOpen={leads.openLead}
-            onToggleSave={leads.toggleSaved}
-          />
+          {noMatches ? (
+            <div className="mx-4 my-6 text-center">
+              <p className="m-0 text-muted">
+                No leads match “{search}”{leads.trade === "All trades" ? "" : ` for ${leads.trade}`}
+                .
+              </p>
+              <Button variant="ghost" className="mt-3" onClick={leads.clearSearch}>
+                Clear search
+              </Button>
+            </div>
+          ) : (
+            <LeadList
+              leads={leads.visibleLeads}
+              emptyMessage="No leads for this trade yet."
+              selectedId={leads.selectedId}
+              clickable={cardsClickable}
+              isSaved={leads.isSaved}
+              onOpen={leads.openLead}
+              onToggleSave={leads.toggleSaved}
+            />
+          )}
           {leads.hasMoreLeads && (
             <div className="mx-4 my-4">
               {leads.loadMoreFailed && !leads.isLoadingMoreLeads && (
