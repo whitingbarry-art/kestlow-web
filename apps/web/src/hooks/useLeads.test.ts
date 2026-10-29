@@ -55,7 +55,7 @@ describe("useLeads", () => {
 
     act(() => result.current.setTrade("Landscaping"));
     await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-3"]));
-    expect(listLeads).toHaveBeenLastCalledWith({ trade: "Landscaping", page: 1 });
+    expect(listLeads).toHaveBeenLastCalledWith({ trade: "Landscaping", sort: "newest", page: 1 });
     expect(result.current.summary).toBe("0 new today within 15 miles");
   });
 
@@ -178,5 +178,64 @@ describe("useLeads", () => {
     act(() => result.current.openLead("sample-2"));
     act(() => result.current.openLead("sample-2"));
     expect(result.current.openCount).toBe(2);
+  });
+
+  describe("search and sort (KES-115)", () => {
+    afterEach(() => {
+      window.history.replaceState(null, "", "/");
+      window.localStorage.clear();
+    });
+
+    it("searches once typing pauses, and puts the search in the address bar", async () => {
+      const api = createSampleLeadsApi();
+      const listLeads = vi.fn(api.listLeads);
+      const { result } = await renderLeads(undefined, { ...api, listLeads });
+
+      act(() => result.current.setSearchText("Orch"));
+      act(() => result.current.setSearchText("Orchard"));
+      await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-1"]));
+      expect(listLeads).toHaveBeenLastCalledWith({ search: "Orchard", sort: "newest", page: 1 });
+      // Only the finished word was sent, not each step of typing it.
+      expect(listLeads.mock.calls.map(([query]) => query.search)).toEqual([undefined, "Orchard"]);
+      expect(result.current.search).toBe("Orchard");
+      expect(result.current.total).toBe(1);
+      expect(window.location.search).toBe("?q=Orchard");
+    });
+
+    it("starts from a search in the address bar", async () => {
+      window.history.replaceState(null, "", "/?q=foundry");
+      const { result } = await renderLeads();
+
+      expect(result.current.searchText).toBe("foundry");
+      expect(ids(result.current.visibleLeads)).toEqual(["sample-4"]);
+    });
+
+    it("clears the search straight away", async () => {
+      window.history.replaceState(null, "", "/?q=foundry");
+      const { result } = await renderLeads();
+
+      act(() => result.current.clearSearch());
+      await waitFor(() => expect(result.current.visibleLeads).toHaveLength(4));
+      expect(result.current.searchText).toBe("");
+      expect(window.location.search).toBe("");
+    });
+
+    it("sorts as chosen and remembers it on this device", async () => {
+      const { result, unmount } = await renderLeads();
+
+      act(() => result.current.setSort("nearest"));
+      await waitFor(() =>
+        expect(ids(result.current.visibleLeads)).toEqual([
+          "sample-1",
+          "sample-2",
+          "sample-4",
+          "sample-3",
+        ]),
+      );
+      unmount();
+
+      const { result: again } = await renderLeads();
+      expect(again.current.sort).toBe("nearest");
+    });
   });
 });

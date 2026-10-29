@@ -1,9 +1,18 @@
 import type { DeliverySettings } from "../types/alerts";
-import type { Lead, LeadsPage, Trade } from "../types/lead";
+import type { Lead, LeadSort, LeadsPage, Trade } from "../types/lead";
 
 /** What the app needs from the leads API; tests and Storybook swap in `createSampleLeadsApi`. */
 export interface LeadsApi {
-  listLeads: (query: { trade?: Trade; page: number }) => Promise<LeadsPage>;
+  /**
+   * `search` matches the address, postcode or council, and `sort` defaults to newest first
+   * (KES-115).
+   */
+  listLeads: (query: {
+    trade?: Trade;
+    search?: string;
+    sort?: LeadSort;
+    page: number;
+  }) => Promise<LeadsPage>;
   /** Resolves to null when there's no such lead. */
   getLead: (id: string) => Promise<Lead | null>;
   /** The signed-in user's saved leads, most recently saved first (KES-24). */
@@ -82,9 +91,11 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
   }
 
   return {
-    async listLeads({ trade, page }) {
+    async listLeads({ trade, search, sort, page }) {
       const params = new URLSearchParams({ page: String(page) });
       if (trade) params.set("trade", trade);
+      if (search) params.set("q", search);
+      if (sort && sort !== "newest") params.set("sort", sort);
       const leads = await get<LeadsPage>(`/leads?${params}`);
       if (!leads) throw new ApiError(404, "GET /leads failed with 404");
       return leads;

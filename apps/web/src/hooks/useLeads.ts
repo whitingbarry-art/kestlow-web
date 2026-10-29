@@ -1,10 +1,17 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLeadsApi } from "../api/LeadsApiContext";
-import { SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
+import { LEAD_SORTS, SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
 import { findLead, formatLeadSummary } from "../logic/leads";
+import { loadSort, saveSort, searchFromUrl, urlWithSearch } from "../logic/leadSearch";
 import { alertSettingsQuery } from "./useAlertSettings";
-import type { Lead, TradeFilter } from "../types/lead";
+import type { Lead, LeadSort, TradeFilter } from "../types/lead";
 
 interface UseLeadsOptions {
   selectFirstLead?: boolean;
@@ -14,6 +21,18 @@ interface UseLeadsOptions {
 export const SAVED_KEY = ["saved"] as const;
 
 const NO_LEADS: Lead[] = [];
+
+/** How long typing has to pause before the search is sent, so each letter isn't a request. */
+export const SEARCH_DELAY_MS = 300;
+
+/** This device's storage, or undefined where the browser blocks it. */
+function deviceStorage(): Storage | undefined {
+  try {
+    return window.localStorage;
+  } catch {
+    return undefined;
+  }
+}
 
 /** Whether a list has loaded, and a way to try again when it hasn't. */
 export interface LoadStatus {
@@ -28,14 +47,50 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
   // The person's own distance (KES-25), or the usual 15 miles while it loads.
   const radiusMiles = useQuery(alertSettingsQuery(api)).data?.radiusMiles ?? SEARCH_RADIUS_MILES;
   const [trade, setTrade] = useState<TradeFilter>("All trades");
+  // What's typed in the search box, and the search sent once typing pauses (KES-115). It starts
+  // from the address bar, so a bookmarked or shared search opens with its results.
+  const [searchText, setSearchText] = useState(() => searchFromUrl(window.location.search));
+  const [search, setSearch] = useState(searchText);
+  const [sort, setSortState] = useState<LeadSort>(() => loadSort(deviceStorage()));
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [openCount, setOpenCount] = useState(0);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(searchText.trim()), SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  // Keeps the search in the address bar without adding a Back step for every search.
+  useEffect(() => {
+    window.history.replaceState(
+      window.history.state,
+      "",
+      urlWithSearch(window.location.href, search),
+    );
+  }, [search]);
+
+  const clearSearch = useCallback(() => {
+    setSearchText("");
+    setSearch("");
+  }, []);
+
+  const setSort = useCallback((next: LeadSort) => {
+    setSortState(next);
+    saveSort(deviceStorage(), next);
+  }, []);
+
   const leadsQuery = useInfiniteQuery({
-    queryKey: ["leads", trade],
+    queryKey: ["leads", trade, search, sort],
     queryFn: ({ pageParam }) =>
-      api.listLeads({ trade: trade === "All trades" ? undefined : trade, page: pageParam }),
+      api.listLeads({
+        trade: trade === "All trades" ? undefined : trade,
+        search: search || undefined,
+        sort,
+        page: pageParam,
+      }),
+    // The last results stay up while new ones load, so the list doesn't flash as you type.
+    placeholderData: keepPreviousData,
     initialPageParam: 1,
     getNextPageParam: (last) =>
       last.page * last.pageSize < last.total ? last.page + 1 : undefined,
@@ -45,6 +100,7 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
     [leadsQuery.data],
   );
   const newToday = leadsQuery.data?.pages[0]?.newToday;
+  const total = leadsQuery.data?.pages[0]?.total;
   const summary =
     newToday === undefined
       ? `Within ${radiusMiles} miles`
@@ -125,6 +181,14 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
     tradeFilters: TRADE_FILTERS,
     trade,
     setTrade,
+    searchText,
+    setSearchText,
+    search,
+    clearSearch,
+    sortOptions: LEAD_SORTS,
+    sort,
+    setSort,
+    total,
     visibleLeads,
     leadsStatus,
     hasMoreLeads: leadsQuery.hasNextPage,

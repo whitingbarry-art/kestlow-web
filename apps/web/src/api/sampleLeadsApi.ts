@@ -1,5 +1,6 @@
 import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS, TRADES } from "../data/leads";
+import { matchesSearch, sortLeads } from "../logic/leads";
 import type { Lead } from "../types/lead";
 import type { AlertSettings, LeadsApi } from "./leads";
 
@@ -8,9 +9,10 @@ const SAMPLE_BASE = { lat: 51.4057, lng: 0.0144 };
 
 /**
  * An in-memory stand-in for the leads API, for tests and Storybook until MSW arrives (KES-21).
- * It filters, pages and counts like the real one, keeping the order it's given, and remembers
- * saved leads, most recently saved first, starting from `savedIds`, and alert settings. It can't
- * look postcodes up, so the base stays at Bromley whatever postcode is set.
+ * It filters, searches, sorts, pages and counts like the real one (newest keeps the order it's
+ * given), and remembers saved leads, most recently saved first, starting from `savedIds`, and
+ * alert settings. It can't look postcodes up, so the base stays at Bromley whatever postcode is
+ * set.
  */
 export function createSampleLeadsApi(
   leads: Lead[] = SAMPLE_LEADS,
@@ -27,8 +29,14 @@ export function createSampleLeadsApi(
     delivery: DEFAULT_DELIVERY,
   };
   return {
-    listLeads({ trade, page }) {
-      const matching = trade ? leads.filter((lead) => lead.trades.includes(trade)) : leads;
+    listLeads({ trade, search, sort = "newest", page }) {
+      const matching = sortLeads(
+        leads.filter(
+          (lead) =>
+            (!trade || lead.trades.includes(trade)) && (!search || matchesSearch(lead, search)),
+        ),
+        sort,
+      );
       return Promise.resolve({
         leads: matching.slice((page - 1) * pageSize, page * pageSize),
         page,
