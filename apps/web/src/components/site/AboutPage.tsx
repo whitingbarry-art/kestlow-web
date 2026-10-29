@@ -46,6 +46,11 @@ export function AboutPage() {
             London, Kent and Surrey, and adding more as we grow.
           </p>
           <p className="mt-3 mb-0">
+            When an application doesn't give a full address, we work out where it is from the street
+            or area it names, using Ordnance Survey's open data. Contains OS data © Crown copyright
+            and database right 2026.
+          </p>
+          <p className="mt-3 mb-0">
             We don't keep the names of private householders who apply, only of companies.
           </p>
         </section>
