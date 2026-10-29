@@ -10,6 +10,10 @@ if (!container) throw new Error("Root element #root not found");
 
 createRoot(container).render(
   <StrictMode>
-    <WaitlistPage join={createHttpJoinWaitlist()} />
+    <WaitlistPage
+      join={createHttpJoinWaitlist()}
+      // Counter cards' QR codes say which shop they're from, e.g. ?ref=screwfix-bromley (KES-121).
+      source={new URLSearchParams(window.location.search).get("ref") ?? undefined}
+    />
   </StrictMode>,
 );

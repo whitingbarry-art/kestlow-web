@@ -64,7 +64,7 @@ export const PRIVACY: LegalDocument = {
             "Security: we briefly use IP addresses and email addresses to slow down repeated sign-in attempts and messages, which stops people guessing passwords or flooding inboxes (legitimate interest).",
             "Messages you send us, through the Contact us form or by email: your name, email address and what you wrote, so we can reply (legitimate interest in answering you).",
             "Error reports: when something breaks in Kestlow, we keep what broke and on which page, never who you are, so we can fix it (legitimate interest in keeping Kestlow working).",
-            "The waitlist: if you joined it, your email address, the first half of your postcode, your trades and your survey answers, to tell you when Kestlow opens near you and to set fair prices (your consent).",
+            "The waitlist: if you joined it, your email address, the first half of your postcode, your trades, your survey answers and, if you came from one of our cards or links, which one, to tell you when Kestlow opens near you, set fair prices and see which cards work (your consent).",
             "Payments, once paid plans start: these will be handled by our payment provider, and we'll never see or keep your full card details.",
           ],
         },

@@ -15,13 +15,15 @@ const FIELDS: Field[] = ["email", "postcode", "trades", "currentSpend", "wouldPa
 
 interface WaitlistFormProps {
   join: JoinWaitlist;
+  /** Sent with the sign-up, so it can be counted per shop (KES-121). */
+  source?: string;
 }
 
 /**
  * The sign-up and survey (KES-97). The API checks the answers, and any that need fixing are
  * listed in a summary that takes focus, with each linking to its question.
  */
-export function WaitlistForm({ join }: WaitlistFormProps) {
+export function WaitlistForm({ join, source }: WaitlistFormProps) {
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<SignupErrors>({});
@@ -53,6 +55,7 @@ export function WaitlistForm({ join }: WaitlistFormProps) {
         wouldPay: text("wouldPay"),
         plan: text("plan"),
         website: text("website"),
+        ...(source && { source }),
       });
       setErrors(result.ok ? {} : result.errors);
       setStatus(result.ok ? "joined" : "idle");

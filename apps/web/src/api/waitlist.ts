@@ -12,6 +12,8 @@ export interface WaitlistSignup {
   plan: string;
   /** The hidden spam trap: people leave it empty. */
   website: string;
+  /** The shop or link they came from, from the page's ?ref=, such as screwfix-bromley (KES-121). */
+  source?: string;
 }
 
 /** The API's message for each answer that needs fixing, keyed by its own field names. */
