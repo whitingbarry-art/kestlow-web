@@ -4,8 +4,10 @@ import { createSampleAuthApi } from "../../api/sampleAuthApi";
 import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
 import { mobileViewport } from "../../stories/fixtures";
 import { StoryProviders } from "../../stories/StoryProviders";
+import { PRIVACY, REFUNDS, TERMS } from "../../data/legal";
 import { AboutPage } from "./AboutPage";
 import { ContactPage } from "./ContactPage";
+import { LegalPage } from "./LegalPage";
 
 // Both pages read who's signed in, to fill in the contact form; here nobody is.
 const meta = {
@@ -64,4 +66,15 @@ export const ContactSent: Story = {
       await canvas.findByRole("heading", { name: "Thanks, your message is on its way" }),
     ).toBeVisible();
   },
+};
+
+export const Privacy: Story = { render: () => <LegalPage document={PRIVACY} /> };
+
+export const Terms: Story = { render: () => <LegalPage document={TERMS} /> };
+
+export const Refunds: Story = { render: () => <LegalPage document={REFUNDS} /> };
+
+export const TermsOnMobile: Story = {
+  globals: mobileViewport,
+  render: () => <LegalPage document={TERMS} />,
 };

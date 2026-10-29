@@ -205,6 +205,19 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
                   ? "Create account"
                   : "Sign in"}
             </button>
+            {mode === "register" && (
+              <p className="mt-3 mb-0 text-sm text-muted">
+                By creating an account you agree to our{" "}
+                <a href="/terms" className="font-semibold text-ink underline">
+                  terms of service
+                </a>
+                , and our{" "}
+                <a href="/privacy" className="font-semibold text-ink underline">
+                  privacy notice
+                </a>{" "}
+                explains how we use your details.
+              </p>
+            )}
           </div>
         </form>
       )}

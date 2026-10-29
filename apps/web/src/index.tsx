@@ -8,6 +8,8 @@ import { VerifyEmailScreen } from "./components/auth/VerifyEmailScreen";
 import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 import { AboutPage } from "./components/site/AboutPage";
 import { ContactPage } from "./components/site/ContactPage";
+import { LegalPage } from "./components/site/LegalPage";
+import { PRIVACY, REFUNDS, TERMS } from "./data/legal";
 import "./styles/index.css";
 
 const container = document.getElementById("root");
@@ -21,6 +23,9 @@ const pages: Record<string, ReactNode> = {
   "/verify-email": <VerifyEmailScreen token={token} />,
   "/about": <AboutPage />,
   "/contact": <ContactPage />,
+  "/terms": <LegalPage document={TERMS} />,
+  "/privacy": <LegalPage document={PRIVACY} />,
+  "/refunds": <LegalPage document={REFUNDS} />,
 };
 
 createRoot(container).render(
