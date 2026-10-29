@@ -220,6 +220,28 @@ describe("useLeads", () => {
       expect(window.location.search).toBe("");
     });
 
+    it("hides the count while a new search loads, rather than showing the last one's", async () => {
+      const api = createSampleLeadsApi();
+      let finish: () => void = () => {};
+      const listLeads = vi.fn<LeadsApi["listLeads"]>((query) =>
+        query.search
+          ? new Promise((resolve) => {
+              finish = () => void api.listLeads(query).then(resolve);
+            })
+          : api.listLeads(query),
+      );
+      const { result } = await renderLeads(undefined, { ...api, listLeads });
+      expect(result.current.total).toBe(4);
+
+      act(() => result.current.setSearchText("Orchard"));
+      await waitFor(() => expect(result.current.search).toBe("Orchard"));
+      expect(result.current.total).toBeUndefined();
+      expect(result.current.visibleLeads).toHaveLength(4);
+
+      act(() => finish());
+      await waitFor(() => expect(result.current.total).toBe(1));
+    });
+
     it("sorts as chosen and remembers it on this device", async () => {
       const { result, unmount } = await renderLeads();
 

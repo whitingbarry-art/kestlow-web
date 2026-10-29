@@ -100,7 +100,8 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
     [leadsQuery.data],
   );
   const newToday = leadsQuery.data?.pages[0]?.newToday;
-  const total = leadsQuery.data?.pages[0]?.total;
+  // While a new search loads, the last results stay up, but not their count (KES-120).
+  const total = leadsQuery.isPlaceholderData ? undefined : leadsQuery.data?.pages[0]?.total;
   const summary =
     newToday === undefined
       ? `Within ${radiusMiles} miles`

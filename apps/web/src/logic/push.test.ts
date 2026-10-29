@@ -178,3 +178,21 @@ describe("isPushOnHere (KES-118)", () => {
     expect(await isPushOnHere(fakeBrowser("granted", false).browser)).toBe(false);
   });
 });
+
+describe("PushUnavailable's help flag (KES-120)", () => {
+  it("marks the iPhone Home Screen steps as help, not a problem", async () => {
+    const error = await enablePush(
+      apiWithSpies(),
+      fakeBrowser("default", true, { ios: true }).browser,
+    ).catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(PushUnavailable);
+    expect((error as PushUnavailable).help).toBe(true);
+  });
+
+  it("marks everything else as a problem", async () => {
+    const error = await enablePush(apiWithSpies(), fakeBrowser("denied").browser).catch(
+      (e: unknown) => e,
+    );
+    expect((error as PushUnavailable).help).toBe(false);
+  });
+});

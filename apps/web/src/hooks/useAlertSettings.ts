@@ -97,7 +97,7 @@ export function useAlertSettings({
   const chosenTrades = settings?.trades ?? TRADES;
 
   // Why push couldn't be turned on in this browser, shown under the delivery choices.
-  const [pushProblem, setPushProblem] = useState<string | null>(null);
+  const [pushProblem, setPushProblem] = useState<{ message: string; help: boolean } | null>(null);
   // Whether this browser gets the account's push alerts; null until known (KES-118).
   const [pushHere, setPushHere] = useState<boolean | null>(null);
   const pushOnForAccount = delivery.push;
@@ -115,8 +115,8 @@ export function useAlertSettings({
     (error: unknown) =>
       setPushProblem(
         error instanceof PushUnavailable
-          ? error.message
-          : "We couldn't reach Kestlow. Please try again in a minute.",
+          ? { message: error.message, help: error.help }
+          : { message: "We couldn't reach Kestlow. Please try again in a minute.", help: false },
       ),
     [],
   );
@@ -210,7 +210,9 @@ export function useAlertSettings({
 
   return {
     deliveryOptions: DELIVERY_OPTIONS,
-    pushProblem,
+    pushProblem: pushProblem?.message ?? null,
+    /** The push message is steps to follow, not a problem, so it's shown calmly (KES-120). */
+    pushProblemIsHelp: pushProblem?.help ?? false,
     /** Push is on for the account, but this device doesn't get the alerts (KES-118). */
     pushOffHere: delivery.push && pushHere === false,
     turnOnPushHere,

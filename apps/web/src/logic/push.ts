@@ -1,7 +1,17 @@
 import type { LeadsApi } from "../api/leads";
 
-/** Why push alerts couldn't be turned on in this browser, in words for the person. */
-export class PushUnavailable extends Error {}
+/**
+ * Why push alerts couldn't be turned on in this browser, in words for the person. `help` marks
+ * steps to follow, like adding Kestlow to an iPhone's Home Screen, rather than something wrong.
+ */
+export class PushUnavailable extends Error {
+  constructor(
+    message: string,
+    readonly help = false,
+  ) {
+    super(message);
+  }
+}
 
 /** What turning push on and off needs from the browser; tests pass fakes. */
 export interface PushBrowser {
@@ -68,7 +78,7 @@ export function pushBlocker(browser: PushBrowser): string | null {
  */
 export async function enablePush(api: LeadsApi, browser: PushBrowser = browserPush) {
   const blocker = pushBlocker(browser);
-  if (blocker) throw new PushUnavailable(blocker);
+  if (blocker) throw new PushUnavailable(blocker, browser.ios && !browser.standalone);
   const key = await api.getPushKey();
   if (!key)
     throw new PushUnavailable("Push alerts aren't switched on yet. Email alerts still work.");

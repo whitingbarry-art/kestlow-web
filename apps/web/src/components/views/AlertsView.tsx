@@ -3,6 +3,7 @@ import { AreaMap } from "../alerts/AreaMap";
 import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
 import { DistanceSlider } from "../alerts/DistanceSlider";
 import { SettingRow } from "../alerts/SettingRow";
+import { cn } from "../../utils/cn";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { ErrorState } from "../ui/ErrorState";
@@ -64,7 +65,13 @@ function AlertSettingsForm({
         {/* Always there, so screen readers announce a problem when one appears. */}
         <p
           role="status"
-          className={`m-0 text-sm font-semibold text-error ${settings.pushProblem ? "pb-3.5" : ""}`}
+          className={cn(
+            "m-0 text-sm",
+            settings.pushProblemIsHelp
+              ? "mb-3.5 rounded-xl bg-chip p-3 text-ink"
+              : "font-semibold text-error",
+            settings.pushProblem && !settings.pushProblemIsHelp && "pb-3.5",
+          )}
         >
           {settings.pushProblem}
         </p>
