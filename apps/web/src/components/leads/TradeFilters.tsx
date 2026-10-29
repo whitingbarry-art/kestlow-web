@@ -1,5 +1,6 @@
 import type { TradeFilter } from "../../types/lead";
 import { Chip } from "../ui/Chip";
+import { ScrollRow } from "../ui/ScrollRow";
 
 interface TradeFiltersProps {
   options: TradeFilter[];
@@ -9,7 +10,8 @@ interface TradeFiltersProps {
 
 export function TradeFilters({ options, active, onSelect }: TradeFiltersProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-3" role="group" aria-label="Filter by trade">
+    // Always one line: when the buttons don't all fit, its arrows (or a swipe) move it along.
+    <ScrollRow className="flex gap-2 px-4 py-3" role="group" aria-label="Filter by trade">
       {options.map((trade) => (
         <Chip
           key={trade}
@@ -18,6 +20,6 @@ export function TradeFilters({ options, active, onSelect }: TradeFiltersProps) {
           onSelect={() => onSelect(trade)}
         />
       ))}
-    </div>
+    </ScrollRow>
   );
 }
