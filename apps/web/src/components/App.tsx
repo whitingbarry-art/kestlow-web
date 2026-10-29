@@ -67,7 +67,8 @@ export function App() {
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
         {view === "account" && <AccountView />}
-        <SiteFooter />
+        {/* On desktop the sidebar has these links instead. */}
+        <SiteFooter className="desk:hidden" />
       </main>
 
       <DetailPanel
