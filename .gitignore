@@ -3,3 +3,6 @@ dist/
 .turbo/
 storybook-static/
 *storybook.log
+# Playwright end-to-end reports and failure traces (KES-65)
+apps/web/e2e-report/
+apps/web/e2e-results/
