@@ -2,8 +2,14 @@ import { SAMPLE_LEADS } from "../data/leads";
 import { findLead, formatLeadDistance, formatLeadSummary, matchesSearch, sortLeads } from "./leads";
 
 describe("leads logic", () => {
-  it("formats the summary", () => {
-    expect(formatLeadSummary(2, 15)).toBe("2 new today within 15 miles");
+  it.each([
+    [2, 3456, 10, "2 new today, of 3,456 leads within 10 miles"],
+    [0, 3456, 10, "3,456 leads within 10 miles"],
+    [1, 1, 15, "1 new today, of 1 lead within 15 miles"],
+    [0, 0, 15, "No leads within 15 miles yet"],
+    [0, 12, 1, "12 leads within 1 mile"],
+  ])("sums up %i new of %i within %i miles", (newCount, total, miles, summary) => {
+    expect(formatLeadSummary(newCount, total, miles)).toBe(summary);
   });
 
   it("finds a lead by id", () => {

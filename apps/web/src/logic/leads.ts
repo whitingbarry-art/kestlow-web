@@ -1,7 +1,16 @@
 import type { Lead, LeadSort } from "../types/lead";
 
-export function formatLeadSummary(newCount: number, radiusMiles: number): string {
-  return `${newCount} new today within ${radiusMiles} miles`;
+const wholeNumber = new Intl.NumberFormat("en-GB");
+
+/**
+ * The line under "New leads near you": how many are new today out of how many in all, such as
+ * "2 new today, of 3,456 leads within 10 miles", leaving out "0 new today" (KES-120).
+ */
+export function formatLeadSummary(newCount: number, total: number, radiusMiles: number): string {
+  const within = `within ${radiusMiles} ${radiusMiles === 1 ? "mile" : "miles"}`;
+  if (total === 0) return `No leads ${within} yet`;
+  const leads = `${wholeNumber.format(total)} ${total === 1 ? "lead" : "leads"} ${within}`;
+  return newCount > 0 ? `${wholeNumber.format(newCount)} new today, of ${leads}` : leads;
 }
 
 /** How far away a lead is: "about" when its location is only rough (KES-28). */

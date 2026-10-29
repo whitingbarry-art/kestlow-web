@@ -32,12 +32,11 @@ export function LeadSearch({
   onSortChange,
 }: LeadSearchProps) {
   const id = useId();
+  // Only while searching: otherwise the page heading already says how many there are (KES-120).
   const count =
-    total === undefined
+    total === undefined || !search
       ? ""
-      : search
-        ? `${leadsCount(total)} ${total === 1 ? "matches" : "match"} “${search}”`
-        : leadsCount(total);
+      : `${leadsCount(total)} ${total === 1 ? "matches" : "match"} “${search}”`;
 
   return (
     <div role="search" className="px-4 pt-3">

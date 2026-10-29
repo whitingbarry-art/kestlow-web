@@ -103,9 +103,9 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
   // While a new search loads, the last results stay up, but not their count (KES-120).
   const total = leadsQuery.isPlaceholderData ? undefined : leadsQuery.data?.pages[0]?.total;
   const summary =
-    newToday === undefined
-      ? `Within ${radiusMiles} miles`
-      : formatLeadSummary(newToday, radiusMiles);
+    newToday === undefined || total === undefined
+      ? `Within ${radiusMiles} ${radiusMiles === 1 ? "mile" : "miles"}`
+      : formatLeadSummary(newToday, total, radiusMiles);
   const { refetch } = leadsQuery;
   const retryLeads = useCallback(() => void refetch(), [refetch]);
   const leadsStatus: LoadStatus = {

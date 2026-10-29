@@ -33,7 +33,7 @@ describe("App", () => {
     render(<App />, { wrapper: providers() });
     expect(screen.getByRole("heading", { name: "New leads near you" })).toBeInTheDocument();
     expect(await screen.findAllByRole("button", { name: "View lead" })).toHaveLength(4);
-    expect(screen.getByText("2 new today within 15 miles")).toBeInTheDocument();
+    expect(screen.getByText("2 new today, of 4 leads within 15 miles")).toBeInTheDocument();
   });
 
   it("filters leads by trade", async () => {

@@ -17,7 +17,7 @@ describe("useLeads", () => {
   it("loads the leads and the new-today summary", async () => {
     const { result } = await renderLeads();
     expect(ids(result.current.visibleLeads)).toEqual(ids(SAMPLE_LEADS));
-    expect(result.current.summary).toBe("2 new today within 15 miles");
+    expect(result.current.summary).toBe("2 new today, of 4 leads within 15 miles");
     expect(result.current.hasMoreLeads).toBe(false);
     expect(result.current.selectedLead).toBeUndefined();
   });
@@ -56,7 +56,7 @@ describe("useLeads", () => {
     act(() => result.current.setTrade("Landscaping"));
     await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-3"]));
     expect(listLeads).toHaveBeenLastCalledWith({ trade: "Landscaping", sort: "newest", page: 1 });
-    expect(result.current.summary).toBe("0 new today within 15 miles");
+    expect(result.current.summary).toBe("1 lead within 15 miles");
   });
 
   it("loads more leads a page at a time", async () => {
