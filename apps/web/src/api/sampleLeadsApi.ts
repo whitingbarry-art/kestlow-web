@@ -2,7 +2,7 @@ import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS, TRADES } from "../data/leads";
 import { matchesSearch, sortLeads } from "../logic/leads";
 import type { SubscriptionSummary } from "../types/billing";
-import type { Lead } from "../types/lead";
+import type { Lead, Trade } from "../types/lead";
 import type { AlertSettings, LeadsApi } from "./leads";
 
 /** Bromley town centre, the API's default base, which the sample leads are placed around. */
@@ -131,5 +131,24 @@ export function createSampleLeadsApi(
       };
       return Promise.resolve({ ok: true, settings });
     },
+  };
+}
+
+/**
+ * The sample API with settings as a plan with fewer than all four trades gives them (KES-52):
+ * Free's one by default, or more to try a bigger allowance.
+ */
+export function onTradeLimitedPlan(
+  trades: Trade[] = ["Roofing"],
+  api: LeadsApi = createSampleLeadsApi(),
+): LeadsApi {
+  return {
+    ...api,
+    getAlertSettings: async () => ({
+      ...(await api.getAlertSettings()),
+      trades,
+      plan: "free",
+      limits: { maxRadiusMiles: 15, maxTrades: trades.length, push: false, digest: "weekly" },
+    }),
   };
 }

@@ -27,3 +27,6 @@ type Story = StoryObj<typeof meta>;
 export const Inactive: Story = {};
 
 export const Active: Story = { args: { active: true } };
+
+/** A trade their plan doesn't cover (KES-52). */
+export const Locked: Story = { args: { locked: true } };

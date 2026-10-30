@@ -1,5 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useLeadsApi } from "../../api/LeadsApiContext";
+import { TRADES } from "../../data/leads";
+import { alertSettingsQuery } from "../../hooks/useAlertSettings";
 import type { LeadsState } from "../../hooks/useLeads";
 import { useSubscription } from "../../hooks/useSubscription";
+import type { TradeFilter } from "../../types/lead";
 import { LeadList } from "../leads/LeadList";
 import { LeadSearch } from "../leads/LeadSearch";
 import { TradeFilters } from "../leads/TradeFilters";
@@ -17,6 +23,7 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
   const { leadsStatus, search } = leads;
   const noMatches = Boolean(search) && leads.visibleLeads.length === 0;
   const free = useSubscription().data?.plan === "free";
+  const trades = useTradeButtons(leads);
 
   return (
     <section>
@@ -41,7 +48,21 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
           </a>
         </p>
       )}
-      <TradeFilters options={leads.tradeFilters} active={leads.trade} onSelect={leads.setTrade} />
+      <TradeFilters
+        options={trades.options}
+        active={trades.active}
+        onSelect={trades.select}
+        locked={trades.locked}
+        onSelectLocked={trades.explain}
+      />
+      {trades.explained && (
+        <p role="status" className="mx-4 mt-0 mb-1 text-sm text-ink desk:mx-6">
+          {trades.explained} isn't on your plan. Pro covers all four trades.{" "}
+          <a href="/pricing" className="font-semibold text-ink underline">
+            See plans
+          </a>
+        </p>
+      )}
       {leadsStatus.isPending ? (
         <LoadingState message="Loading leads…" />
       ) : leadsStatus.isError ? (
@@ -94,4 +115,51 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
       )}
     </section>
   );
+}
+
+/**
+ * The trade buttons as someone's plan allows (KES-52). Pro sees every trade and "All trades". A
+ * plan with fewer shows only theirs, with no "All trades" when there's one, since it would show
+ * the same leads, and the rest after them with a padlock that says why.
+ */
+function useTradeButtons(leads: LeadsState) {
+  const settings = useQuery(alertSettingsQuery(useLeadsApi())).data;
+  const [explained, setExplained] = useState<TradeFilter | null>(null);
+  const limits = settings?.limits;
+  // The trades the plan covers, or null when it covers them all.
+  const allowed =
+    settings && limits && limits.maxTrades < TRADES.length
+      ? settings.trades.length
+        ? settings.trades
+        : TRADES.slice(0, limits.maxTrades)
+      : null;
+  const { trade, setTrade } = leads;
+  // A trade filter from before the plan changed, that the plan doesn't cover, would only ever
+  // show nothing, so it goes back to all of theirs.
+  useEffect(() => {
+    if (allowed && trade !== "All trades" && !allowed.includes(trade)) setTrade("All trades");
+  }, [allowed, trade, setTrade]);
+  if (!allowed)
+    return {
+      options: leads.tradeFilters,
+      active: leads.trade,
+      select: leads.setTrade,
+      locked: [],
+      explain: () => {},
+      explained: null,
+    };
+
+  const one = allowed.length === 1;
+  return {
+    options: (one ? allowed : ["All trades", ...allowed]) as TradeFilter[],
+    // With one trade, every lead is that trade's, so its button shows as chosen.
+    active: one ? allowed[0] : leads.trade,
+    select: (trade: TradeFilter) => {
+      setExplained(null);
+      leads.setTrade(one ? "All trades" : trade);
+    },
+    locked: TRADES.filter((trade) => !allowed.includes(trade)),
+    explain: setExplained,
+    explained,
+  };
 }

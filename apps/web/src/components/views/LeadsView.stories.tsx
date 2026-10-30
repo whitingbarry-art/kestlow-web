@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
+import { createSampleLeadsApi, onTradeLimitedPlan } from "../../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../../data/leads";
 import { useLeads } from "../../hooks/useLeads";
 import { failingLeadsApi, pendingLeadsApi, withLeadsApi } from "../../stories/withLeadsApi";
@@ -43,3 +43,6 @@ export const NoLeads: Story = { decorators: [withLeadsApi(createSampleLeadsApi([
 export const Loading: Story = { decorators: [withLeadsApi(pendingLeadsApi)] };
 
 export const LoadFailed: Story = { decorators: [withLeadsApi(failingLeadsApi)] };
+
+/** On Free (KES-52): Roofing only, with the other trades locked. */
+export const OneTradePlan: Story = { decorators: [withLeadsApi(onTradeLimitedPlan())] };

@@ -71,7 +71,8 @@ export function useAlertSettings({
       if (!result.ok) return;
       queryClient.setQueryData(ALERT_SETTINGS_KEY, result.settings);
       // A new base or distance measures leads differently, so fetch them again (in the background).
-      if ("postcode" in changes || "radiusMiles" in changes)
+      // So do trades, on a plan that limits them (KES-52).
+      if ("postcode" in changes || "radiusMiles" in changes || "trades" in changes)
         void queryClient.invalidateQueries({
           predicate: (query) => MEASURED_FROM_BASE.has(String(query.queryKey[0])),
         });
