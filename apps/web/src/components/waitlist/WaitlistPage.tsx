@@ -86,8 +86,11 @@ export function WaitlistPage({ join, source }: WaitlistPageProps) {
 
         <section aria-labelledby="plans" className="py-12">
           <h2 id="plans" className="m-0 text-2xl font-bold">
-            Plans and prices
+            Planned prices at launch
           </h2>
+          <p className="mt-2 mb-0 text-muted">
+            Nothing to pay now: joining the waitlist is free. Prices may change before we launch.
+          </p>
           <div className="mt-4 rounded-card border-2 border-amber bg-card p-4">
             <p className="m-0">
               <b>Founding members:</b> the first 100 paying customers keep their launch price for as
