@@ -1,4 +1,4 @@
-import { CONTACT } from "./contact";
+import { BUSINESS_ADDRESS, CONTACT } from "./contact";
 import { DATA_CONTROLLER } from "./waitlist";
 
 /**
@@ -33,8 +33,9 @@ export function icoRegistration(number: string | null): string {
     : "We've registered with the Information Commissioner's Office (ICO); our registration number will appear here once it's issued.";
 }
 
-const UPDATED = "29 October 2026";
-const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
+const UPDATED = "30 October 2026";
+/** Who runs Kestlow, as the legal pages, Contact us and the footer name them. */
+export const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
 
 export const PRIVACY: LegalDocument = {
   title: "Privacy notice",
@@ -46,7 +47,7 @@ export const PRIVACY: LegalDocument = {
     {
       heading: "Who we are",
       blocks: [
-        `Kestlow is run by ${OWNER} ("we", "us"). We decide how your information is used, which makes us its "controller" under UK data protection law. For anything about your information, email ${CONTACT.privacy}.`,
+        `Kestlow is run by ${OWNER} ("we", "us"), ${BUSINESS_ADDRESS}. We decide how your information is used, which makes us its "controller" under UK data protection law. For anything about your information, email ${CONTACT.privacy}.`,
         icoRegistration(ICO_REGISTRATION),
       ],
     },
@@ -65,7 +66,8 @@ export const PRIVACY: LegalDocument = {
             "Messages you send us, through the Contact us form or by email: your name, email address and what you wrote, so we can reply (legitimate interest in answering you).",
             "Error reports: when something breaks in Kestlow, we keep what broke and on which page, never who you are, so we can fix it (legitimate interest in keeping Kestlow working).",
             "The waitlist: if you joined it, your email address, the first half of your postcode, your trades, your survey answers and, if you came from one of our cards or links, which one, to tell you when Kestlow opens near you, set fair prices and see which cards work (your consent).",
-            "Payments, once paid plans start: these will be handled by our payment provider, and we'll never see or keep your full card details.",
+            "Free trials: whether you've had one. If you delete your account, we keep only a scrambled copy of your email address (a one-way hash, which can't be turned back into the address), so the same email can't start a second free trial (legitimate interest in preventing misuse of free trials).",
+            "Payments, once paid plans start: your plan, when it renews, and Stripe's references for you and your payments, so we can bill you (contract) and keep the accounts the law requires (legal obligation). Card and bank details go straight to Stripe; we never see or keep them.",
           ],
         },
       ],
@@ -95,6 +97,7 @@ export const PRIVACY: LegalDocument = {
             "GitHub: runs the nightly jobs that collect planning applications and send push alerts.",
             "Your browser's push service (from Google, Mozilla, Apple or Microsoft, depending on your browser): delivers push alerts to your device.",
             "postcodes.io: looks up where your base postcode is. Only the postcode is sent.",
+            "Stripe, once paid plans start: takes payments by card or Direct Debit, and keeps the payment details needed to do that.",
             "OpenStreetMap: provides the map images. Your browser fetches them directly, so OpenStreetMap sees your IP address, as with any website you visit.",
           ],
         },
@@ -110,6 +113,8 @@ export const PRIVACY: LegalDocument = {
             "Signed-in sessions: up to 30 days.",
             "Password reset links last an hour, and email confirmation links 24 hours.",
             "Messages you send us: up to two years, then we delete them.",
+            "The scrambled record of a free trial: for as long as we offer free trials.",
+            "Records of payments: five years after the 31 January tax return deadline for the year they belong to, as HMRC requires.",
             "Error reports: 30 days.",
             "Waitlist sign-ups: until Kestlow opens in your area, or sooner if you ask.",
             "Copies in our database's backups expire within seven days.",
@@ -138,7 +143,7 @@ export const TERMS: LegalDocument = {
   title: "Terms of service",
   updated: UPDATED,
   intro: [
-    `These terms are the agreement between you and ${OWNER} ("we", "us") for using Kestlow. Please read them: by creating an account or using Kestlow, you agree to them. If anything's unclear, email ${CONTACT.hello}.`,
+    `These terms are the agreement between you and ${OWNER} ("we", "us"), ${BUSINESS_ADDRESS}, for using Kestlow. Please read them: by creating an account or using Kestlow, you agree to them. If anything's unclear, email ${CONTACT.hello}.`,
   ],
   sections: [
     {
@@ -193,10 +198,16 @@ export const TERMS: LegalDocument = {
         "Kestlow has a free plan. Once paid plans start:",
         {
           list: [
-            "Paid plans are monthly or yearly, paid in advance, and renew automatically until you cancel.",
+            "New accounts get 14 days of the Pro plan free, with no card needed. If you don't choose a paid plan by the end, your account moves to the free plan and you're not charged anything. We'll email you 3 days before your trial ends. There's one free trial per person: an email address that has had one won't get another, even after its account is deleted.",
+            "Paid plans are monthly or yearly, paid in advance by card or Direct Debit through our payment provider, Stripe, and renew automatically until you cancel. We'll email you at least 7 days before a yearly plan renews.",
+            "We're not registered for VAT, so no VAT is added to our prices. If that changes, we'll tell you at least 30 days before.",
             "You can cancel at any time from your Account page. You'll keep your plan until the end of the period you've paid for, and won't be charged again.",
+            "Instead of cancelling, you can pause a paid plan for up to 3 months, once in any 12 months. You're not charged while it's paused, and your account works like the free plan until it restarts.",
+            "Changing plan: an upgrade starts straight away, charged for the rest of the period. A downgrade starts when your next payment is due: you keep your current plan until then, and nothing is refunded.",
+            "Founding members: the first 100 customers to pay keep their launch price for as long as they stay subscribed. Pausing doesn't lose it; cancelling does.",
             "Prices are as shown when you sign up. If we change a price, we'll email you at least 30 days before it affects you, so you can cancel first if you'd rather.",
-            "Refunds are covered by our refund policy, including a 30-day money-back guarantee on your first payment.",
+            "If a payment fails, Stripe tries again and we'll email you. You keep your plan for 7 days while it's sorted; after that, your account moves to the free plan until it's paid.",
+            "We don't refund payments for time you've had. Our refund policy covers the exceptions, such as a charge we take by mistake.",
           ],
         },
       ],
@@ -250,24 +261,22 @@ export const TERMS: LegalDocument = {
 export const REFUNDS: LegalDocument = {
   title: "Refund policy",
   updated: UPDATED,
-  intro: [
-    "We want you to be happy paying for Kestlow, so trying it is risk-free. This policy applies once paid plans start, and sits alongside our terms of service.",
-  ],
+  intro: ["This policy applies once paid plans start, and sits alongside our terms of service."],
   sections: [
     {
-      heading: "30-day money-back guarantee",
+      heading: "Try it free first",
       blocks: [
-        "If Kestlow isn't right for you, ask for a refund within 30 days of your first payment for a paid plan and we'll refund that payment in full, whether it was monthly or yearly. No questions asked. This applies to your first payment only, once per customer.",
+        "Every new account gets 14 days of the Pro plan free, with no card needed, so you can see the leads in your own area before you pay anything. Because of that, we don't refund payments for time you've had, except as below.",
       ],
     },
     {
-      heading: "After the first 30 days",
+      heading: "Cancelling",
       blocks: [
         {
           list: [
             "You can cancel at any time from your Account page, and you won't be charged again.",
             "You'll keep your plan until the end of the period you've already paid for.",
-            "We don't refund part-used months or years, except as below.",
+            "We don't refund part-used months or years, or the rest of a plan you downgrade from.",
           ],
         },
       ],

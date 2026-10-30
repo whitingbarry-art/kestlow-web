@@ -63,7 +63,7 @@ export const PROMISES = [
   "14 days of Pro free when we launch, with no card needed",
   "No contract and no per-lead fees",
   "Cancel, pause or switch plan in two clicks",
-  "Your first payment back if you're not happy within 30 days",
+  "Keep using Kestlow free if you don't subscribe",
 ];
 
 export interface Option {

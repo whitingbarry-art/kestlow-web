@@ -1,5 +1,6 @@
 import { createHttpSendContact, type SendContact } from "../../api/contact";
-import { CONTACT } from "../../data/contact";
+import { BUSINESS_ADDRESS, CONTACT } from "../../data/contact";
+import { OWNER } from "../../data/legal";
 import { useSession } from "../../hooks/useSession";
 import { ContactForm } from "./ContactForm";
 import { PublicLayout } from "./PublicLayout";
@@ -43,6 +44,23 @@ export function ContactPage({ send = httpSend }: { send?: SendContact }) {
             </div>
           ))}
         </dl>
+      </section>
+
+      <section aria-labelledby="contact-post" className="mt-10">
+        <h2 id="contact-post" className="mt-0 mb-3 text-xl font-bold">
+          By post
+        </h2>
+        {/* One line each, as an address is written on an envelope. */}
+        <address className="not-italic">
+          {[OWNER, ...BUSINESS_ADDRESS.split(", ")].map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </address>
+        <p className="mt-2 mb-0 text-muted">
+          Post is scanned and sent on to us, so email is quicker.
+        </p>
       </section>
     </PublicLayout>
   );

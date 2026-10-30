@@ -1,4 +1,5 @@
 import { render, screen, within } from "@testing-library/react";
+import { BUSINESS_ADDRESS } from "../../data/contact";
 import { icoRegistration, PRIVACY, REFUNDS, TERMS, type LegalDocument } from "../../data/legal";
 import { LegalPage } from "./LegalPage";
 
@@ -58,7 +59,42 @@ describe("the legal documents", () => {
     );
   });
 
-  it("promises the 30-day guarantee the ticket asks for", () => {
-    expect(REFUNDS.sections[0]).toMatchObject({ heading: "30-day money-back guarantee" });
+  /** Every word of a document, to check what it promises. */
+  const textOf = (doc: LegalDocument) =>
+    [
+      ...doc.intro,
+      ...doc.sections.flatMap((section) =>
+        section.blocks.flatMap((block) => (typeof block === "string" ? [block] : block.list)),
+      ),
+    ].join("\n");
+
+  it("names who runs Kestlow and where, in the terms and the privacy notice", () => {
+    for (const doc of [TERMS, PRIVACY]) {
+      expect(textOf(doc)).toContain(
+        `Barry Whiting, trading as Kestlow ("we", "us"), ${BUSINESS_ADDRESS}`,
+      );
+    }
+  });
+
+  it("sets out how paid plans will work (KES-122)", () => {
+    const terms = textOf(TERMS);
+
+    expect(terms).toContain("14 days of the Pro plan free, with no card needed");
+    expect(terms).toContain("We're not registered for VAT");
+    expect(terms).toContain("pause a paid plan for up to 3 months");
+    expect(terms).toContain("Founding members: the first 100 customers");
+    expect(terms).toContain("at least 7 days before a yearly plan renews");
+    expect(terms).toContain("by card or Direct Debit");
+    expect(terms).toContain("A downgrade starts when your next payment is due");
+  });
+
+  it("offers the free trial instead of a money-back guarantee, refunding only exceptions (KES-122)", () => {
+    const refunds = textOf(REFUNDS);
+
+    expect(REFUNDS.sections[0]).toMatchObject({ heading: "Try it free first" });
+    expect(refunds).not.toMatch(/money-back/i);
+    expect(refunds).toContain("we'll refund the mistaken charge in full");
+    expect(textOf(TERMS)).toContain("There's one free trial per person");
+    expect(textOf(TERMS)).toContain("once in any 12 months");
   });
 });

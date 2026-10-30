@@ -13,6 +13,13 @@ export const CONTACT = {
   privacy: "privacy@kestlow.co.uk",
 } as const;
 
+/**
+ * Kestlow's business address: a virtual office that scans post to the founder (KES-122). UK rules
+ * need a sole trader trading under a business name to show an address for legal documents, and a
+ * website business its geographic address, so it's on the legal pages, Contact us and the footer.
+ */
+export const BUSINESS_ADDRESS = "4th Floor, 18 St. Cross Street, London, EC1N 8UN";
+
 /** What a Contact us message can be about, matching the API's topics (KES-116). */
 export const CONTACT_TOPICS = [
   { value: "help", label: "Help using Kestlow" },
