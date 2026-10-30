@@ -24,6 +24,19 @@ test.describe("the pages anyone can read", () => {
     await expect(page.getByText("Error reports: 30 days.")).toBeVisible();
   });
 
+  test("Contact us and the footer give who runs Kestlow and its address (KES-122)", async ({
+    page,
+  }) => {
+    await page.goto("/contact");
+
+    await expect
+      .poll(() => page.locator("address").innerText())
+      .toBe("Barry Whiting, trading as Kestlow\n4th Floor\n18 St. Cross Street\nLondon\nEC1N 8UN");
+    await expect(page.locator("footer")).toContainText(
+      "Barry Whiting, trading as Kestlow, 4th Floor, 18 St. Cross Street, London, EC1N 8UN",
+    );
+  });
+
   test("the contact form lists what needs fixing, linked to each field", async ({ page }) => {
     await page.goto("/contact");
     await page.getByRole("button", { name: "Send message" }).click();
