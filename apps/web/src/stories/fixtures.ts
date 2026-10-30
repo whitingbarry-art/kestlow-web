@@ -15,3 +15,15 @@ export const approximateLead: Lead = {
   miles: 4.3,
   approximate: true,
 };
+
+/** A lead as the free plan sees it (KES-52): the area, a rough place, no link, reference or applicant. */
+export const maskedLead: Lead = {
+  ...sampleLead,
+  address: "Chislehurst, BR7",
+  reference: null,
+  sourceUrl: null,
+  applicant: null,
+  miles: 2,
+  approximate: true,
+  masked: true,
+};

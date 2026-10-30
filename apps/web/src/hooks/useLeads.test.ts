@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import type { LeadsApi } from "../api/leads";
+import { ApiError, type LeadsApi } from "../api/leads";
 import { createSampleLeadsApi } from "../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../data/leads";
 import { providers } from "../test/providers";
@@ -275,5 +275,22 @@ describe("useLeads", () => {
       const { result: again } = await renderLeads();
       expect(again.current.sort).toBe("nearest");
     });
+  });
+
+  it("says why when the free plan's saves are used up, and puts the save back (KES-52)", async () => {
+    const api = createSampleLeadsApi();
+    const { result } = await renderLeads(undefined, {
+      ...api,
+      saveLead: () => Promise.reject(new ApiError(403, "PUT /me/saved failed with 403")),
+    });
+
+    act(() => result.current.toggleSaved("sample-1"));
+
+    await waitFor(() =>
+      expect(result.current.saveProblem).toMatch(/free plan saves up to 10 leads/),
+    );
+    expect(result.current.isSaved("sample-1")).toBe(false);
+    act(() => result.current.clearSaveProblem());
+    expect(result.current.saveProblem).toBeNull();
   });
 });

@@ -1,4 +1,5 @@
 import type { LeadsState } from "../../hooks/useLeads";
+import { useSubscription } from "../../hooks/useSubscription";
 import { LeadList } from "../leads/LeadList";
 import { LeadSearch } from "../leads/LeadSearch";
 import { TradeFilters } from "../leads/TradeFilters";
@@ -15,6 +16,7 @@ interface LeadsViewProps {
 export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
   const { leadsStatus, search } = leads;
   const noMatches = Boolean(search) && leads.visibleLeads.length === 0;
+  const free = useSubscription().data?.plan === "free";
 
   return (
     <section>
@@ -28,7 +30,17 @@ export function LeadsView({ leads, cardsClickable }: LeadsViewProps) {
         sortOptions={leads.sortOptions}
         sort={leads.sort}
         onSortChange={leads.setSort}
+        placeholder={free ? "Search by council or postcode area, like BR7" : undefined}
       />
+      {free && (
+        <p className="mx-4 mt-3 mb-0 rounded-xl bg-chip p-3 text-sm text-ink desk:mx-6">
+          On the free plan, leads show a week after they're published, for one trade, with the area
+          rather than the address.{" "}
+          <a href="/pricing" className="font-semibold text-ink underline">
+            See them first with Solo or Pro
+          </a>
+        </p>
+      )}
       <TradeFilters options={leads.tradeFilters} active={leads.trade} onSelect={leads.setTrade} />
       {leadsStatus.isPending ? (
         <LoadingState message="Loading leads…" />

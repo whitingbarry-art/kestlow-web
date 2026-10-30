@@ -77,6 +77,23 @@ export function App() {
         <VerifyEmailBanner />
         <SubscribedNotice />
         <TrialBanner />
+        {leads.saveProblem && (
+          <div className="mx-4 mt-3 flex flex-wrap items-center gap-3 rounded-card border-2 border-amber bg-card p-3.5 text-[15px] desk:mx-6">
+            <p role="status" className="m-0 flex-1 basis-60">
+              {leads.saveProblem}{" "}
+              <a href="/pricing" className="font-semibold text-ink underline">
+                See plans
+              </a>
+            </p>
+            <button
+              type="button"
+              onClick={leads.clearSaveProblem}
+              className="min-h-11 font-semibold text-ink underline"
+            >
+              Close
+            </button>
+          </div>
+        )}
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}

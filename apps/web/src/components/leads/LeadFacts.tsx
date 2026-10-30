@@ -6,9 +6,11 @@ interface LeadFactsProps {
 }
 
 export function LeadFacts({ lead }: LeadFactsProps) {
+  // The free plan doesn't get these (KES-52); a paid plan shows them.
+  const hidden = "With Solo or Pro";
   const facts: Array<[string, string]> = [
-    ["Reference", lead.reference],
-    ["Applicant", lead.applicant ?? "Not given"],
+    ["Reference", lead.masked ? hidden : (lead.reference ?? "Not given")],
+    ["Applicant", lead.masked ? hidden : (lead.applicant ?? "Not given")],
     ["Received", formatReceived(lead.receivedAt)],
     ["Decision due", lead.decisionDue ? formatDate(lead.decisionDue) : "Not set"],
   ];

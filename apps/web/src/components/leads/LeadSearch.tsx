@@ -16,6 +16,8 @@ interface LeadSearchProps {
   sortOptions: { value: LeadSort; label: string }[];
   sort: LeadSort;
   onSortChange: (sort: LeadSort) => void;
+  /** What the box asks for: the free plan searches by council or postcode area (KES-52). */
+  placeholder?: string;
 }
 
 const leadsCount = (count: number) => `${count} ${count === 1 ? "lead" : "leads"}`;
@@ -30,6 +32,7 @@ export function LeadSearch({
   sortOptions,
   sort,
   onSortChange,
+  placeholder = "Search by town or postcode",
 }: LeadSearchProps) {
   const id = useId();
   // Only while searching: otherwise the page heading already says how many there are (KES-120).
@@ -59,7 +62,7 @@ export function LeadSearch({
               onClear();
             }
           }}
-          placeholder="Search by town or postcode"
+          placeholder={placeholder}
           autoComplete="off"
           enterKeyHint="search"
           className={inputClassName(

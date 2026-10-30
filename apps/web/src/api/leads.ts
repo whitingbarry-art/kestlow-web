@@ -53,6 +53,18 @@ export interface AlertSettings {
   /** The trades they want alerts for. */
   trades: Trade[];
   delivery: DeliverySettings;
+  /** The plan they're on and what it allows (KES-52); the settings above already fit it. */
+  plan?: PaidPlan | "free";
+  limits?: PlanLimits;
+}
+
+/** What someone's plan allows in their alert settings (KES-52). */
+export interface PlanLimits {
+  maxRadiusMiles: number;
+  maxTrades: number;
+  push: boolean;
+  /** How often the email digest comes: every morning, or Monday mornings on the free plan. */
+  digest?: "daily" | "weekly";
 }
 
 export interface AlertSettingsChanges {
@@ -189,8 +201,9 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
         body: JSON.stringify(changes),
       });
       if (res.ok) return { ok: true, settings: (await res.json()) as AlertSettings };
-      // A wrong postcode or distance (400), or postcodes.io being down (503), come with a message.
-      if (res.status === 400 || res.status === 503) {
+      // A wrong postcode or distance (400), a setting beyond the plan (403, KES-52), or
+      // postcodes.io being down (503), come with a message.
+      if (res.status === 400 || res.status === 403 || res.status === 503) {
         const { error } = (await res.json().catch(() => ({}))) as { error?: string };
         return { ok: false, message: error ?? "Something went wrong. Please try again." };
       }

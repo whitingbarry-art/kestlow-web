@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLeadsApi } from "../api/LeadsApiContext";
+import { ApiError } from "../api/leads";
 import { LEAD_SORTS, SEARCH_RADIUS_MILES, TRADE_FILTERS } from "../data/leads";
 import { findLead, formatLeadSummary } from "../logic/leads";
 import { loadSort, saveSort, searchFromUrl, urlWithSearch } from "../logic/leadSearch";
@@ -129,6 +130,8 @@ export function useLeads({ selectFirstLead = false, searchInUrl = true }: UseLea
     retry: retrySaved,
   };
 
+  // Why the last save didn't work, when it's the free plan's limit (KES-52); null otherwise.
+  const [saveProblem, setSaveProblem] = useState<string | null>(null);
   // Saving shows straight away, and is put back if the API refuses or can't be reached.
   const { mutate: changeSaved } = useMutation({
     mutationFn: ({ id, save }: { id: string; save: boolean; lead?: Lead }) =>
@@ -142,7 +145,13 @@ export function useLeads({ selectFirstLead = false, searchInUrl = true }: UseLea
       });
       return { previous };
     },
-    onError: (_error, _change, context) => queryClient.setQueryData(SAVED_KEY, context?.previous),
+    onError: (error, _change, context) => {
+      queryClient.setQueryData(SAVED_KEY, context?.previous);
+      if (error instanceof ApiError && error.status === 403)
+        setSaveProblem(
+          "The free plan saves up to 10 leads. Upgrade to save as many as you like, or unsave one first.",
+        );
+    },
     onSettled: () => queryClient.invalidateQueries({ queryKey: SAVED_KEY }),
   });
 
@@ -208,6 +217,8 @@ export function useLeads({ selectFirstLead = false, searchInUrl = true }: UseLea
     openCount,
     isSaved,
     toggleSaved,
+    saveProblem,
+    clearSaveProblem: () => setSaveProblem(null),
     openLead,
     closeDetail,
   };

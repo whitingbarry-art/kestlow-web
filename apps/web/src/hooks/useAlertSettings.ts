@@ -6,6 +6,7 @@ import type {
   AlertSettingsResult,
   BasePostcodeResult,
   LeadsApi,
+  PlanLimits,
 } from "../api/leads";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import {
@@ -47,6 +48,13 @@ function pick(from: AlertSettings, changes: Pick<AlertSettingsChanges, "trades" 
     ...("delivery" in changes && { delivery: from.delivery }),
   };
 }
+
+/** Pro's limits, which apply until the API says which plan someone's on (KES-52). */
+const FULL_LIMITS: PlanLimits = {
+  maxRadiusMiles: DISTANCE_MAX_MILES,
+  maxTrades: TRADES.length,
+  push: true,
+};
 
 /** The slider saves this long after it stops moving, so dragging doesn't send every mile. */
 export const DISTANCE_SAVE_DELAY_MS = 500;
@@ -95,6 +103,8 @@ export function useAlertSettings({
   const settings = settingsQuery.data;
   const delivery = settings?.delivery ?? DEFAULT_DELIVERY;
   const chosenTrades = settings?.trades ?? TRADES;
+  // What their plan allows (KES-52); everything until the API says otherwise.
+  const limits = settings?.limits ?? FULL_LIMITS;
 
   // Why push couldn't be turned on in this browser, shown under the delivery choices.
   const [pushProblem, setPushProblem] = useState<{ message: string; help: boolean } | null>(null);
@@ -133,6 +143,8 @@ export function useAlertSettings({
     (key: DeliveryChannel) => {
       const turnOn = !delivery[key];
       if (key !== "push") return changeNow({ delivery: { ...delivery, [key]: turnOn } });
+      if (turnOn && !limits.push)
+        return setPushProblem({ message: "Push alerts come with Solo and Pro.", help: true });
       // Push needs this browser's permission and subscription first (KES-32); turning it off
       // forgets the browser, and goes ahead even if that fails, so alerts stop either way.
       setPushProblem(null);
@@ -143,21 +155,26 @@ export function useAlertSettings({
         })
         .catch(pushFailed);
     },
-    [api, changeNow, delivery, pushBrowser, pushFailed],
+    [api, changeNow, delivery, limits.push, pushBrowser, pushFailed],
   );
 
   const toggleTrade = useCallback(
-    (trade: Trade) =>
-      changeNow({
-        // Kept in the usual order, as the API keeps them.
-        trades: TRADES.filter((t) => (t === trade) !== chosenTrades.includes(t)),
-      }),
-    [changeNow, chosenTrades],
+    (trade: Trade) => {
+      // Kept in the usual order, as the API keeps them.
+      const toggled = TRADES.filter((t) => (t === trade) !== chosenTrades.includes(t));
+      // On a one-trade plan, choosing a trade swaps it for the one they had (KES-52).
+      const trades =
+        toggled.length > limits.maxTrades && chosenTrades.includes(trade) === false
+          ? [trade]
+          : toggled;
+      changeNow({ trades });
+    },
+    [changeNow, chosenTrades, limits.maxTrades],
   );
 
   const setDistance = useCallback(
     (miles: number) => {
-      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, DISTANCE_MAX_MILES);
+      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, limits.maxRadiusMiles);
       setDraftDistance(radiusMiles);
       if (pendingSave.current) clearTimeout(pendingSave.current.timer);
       const save = () => {
@@ -169,7 +186,7 @@ export function useAlertSettings({
       };
       pendingSave.current = { timer: setTimeout(save, DISTANCE_SAVE_DELAY_MS), save };
     },
-    [updateSettings],
+    [updateSettings, limits.maxRadiusMiles],
   );
 
   // Leaving the page straight after moving the slider still saves the distance.
@@ -209,7 +226,15 @@ export function useAlertSettings({
   const { refetch } = settingsQuery;
 
   return {
-    deliveryOptions: DELIVERY_OPTIONS,
+    // The free plan's email comes on Monday mornings (KES-52).
+    deliveryOptions:
+      limits.digest === "weekly"
+        ? DELIVERY_OPTIONS.map((option) =>
+            option.key === "email"
+              ? { ...option, description: "Weekly digest, Monday at 7:30am" }
+              : option,
+          )
+        : DELIVERY_OPTIONS,
     pushProblem: pushProblem?.message ?? null,
     /** The push message is steps to follow, not a problem, so it's shown calmly (KES-120). */
     pushProblemIsHelp: pushProblem?.help ?? false,
@@ -224,7 +249,10 @@ export function useAlertSettings({
     distance,
     distanceLabel: formatDistance(distance),
     distanceMin: DISTANCE_MIN_MILES,
-    distanceMax: DISTANCE_MAX_MILES,
+    distanceMax: limits.maxRadiusMiles,
+    /** The plan they're on and what it allows (KES-52), for the notes beside each limit. */
+    plan: settings?.plan ?? "pro",
+    limits,
     setDistance,
     basePostcode: settings?.postcode ?? null,
     /** Where leads are measured from, for the area map; undefined until loaded. */

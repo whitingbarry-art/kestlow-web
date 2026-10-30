@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
-import { approximateLead, multiTradeLead, sampleLead } from "../../stories/fixtures";
+import { approximateLead, maskedLead, multiTradeLead, sampleLead } from "../../stories/fixtures";
 import { LeadDetail } from "./LeadDetail";
 
 const meta = {
@@ -37,3 +37,6 @@ export const Default: Story = {};
 export const Saved: Story = { args: { lead: multiTradeLead, saved: true } };
 
 export const ApproximateLocation: Story = { args: { lead: approximateLead } };
+
+/** On the free plan: the area, not the address, and the way to see it (KES-52). */
+export const FreePlan: Story = { args: { lead: maskedLead } };
