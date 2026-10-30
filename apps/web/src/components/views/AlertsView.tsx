@@ -3,6 +3,8 @@ import { AreaMap } from "../alerts/AreaMap";
 import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
 import { DistanceSlider } from "../alerts/DistanceSlider";
 import { SettingRow } from "../alerts/SettingRow";
+import { cn } from "../../utils/cn";
+import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { ErrorState } from "../ui/ErrorState";
 import { LoadingState } from "../ui/LoadingState";
@@ -50,10 +52,26 @@ function AlertSettingsForm({
             onToggle={() => settings.toggleDelivery(option.key)}
           />
         ))}
+        {settings.pushOffHere && (
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5">
+            <p className="m-0 text-sm">
+              Push alerts are on for your account, but not on this device.
+            </p>
+            <Button variant="ghost" className="flex-none" onClick={settings.turnOnPushHere}>
+              Turn on for this device
+            </Button>
+          </div>
+        )}
         {/* Always there, so screen readers announce a problem when one appears. */}
         <p
           role="status"
-          className={`m-0 text-sm font-semibold text-error ${settings.pushProblem ? "pb-3.5" : ""}`}
+          className={cn(
+            "m-0 text-sm",
+            settings.pushProblemIsHelp
+              ? "mb-3.5 rounded-xl bg-chip p-3 text-ink"
+              : "font-semibold text-error",
+            settings.pushProblem && !settings.pushProblemIsHelp && "pb-3.5",
+          )}
         >
           {settings.pushProblem}
         </p>

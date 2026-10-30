@@ -36,8 +36,12 @@ describe("LeadSearch", () => {
     expect(onTextChange).toHaveBeenCalledWith("B");
   });
 
+  it("leaves the count to the page heading when not searching", () => {
+    renderSearch({ total: 24 });
+    expect(screen.queryByText(/24 leads/)).not.toBeInTheDocument();
+  });
+
   it.each([
-    ["", 24, "24 leads"],
     ["Chislehurst", 3, "3 leads match “Chislehurst”"],
     ["BR7 6LT", 1, "1 lead matches “BR7 6LT”"],
     ["Narnia", 0, "0 leads match “Narnia”"],

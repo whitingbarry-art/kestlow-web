@@ -21,6 +21,8 @@ export interface Lead {
   applicant: string | null;
   sourceUrl: string;
   location: { lat: number; lng: number };
+  /** True when the location is only rough, from the area the address names (KES-28). */
+  approximate: boolean;
 }
 
 /** One page of `GET /leads`: newest first, with the total and how many were received today. */

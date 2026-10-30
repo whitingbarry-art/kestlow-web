@@ -15,6 +15,8 @@ import type { Lead, LeadSort, TradeFilter } from "../types/lead";
 
 interface UseLeadsOptions {
   selectFirstLead?: boolean;
+  /** Whether the search shows in the address bar: only while the Leads view is open. */
+  searchInUrl?: boolean;
 }
 
 /** The signed-in user's saved leads, kept by the API so they show on every device (KES-24). */
@@ -41,7 +43,7 @@ export interface LoadStatus {
   retry: () => void;
 }
 
-export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
+export function useLeads({ selectFirstLead = false, searchInUrl = true }: UseLeadsOptions = {}) {
   const api = useLeadsApi();
   const queryClient = useQueryClient();
   // The person's own distance (KES-25), or the usual 15 miles while it loads.
@@ -61,14 +63,15 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
     return () => clearTimeout(timer);
   }, [searchText]);
 
-  // Keeps the search in the address bar without adding a Back step for every search.
+  // Keeps the search in the address bar without adding a Back step for every search. Other views
+  // leave it out, as it's no search of theirs, and it comes back on returning to Leads.
   useEffect(() => {
     window.history.replaceState(
       window.history.state,
       "",
-      urlWithSearch(window.location.href, search),
+      urlWithSearch(window.location.href, searchInUrl ? search : ""),
     );
-  }, [search]);
+  }, [search, searchInUrl]);
 
   const clearSearch = useCallback(() => {
     setSearchText("");
@@ -100,11 +103,12 @@ export function useLeads({ selectFirstLead = false }: UseLeadsOptions = {}) {
     [leadsQuery.data],
   );
   const newToday = leadsQuery.data?.pages[0]?.newToday;
-  const total = leadsQuery.data?.pages[0]?.total;
+  // While a new search loads, the last results stay up, but not their count (KES-120).
+  const total = leadsQuery.isPlaceholderData ? undefined : leadsQuery.data?.pages[0]?.total;
   const summary =
-    newToday === undefined
-      ? `Within ${radiusMiles} miles`
-      : formatLeadSummary(newToday, radiusMiles);
+    newToday === undefined || total === undefined
+      ? `Within ${radiusMiles} ${radiusMiles === 1 ? "mile" : "miles"}`
+      : formatLeadSummary(newToday, total, radiusMiles);
   const { refetch } = leadsQuery;
   const retryLeads = useCallback(() => void refetch(), [refetch]);
   const leadsStatus: LoadStatus = {

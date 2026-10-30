@@ -35,6 +35,17 @@ describe("WaitlistForm", () => {
     expect(screen.queryByRole("button", { name: "Join the waitlist" })).not.toBeInTheDocument();
   });
 
+  it("sends the shop code from a counter card's link, when there is one (KES-121)", async () => {
+    const user = userEvent.setup();
+    const join = vi.fn<JoinWaitlist>().mockResolvedValue({ ok: true });
+    render(<WaitlistForm join={join} source="screwfix-bromley" />);
+
+    await fillIn(user);
+    await user.click(screen.getByRole("button", { name: "Join the waitlist" }));
+
+    expect(join).toHaveBeenCalledWith(expect.objectContaining({ source: "screwfix-bromley" }));
+  });
+
   it("lists the answers to fix, in question order, linked to each question", async () => {
     const user = userEvent.setup();
     const join = vi.fn<JoinWaitlist>().mockResolvedValue({

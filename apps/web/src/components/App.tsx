@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { NAV_ITEMS } from "../data/navigation";
 import { useAlertSettings } from "../hooks/useAlertSettings";
 import { useLeads } from "../hooks/useLeads";
@@ -12,18 +12,27 @@ import { DetailPanel } from "./layout/DetailPanel";
 import { Sidebar } from "./layout/Sidebar";
 import { TopBar } from "./layout/TopBar";
 import { LeadDetail } from "./leads/LeadDetail";
+import { SiteFooter } from "./site/SiteFooter";
 import { AccountView } from "./views/AccountView";
 import { AlertsView } from "./views/AlertsView";
 import { LeadsView } from "./views/LeadsView";
 import { SavedView } from "./views/SavedView";
+import type { View } from "../types/navigation";
 
 export function App() {
   const isDesktop = useIsDesktop();
   const { toggleTheme } = useTheme();
-  const leads = useLeads({ selectFirstLead: isDesktop });
+  const { view, navigate: showView } = useNavigation();
+  const leads = useLeads({ selectFirstLead: isDesktop, searchInUrl: view === "leads" });
   const alertSettings = useAlertSettings();
-  const { view, navigate } = useNavigation({ onNavigate: leads.closeDetail });
-  const { selectedLead } = leads;
+  const { selectedLead, closeDetail } = leads;
+  const navigate = useCallback(
+    (next: View) => {
+      showView(next);
+      closeDetail();
+    },
+    [showView, closeDetail],
+  );
   const signOut = useSignOut();
   // SignedInGate only shows the app once someone's signed in, so there's always a user here.
   const userName = useSession().data?.name ?? "";
@@ -66,6 +75,8 @@ export function App() {
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
         {view === "account" && <AccountView />}
+        {/* On desktop the sidebar has these links instead. */}
+        <SiteFooter className="desk:hidden" />
       </main>
 
       <DetailPanel

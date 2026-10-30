@@ -2,7 +2,7 @@ import type { DeliveryOption, DeliverySettings } from "../types/alerts";
 
 export const DELIVERY_OPTIONS: DeliveryOption[] = [
   { key: "email", label: "Email alerts", description: "Daily digest at 7:30am" },
-  { key: "push", label: "Push notifications", description: "Instant, as leads appear" },
+  { key: "push", label: "Push notifications", description: "Each evening, as new leads come in" },
   { key: "weekend", label: "Weekend alerts", description: "Off keeps Saturday and Sunday quiet" },
 ];
 

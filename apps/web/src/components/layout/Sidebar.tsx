@@ -1,4 +1,5 @@
 import { LogOut, SunMoon } from "lucide-react";
+import { SITE_LINKS } from "../../data/navigation";
 import type { NavItem, View } from "../../types/navigation";
 import { cn } from "../../utils/cn";
 import { BrandLogo } from "../ui/BrandLogo";
@@ -25,7 +26,7 @@ export function Sidebar({
   userName,
 }: SidebarProps) {
   return (
-    <aside className="hidden flex-col gap-1.5 brand-surface px-4 py-[22px] text-white [--focus:#fff] desk:flex">
+    <aside className="hidden flex-col gap-1.5 overflow-y-auto brand-surface px-4 py-[22px] text-white [--focus:#fff] desk:flex">
       <div className="mb-[22px] px-2">
         <BrandLogo />
       </div>
@@ -50,6 +51,22 @@ export function Sidebar({
             </button>
           );
         })}
+      </nav>
+      {/* The pages anyone can read (KES-116, KES-37); phones have them in the footer instead. */}
+      <nav
+        className="mt-3 flex flex-col gap-1.5 border-t border-white/12 pt-3"
+        aria-label="About Kestlow"
+      >
+        {SITE_LINKS.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className={cn(LINK_CLASSES, "text-side-link no-underline hover:bg-white/8")}
+          >
+            <link.icon size={20} strokeWidth={2} aria-hidden className="shrink-0" />
+            {link.label}
+          </a>
+        ))}
       </nav>
       <div className="flex-1" />
       <button

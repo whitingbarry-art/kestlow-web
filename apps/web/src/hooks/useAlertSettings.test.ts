@@ -1,6 +1,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { LeadsApi } from "../api/leads";
 import { createSampleLeadsApi } from "../api/sampleLeadsApi";
+import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS } from "../data/leads";
 import type { PushBrowser } from "../logic/push";
 import { providers } from "../test/providers";
@@ -168,7 +169,10 @@ describe("useAlertSettings", () => {
   });
 
   describe("push alerts (KES-32)", () => {
-    const browser = (permission: NotificationPermission): PushBrowser => {
+    const browser = (
+      permission: NotificationPermission,
+      subscribed: PushSubscription | null = null,
+    ): PushBrowser => {
       const subscription = {
         endpoint: "https://push.test/this-browser",
         toJSON: () => ({
@@ -177,13 +181,20 @@ describe("useAlertSettings", () => {
         }),
         unsubscribe: () => Promise.resolve(true),
       } as unknown as PushSubscription;
+      let current = subscribed;
       return {
         supported: true,
+        ios: false,
+        standalone: false,
         requestPermission: () => Promise.resolve(permission),
+        permission: () => permission,
         pushManager: () =>
           Promise.resolve({
-            getSubscription: () => Promise.resolve(null),
-            subscribe: () => Promise.resolve(subscription),
+            getSubscription: () => Promise.resolve(current),
+            subscribe: () => {
+              current = subscription;
+              return Promise.resolve(subscription);
+            },
           } as unknown as PushManager),
       };
     };
@@ -213,6 +224,58 @@ describe("useAlertSettings", () => {
 
       await waitFor(() => expect(result.current.pushProblem).toMatch(/Notifications are blocked/));
       expect(result.current.delivery.push).toBe(false);
+    });
+
+    describe("on more than one device (KES-118)", () => {
+      // Push is on for the account, turned on on some other device.
+      const pushOnElsewhere = () => {
+        const api = createSampleLeadsApi();
+        void api.updateAlertSettings({ delivery: { ...DEFAULT_DELIVERY, push: true } });
+        return api;
+      };
+
+      it("offers to turn push on for this device, and does", async () => {
+        const api = pushOnElsewhere();
+        const subscribePush = vi.fn(api.subscribePush);
+        // One browser for the whole test, as in real life, so it remembers subscribing.
+        const thisBrowser = browser("granted");
+        const { result } = renderHook(() => useAlertSettings({ pushBrowser: thisBrowser }), {
+          wrapper: providers({ ...api, subscribePush }),
+        });
+
+        await waitFor(() => expect(result.current.pushOffHere).toBe(true));
+        act(() => result.current.turnOnPushHere());
+
+        await waitFor(() => expect(result.current.pushOffHere).toBe(false));
+        expect(subscribePush).toHaveBeenCalled();
+        expect(result.current.delivery.push).toBe(true);
+      });
+
+      it("offers nothing when this device already gets them", async () => {
+        const already = { endpoint: "https://push.test/this-browser" } as PushSubscription;
+        const { result } = renderHook(
+          () => useAlertSettings({ pushBrowser: browser("granted", already) }),
+          { wrapper: providers(pushOnElsewhere()) },
+        );
+        await waitFor(() => expect(result.current.basePostcodeLoaded).toBe(true));
+
+        await waitFor(() => expect(result.current.delivery.push).toBe(true));
+        expect(result.current.pushOffHere).toBe(false);
+      });
+
+      it("explains why when this device can't", async () => {
+        const { result } = renderHook(() => useAlertSettings({ pushBrowser: browser("denied") }), {
+          wrapper: providers(pushOnElsewhere()),
+        });
+
+        await waitFor(() => expect(result.current.pushOffHere).toBe(true));
+        act(() => result.current.turnOnPushHere());
+
+        await waitFor(() =>
+          expect(result.current.pushProblem).toMatch(/Notifications are blocked/),
+        );
+        expect(result.current.pushOffHere).toBe(true);
+      });
     });
   });
 });

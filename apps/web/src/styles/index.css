@@ -20,6 +20,9 @@
   --error: #b3261e;
   --focus: var(--ink);
   --card-shadow: 0 2px 10px rgba(18, 48, 74, 0.08);
+  /* A softer amber than the logo's, which it turns on hover. */
+  --scrollbar: #f0bd6b;
+  --scrollbar-hover: #f5a623;
 }
 
 [data-theme="dark"] {
@@ -39,6 +42,8 @@
   --switch-off: #76879a;
   --error: #ff8a80;
   --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --scrollbar: #a8731f;
+  --scrollbar-hover: #f5a623;
 }
 
 @theme {
@@ -93,6 +98,15 @@
   }
 }
 
+/* For rows people swipe along, like the trade filters on a phone: no bar in the way. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer base {
   body {
     @apply bg-page font-sans leading-[1.4] text-ink;
@@ -100,6 +114,39 @@
 
   button {
     cursor: pointer;
+  }
+
+  /*
+   * Slim, rounded scroll bars in Kestlow's colours, without Windows' arrow buttons. Edge, Chrome
+   * and Safari draw them from the ::-webkit-scrollbar rules, which they'd ignore if the standard
+   * scrollbar-color were set too, so that's only for browsers without them, such as Firefox.
+   */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar) transparent;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  /* The transparent border pads the thumb, so it looks slim but stays easy to grab. */
+  ::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background: var(--scrollbar) padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-hover);
   }
 
   /* Surfaces on --side set --focus to white so the ring stays visible on navy. */

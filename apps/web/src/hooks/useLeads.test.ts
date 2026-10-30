@@ -17,7 +17,7 @@ describe("useLeads", () => {
   it("loads the leads and the new-today summary", async () => {
     const { result } = await renderLeads();
     expect(ids(result.current.visibleLeads)).toEqual(ids(SAMPLE_LEADS));
-    expect(result.current.summary).toBe("2 new today within 15 miles");
+    expect(result.current.summary).toBe("2 new today, of 4 leads within 15 miles");
     expect(result.current.hasMoreLeads).toBe(false);
     expect(result.current.selectedLead).toBeUndefined();
   });
@@ -56,7 +56,7 @@ describe("useLeads", () => {
     act(() => result.current.setTrade("Landscaping"));
     await waitFor(() => expect(ids(result.current.visibleLeads)).toEqual(["sample-3"]));
     expect(listLeads).toHaveBeenLastCalledWith({ trade: "Landscaping", sort: "newest", page: 1 });
-    expect(result.current.summary).toBe("0 new today within 15 miles");
+    expect(result.current.summary).toBe("1 lead within 15 miles");
   });
 
   it("loads more leads a page at a time", async () => {
@@ -202,6 +202,22 @@ describe("useLeads", () => {
       expect(window.location.search).toBe("?q=Orchard");
     });
 
+    it("keeps the search out of the address bar on other views, and puts it back on Leads", async () => {
+      window.history.replaceState(null, "", "/?q=foundry");
+      const hook = renderHook((props: { searchInUrl: boolean }) => useLeads(props), {
+        wrapper: providers(),
+        initialProps: { searchInUrl: true },
+      });
+      await waitFor(() => expect(hook.result.current.leadsStatus.isPending).toBe(false));
+
+      hook.rerender({ searchInUrl: false });
+      expect(window.location.search).toBe("");
+      expect(hook.result.current.search).toBe("foundry");
+
+      hook.rerender({ searchInUrl: true });
+      expect(window.location.search).toBe("?q=foundry");
+    });
+
     it("starts from a search in the address bar", async () => {
       window.history.replaceState(null, "", "/?q=foundry");
       const { result } = await renderLeads();
@@ -218,6 +234,28 @@ describe("useLeads", () => {
       await waitFor(() => expect(result.current.visibleLeads).toHaveLength(4));
       expect(result.current.searchText).toBe("");
       expect(window.location.search).toBe("");
+    });
+
+    it("hides the count while a new search loads, rather than showing the last one's", async () => {
+      const api = createSampleLeadsApi();
+      let finish: () => void = () => {};
+      const listLeads = vi.fn<LeadsApi["listLeads"]>((query) =>
+        query.search
+          ? new Promise((resolve) => {
+              finish = () => void api.listLeads(query).then(resolve);
+            })
+          : api.listLeads(query),
+      );
+      const { result } = await renderLeads(undefined, { ...api, listLeads });
+      expect(result.current.total).toBe(4);
+
+      act(() => result.current.setSearchText("Orchard"));
+      await waitFor(() => expect(result.current.search).toBe("Orchard"));
+      expect(result.current.total).toBeUndefined();
+      expect(result.current.visibleLeads).toHaveLength(4);
+
+      act(() => finish());
+      await waitFor(() => expect(result.current.total).toBe(1));
     });
 
     it("sorts as chosen and remembers it on this device", async () => {
