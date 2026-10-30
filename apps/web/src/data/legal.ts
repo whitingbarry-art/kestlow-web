@@ -23,8 +23,8 @@ export interface LegalDocument {
   sections: LegalSection[];
 }
 
-/** The ICO's registration number once it's issued; the fee was paid on 28 October 2026. */
-export const ICO_REGISTRATION: string | null = null;
+/** The ICO's registration number, issued on 29 October 2026. */
+export const ICO_REGISTRATION: string | null = "ZC286813";
 
 /** What the privacy notice says about the ICO, with the number once there is one. */
 export function icoRegistration(number: string | null): string {
