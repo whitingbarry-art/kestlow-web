@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { LeadsApi } from "../../api/leads";
 import { createSampleLeadsApi, onTradeLimitedPlan } from "../../api/sampleLeadsApi";
@@ -105,6 +105,30 @@ describe("OnboardingGate", () => {
       trades: ["Landscaping"],
       chosenTrades: ["Landscaping", "Roofing"],
     });
+  });
+
+  it("on a 15-mile plan, lets the trial's 50 miles be chosen, saying what each plan covers", async () => {
+    const user = userEvent.setup();
+    const api = onTradeLimitedPlan();
+    renderGate(api);
+
+    await user.type(await screen.findByLabelText("Your postcode"), "BR1 1AA");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await user.click(await screen.findByRole("button", { name: "Continue" }));
+    const slider = await screen.findByLabelText("Distance from base");
+    expect(slider).toHaveAttribute("max", "50");
+    expect(screen.queryByText(/Pro trial covers up to 50 miles/)).not.toBeInTheDocument();
+
+    fireEvent.change(slider, { target: { value: "30" } });
+
+    expect(
+      screen.getByText(
+        "Your free 14-day Pro trial covers up to 50 miles; after it, the free plan and Solo cover 15.",
+      ),
+    ).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Show my leads" }));
+    await screen.findByText("The app");
+    expect(await api.getAlertSettings()).toMatchObject({ radiusMiles: 15, chosenRadiusMiles: 30 });
   });
 
   it("goes back to the previous question", async () => {

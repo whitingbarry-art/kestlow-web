@@ -137,8 +137,9 @@ export function createSampleLeadsApi(
 }
 
 /**
- * The sample API on a plan that covers fewer than all four trades (KES-52): Free's one by default.
- * Like the real API it keeps every trade chosen, and the plan covers the first ones.
+ * The sample API on a plan that covers fewer than all four trades (KES-52): Free's one by default,
+ * and 15 miles. Like the real API it keeps every trade and the distance chosen, and the plan
+ * covers the first trades and up to 15 miles (KES-123).
  */
 export function onTradeLimitedPlan(
   { maxTrades = 1, chosen = ["Roofing"] }: { maxTrades?: number; chosen?: Trade[] } = {},
@@ -147,6 +148,9 @@ export function onTradeLimitedPlan(
   let chosenTrades = chosen;
   const limited = (settings: AlertSettings): AlertSettings => ({
     ...settings,
+    // The distance chosen is kept; the plan covers up to 15 miles of it (KES-123).
+    radiusMiles: Math.min(settings.radiusMiles, 15),
+    chosenRadiusMiles: settings.radiusMiles,
     chosenTrades,
     trades: chosenTrades.slice(0, maxTrades),
     plan: "free",

@@ -47,7 +47,10 @@ export type CheckoutResult = { ok: true; url: string } | { ok: false; message: s
 export interface AlertSettings {
   /** The base postcode, or null until it's set. */
   postcode: string | null;
+  /** How far their plan covers, of the distance they chose (KES-123). */
   radiusMiles: number;
+  /** The distance they chose, kept even beyond their plan; null until they choose (KES-123). */
+  chosenRadiusMiles?: number | null;
   /** Where leads are measured from: the postcode, or the default area until one is set. */
   base: { lat: number; lng: number };
   /** The trades their plan covers, of the ones they chose (KES-52). */

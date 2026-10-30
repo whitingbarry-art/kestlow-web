@@ -107,10 +107,17 @@ function AlertSettingsForm({
           label={settings.distanceLabel}
           onChange={settings.setDistance}
         />
-        <AreaMap base={base} radiusMiles={settings.distance} postcode={settings.basePostcode} />
+        <AreaMap
+          base={base}
+          radiusMiles={settings.distanceCovered}
+          postcode={settings.basePostcode}
+        />
         {settings.plan !== "pro" && (
           <PlanNote>
-            Your plan covers up to {settings.limits.maxRadiusMiles} miles. Pro goes up to 50.
+            Your plan covers up to {settings.limits.maxRadiusMiles} miles
+            {settings.distance > settings.distanceCovered
+              ? `, so leads come from within ${settings.distanceCovered}. The full ${settings.distance} miles start straight away with Pro.`
+              : ". Pro goes up to 50."}
           </PlanNote>
         )}
       </Card>

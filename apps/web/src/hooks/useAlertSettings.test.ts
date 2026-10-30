@@ -290,13 +290,17 @@ describe("useAlertSettings", () => {
       }),
     });
 
-    it("stops the distance at the plan's furthest, and keeps a new trade after the main one", async () => {
+    it("keeps a distance beyond the plan, covering what it allows, and a new trade after the main one", async () => {
       const api = createSampleLeadsApi();
       const update = vi.spyOn(api, "updateAlertSettings");
       const { result } = renderSettings(onTradeLimitedPlan({}, api));
       await waitFor(() => expect(result.current.plan).toBe("free"));
 
-      expect(result.current.distanceMax).toBe(15);
+      expect(result.current.distanceMax).toBe(50);
+      act(() => result.current.setDistance(30));
+      await waitFor(() => expect(update).toHaveBeenCalledWith({ radiusMiles: 30 }));
+      await waitFor(() => expect(result.current.distance).toBe(30));
+      expect(result.current.distanceCovered).toBe(15);
       expect(result.current.deliveryOptions[0].description).toBe("Weekly digest, Monday at 7:30am");
       act(() => result.current.toggleTrade("Electrical"));
       await waitFor(() =>

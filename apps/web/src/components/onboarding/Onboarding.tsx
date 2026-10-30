@@ -151,6 +151,13 @@ export function Onboarding({ onDone }: OnboardingProps) {
           label={formatDistance(miles)}
           onChange={setMiles}
         />
+        {miles > settings.limits.maxRadiusMiles && (
+          <p className="m-0 mt-2 text-sm text-muted">
+            {trialAvailable
+              ? `Your free 14-day Pro trial covers up to 50 miles; after it, the free plan and Solo cover ${settings.limits.maxRadiusMiles}.`
+              : `The free plan and Solo cover up to ${settings.limits.maxRadiusMiles} miles; Pro covers up to 50.`}
+          </p>
+        )}
         {settings.base && (
           <AreaMap base={settings.base} radiusMiles={miles} postcode={settings.basePostcode} />
         )}

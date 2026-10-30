@@ -184,7 +184,8 @@ export function useAlertSettings({
 
   const setDistance = useCallback(
     (miles: number) => {
-      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, limits.maxRadiusMiles);
+      // Kept even beyond the plan, which covers as far as it allows (KES-123).
+      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, DISTANCE_MAX_MILES);
       setDraftDistance(radiusMiles);
       if (pendingSave.current) clearTimeout(pendingSave.current.timer);
       const save = () => {
@@ -196,7 +197,7 @@ export function useAlertSettings({
       };
       pendingSave.current = { timer: setTimeout(save, DISTANCE_SAVE_DELAY_MS), save };
     },
-    [updateSettings, limits.maxRadiusMiles],
+    [updateSettings],
   );
 
   // Leaving the page straight after moving the slider still saves the distance.
@@ -229,7 +230,8 @@ export function useAlertSettings({
     [updateSettings],
   );
 
-  const distance = draftDistance ?? settings?.radiusMiles ?? INITIAL_DISTANCE_MILES;
+  const distance =
+    draftDistance ?? settings?.chosenRadiusMiles ?? settings?.radiusMiles ?? INITIAL_DISTANCE_MILES;
   const trades = Object.fromEntries(
     TRADES.map((t) => [t, chosenTrades.includes(t)]),
   ) as TradeSettings;
@@ -276,7 +278,9 @@ export function useAlertSettings({
     distance,
     distanceLabel: formatDistance(distance),
     distanceMin: DISTANCE_MIN_MILES,
-    distanceMax: limits.maxRadiusMiles,
+    distanceMax: DISTANCE_MAX_MILES,
+    /** How far leads come from: the distance chosen, as far as the plan covers (KES-123). */
+    distanceCovered: Math.min(distance, limits.maxRadiusMiles),
     /** The plan they're on and what it allows (KES-52), for the notes beside each limit. */
     plan: settings?.plan ?? "pro",
     limits,
