@@ -4,6 +4,7 @@ import { App } from "./components/App";
 import { AppProviders } from "./components/AppProviders";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SignedInGate } from "./components/auth/SignedInGate";
+import { PricingPage } from "./components/billing/PricingPage";
 import { ResetPasswordScreen } from "./components/auth/ResetPasswordScreen";
 import { VerifyEmailScreen } from "./components/auth/VerifyEmailScreen";
 import { OnboardingGate } from "./components/onboarding/OnboardingGate";
@@ -32,6 +33,12 @@ const pages: Record<string, ReactNode> = {
   "/terms": <LegalPage document={TERMS} />,
   "/privacy": <LegalPage document={PRIVACY} />,
   "/refunds": <LegalPage document={REFUNDS} />,
+  // Plans and Checkout (KES-50): for someone signed in, as Checkout is for their account.
+  "/pricing": (
+    <SignedInGate>
+      <PricingPage />
+    </SignedInGate>
+  ),
 };
 
 createRoot(container).render(

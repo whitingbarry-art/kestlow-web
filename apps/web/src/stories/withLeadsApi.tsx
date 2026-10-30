@@ -24,6 +24,9 @@ export const pendingLeadsApi: LeadsApi = {
   unsubscribePush: () => new Promise(() => {}),
   getAlertSettings: () => new Promise(() => {}),
   updateAlertSettings: () => new Promise(() => {}),
+  getSubscription: () => new Promise(() => {}),
+  startTrial: () => new Promise(() => {}),
+  checkout: () => new Promise(() => {}),
 };
 
 /** An API that always fails, for error states. */
@@ -38,4 +41,7 @@ export const failingLeadsApi: LeadsApi = {
   unsubscribePush: () => Promise.reject(new Error("Network error")),
   getAlertSettings: () => Promise.reject(new Error("Network error")),
   updateAlertSettings: () => Promise.reject(new Error("Network error")),
+  getSubscription: () => Promise.reject(new Error("Network error")),
+  startTrial: () => Promise.reject(new Error("Network error")),
+  checkout: () => Promise.reject(new Error("Network error")),
 };

@@ -1,6 +1,7 @@
 import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS, TRADES } from "../data/leads";
 import { matchesSearch, sortLeads } from "../logic/leads";
+import type { SubscriptionSummary } from "../types/billing";
 import type { Lead } from "../types/lead";
 import type { AlertSettings, LeadsApi } from "./leads";
 
@@ -14,13 +15,28 @@ const SAMPLE_BASE = { lat: 51.4057, lng: 0.0144 };
  * alert settings. It can't look postcodes up, so the base stays at Bromley whatever postcode is
  * set.
  */
+/** No subscription yet, with the free trial on offer: a new account's plan. */
+export const FREE_PLAN: SubscriptionSummary = {
+  plan: "free",
+  status: null,
+  interval: null,
+  trialEndsAt: null,
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+  paymentFailedAt: null,
+  foundingMember: false,
+  trialAvailable: true,
+};
+
 export function createSampleLeadsApi(
   leads: Lead[] = SAMPLE_LEADS,
   pageSize = 20,
   savedIds: string[] = [],
   basePostcode: string | null = null,
+  startingSubscription: SubscriptionSummary = FREE_PLAN,
 ): LeadsApi {
   let saved = [...savedIds];
+  let subscription: SubscriptionSummary = startingSubscription;
   let settings: AlertSettings = {
     postcode: basePostcode,
     radiusMiles: 15,
@@ -69,6 +85,21 @@ export function createSampleLeadsApi(
       ),
     subscribePush: () => Promise.resolve(),
     unsubscribePush: () => Promise.resolve(),
+    getSubscription: () => Promise.resolve(subscription),
+    startTrial() {
+      if (subscription.trialAvailable)
+        subscription = {
+          ...FREE_PLAN,
+          plan: "pro",
+          status: "trialing",
+          interval: "month",
+          trialEndsAt: new Date(Date.now() + 14 * 864e5).toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 14 * 864e5).toISOString(),
+          trialAvailable: false,
+        };
+      return Promise.resolve(subscription);
+    },
+    checkout: () => Promise.resolve({ ok: true, url: "https://checkout.stripe.com/c/pay/sample" }),
     getAlertSettings() {
       return Promise.resolve(settings);
     },

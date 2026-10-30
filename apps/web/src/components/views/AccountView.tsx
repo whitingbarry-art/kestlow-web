@@ -2,6 +2,7 @@ import { useSession, useSignOutEverywhere } from "../../hooks/useSession";
 import { ChangeEmailForm } from "../account/ChangeEmailForm";
 import { ChangePasswordForm } from "../account/ChangePasswordForm";
 import { DeleteAccount } from "../account/DeleteAccount";
+import { PlanSummary } from "../billing/PlanSummary";
 import { Button } from "../ui/Button";
 import { Card } from "../ui/Card";
 import { PageHeader } from "../ui/PageHeader";
@@ -14,7 +15,12 @@ export function AccountView() {
 
   return (
     <section>
-      <PageHeader title="Account" subtitle="Your details, password and devices" />
+      <PageHeader title="Account" subtitle="Your plan, details, password and devices" />
+
+      <SectionTitle>Your plan</SectionTitle>
+      <Card>
+        <PlanSummary />
+      </Card>
 
       <SectionTitle>Your details</SectionTitle>
       <Card>

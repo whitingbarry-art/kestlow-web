@@ -5,8 +5,11 @@ import { useLeads } from "../hooks/useLeads";
 import { useIsDesktop } from "../hooks/useMediaQuery";
 import { useNavigation } from "../hooks/useNavigation";
 import { useSession, useSignOut } from "../hooks/useSession";
+import { useStartTrial } from "../hooks/useStartTrial";
 import { useTheme } from "../hooks/useTheme";
 import { VerifyEmailBanner } from "./auth/VerifyEmailBanner";
+import { SubscribedNotice } from "./billing/SubscribedNotice";
+import { TrialBanner } from "./billing/TrialBanner";
 import { BottomNav } from "./layout/BottomNav";
 import { DetailPanel } from "./layout/DetailPanel";
 import { Sidebar } from "./layout/Sidebar";
@@ -34,6 +37,7 @@ export function App() {
     [showView, closeDetail],
   );
   const signOut = useSignOut();
+  useStartTrial();
   // SignedInGate only shows the app once someone's signed in, so there's always a user here.
   const userName = useSession().data?.name ?? "";
   // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
@@ -71,6 +75,8 @@ export function App() {
       >
         <TopBar onToggleTheme={toggleTheme} onSignOut={() => signOut.mutate()} />
         <VerifyEmailBanner />
+        <SubscribedNotice />
+        <TrialBanner />
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}
