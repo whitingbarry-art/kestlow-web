@@ -202,6 +202,22 @@ describe("useLeads", () => {
       expect(window.location.search).toBe("?q=Orchard");
     });
 
+    it("keeps the search out of the address bar on other views, and puts it back on Leads", async () => {
+      window.history.replaceState(null, "", "/?q=foundry");
+      const hook = renderHook((props: { searchInUrl: boolean }) => useLeads(props), {
+        wrapper: providers(),
+        initialProps: { searchInUrl: true },
+      });
+      await waitFor(() => expect(hook.result.current.leadsStatus.isPending).toBe(false));
+
+      hook.rerender({ searchInUrl: false });
+      expect(window.location.search).toBe("");
+      expect(hook.result.current.search).toBe("foundry");
+
+      hook.rerender({ searchInUrl: true });
+      expect(window.location.search).toBe("?q=foundry");
+    });
+
     it("starts from a search in the address bar", async () => {
       window.history.replaceState(null, "", "/?q=foundry");
       const { result } = await renderLeads();

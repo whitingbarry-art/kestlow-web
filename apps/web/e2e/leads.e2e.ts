@@ -35,6 +35,20 @@ test.describe("leads", () => {
     await expect(page.getByRole("searchbox")).toHaveValue("Eltham");
   });
 
+  test("the search leaves the address bar on other pages and comes back on Leads", async ({
+    page,
+  }) => {
+    await signUp(page, { name: "Address Tester" });
+    await page.getByRole("searchbox").fill("Chislehurst");
+    await expect(page).toHaveURL(/\?q=Chislehurst/);
+
+    await page.getByRole("button", { name: "Saved", exact: true }).click();
+    await expect(page).not.toHaveURL(/\?q=/);
+    await page.getByRole("button", { name: "Leads", exact: true }).click();
+    await expect(page).toHaveURL(/\?q=Chislehurst/);
+    await expect(page.getByRole("searchbox")).toHaveValue("Chislehurst");
+  });
+
   test("the sort is remembered on this device", async ({ page }) => {
     await signUp(page, { name: "Sort Tester" });
     const sort = page.getByRole("combobox", { name: "Sort" });
