@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { LeadsApi } from "../api/leads";
-import { createSampleLeadsApi } from "../api/sampleLeadsApi";
+import { createSampleLeadsApi, onTradeLimitedPlan } from "../api/sampleLeadsApi";
 import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS } from "../data/leads";
 import type { PushBrowser } from "../logic/push";
@@ -276,6 +276,58 @@ describe("useAlertSettings", () => {
         );
         expect(result.current.pushOffHere).toBe(true);
       });
+    });
+  });
+
+  describe("on a plan with limits (KES-52)", () => {
+    const freeSettings = (api: LeadsApi): LeadsApi => ({
+      ...api,
+      getAlertSettings: async () => ({
+        ...(await api.getAlertSettings()),
+        trades: ["Roofing"],
+        plan: "free",
+        limits: { maxRadiusMiles: 15, maxTrades: 1, push: false, digest: "weekly" },
+      }),
+    });
+
+    it("stops the distance at the plan's furthest, and keeps a new trade after the main one", async () => {
+      const api = createSampleLeadsApi();
+      const update = vi.spyOn(api, "updateAlertSettings");
+      const { result } = renderSettings(onTradeLimitedPlan({}, api));
+      await waitFor(() => expect(result.current.plan).toBe("free"));
+
+      expect(result.current.distanceMax).toBe(15);
+      expect(result.current.deliveryOptions[0].description).toBe("Weekly digest, Monday at 7:30am");
+      act(() => result.current.toggleTrade("Electrical"));
+      await waitFor(() =>
+        expect(update).toHaveBeenCalledWith({ trades: ["Roofing", "Electrical"] }),
+      );
+      expect(result.current.tradeNotes).toMatchObject({
+        Roofing: "Your main trade",
+        Electrical: "Switches on with Pro",
+        Landscaping: undefined,
+      });
+    });
+
+    it("says push comes with Solo and Pro, without asking the browser", async () => {
+      const pushBrowser: PushBrowser = {
+        supported: true,
+        ios: false,
+        standalone: false,
+        requestPermission: vi.fn(() => Promise.resolve("granted" as const)),
+        permission: () => "default",
+        pushManager: vi.fn(),
+      };
+      const { result } = renderHook(() => useAlertSettings({ pushBrowser }), {
+        wrapper: providers(freeSettings(createSampleLeadsApi())),
+      });
+      await waitFor(() => expect(result.current.plan).toBe("free"));
+
+      act(() => result.current.toggleDelivery("push"));
+
+      expect(result.current.pushProblem).toBe("Push alerts come with Solo and Pro.");
+      expect(result.current.pushProblemIsHelp).toBe(true);
+      expect(pushBrowser.requestPermission).not.toHaveBeenCalled();
     });
   });
 });

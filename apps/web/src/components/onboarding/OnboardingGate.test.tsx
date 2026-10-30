@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { LeadsApi } from "../../api/leads";
-import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
+import { createSampleLeadsApi, onTradeLimitedPlan } from "../../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../../data/leads";
 import { providers } from "../../test/providers";
 import { OnboardingGate } from "./OnboardingGate";
@@ -33,11 +33,12 @@ describe("OnboardingGate", () => {
     await user.type(screen.getByLabelText("Your postcode"), "se91aa");
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
-    // 2: trades, all ticked to start with.
+    // 2: trades, none ticked to start with, kept in the order ticked.
     const tradesHeading = await screen.findByRole("heading", { name: "Which trades do you do?" });
     expect(tradesHeading).toHaveFocus();
-    await user.click(screen.getByRole("checkbox", { name: "Landscaping" }));
-    await user.click(screen.getByRole("checkbox", { name: "Groundworks" }));
+    expect(screen.getByRole("checkbox", { name: "Roofing" })).not.toBeChecked();
+    await user.click(screen.getByRole("checkbox", { name: "Electrical" }));
+    await user.click(screen.getByRole("checkbox", { name: "Roofing" }));
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     // 3: distance, with the area map.
@@ -50,7 +51,7 @@ describe("OnboardingGate", () => {
     expect(await screen.findByText("The app")).toBeInTheDocument();
     expect(await api.getAlertSettings()).toMatchObject({
       postcode: "SE9 1AA",
-      trades: ["Roofing", "Electrical"],
+      trades: ["Electrical", "Roofing"],
       radiusMiles: 15,
     });
   });
@@ -72,12 +73,38 @@ describe("OnboardingGate", () => {
     await user.type(screen.getByLabelText("Your postcode"), "BR1 1AA");
     await user.click(screen.getByRole("button", { name: "Continue" }));
     await screen.findByRole("heading", { name: "Which trades do you do?" });
-    for (const trade of ["Roofing", "Electrical", "Landscaping", "Groundworks"])
-      await user.click(screen.getByRole("checkbox", { name: trade }));
     await user.click(screen.getByRole("button", { name: "Continue" }));
 
     expect(screen.getByRole("status")).toHaveTextContent("Choose at least one trade.");
     expect(screen.queryByText("The app")).not.toBeInTheDocument();
+  });
+
+  it("on a one-trade plan, marks the first ticked as the main trade and keeps them all", async () => {
+    const user = userEvent.setup();
+    const api = onTradeLimitedPlan({ chosen: [] });
+    renderGate(api);
+
+    await user.type(await screen.findByLabelText("Your postcode"), "BR1 1AA");
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("heading", { name: "Which trades do you do?" });
+    expect(
+      screen.getByText(/Your free 14-day Pro trial covers every trade you tick/),
+    ).toBeVisible();
+    await user.click(screen.getByRole("checkbox", { name: "Landscaping" }));
+    await user.click(screen.getByRole("checkbox", { name: "Roofing" }));
+
+    expect(screen.getByRole("checkbox", { name: /Landscaping/ }).parentElement).toHaveTextContent(
+      "LandscapingMain",
+    );
+    expect(screen.getByRole("checkbox", { name: /Roofing/ }).parentElement).toHaveTextContent(
+      /^Roofing$/,
+    );
+    await user.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("heading", { name: "How far will you travel?" });
+    expect(await api.getAlertSettings()).toMatchObject({
+      trades: ["Landscaping"],
+      chosenTrades: ["Landscaping", "Roofing"],
+    });
   });
 
   it("goes back to the previous question", async () => {

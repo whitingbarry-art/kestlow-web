@@ -78,13 +78,19 @@ test.describe("leads", () => {
     }
   });
 
-  test("a trade filters the leads", async ({ page }) => {
+  test("the free plan shows its one trade, and says why the others are locked", async ({
+    page,
+  }) => {
     await signUp(page, { name: "Filter Tester" });
 
-    await page.getByRole("button", { name: "Landscaping" }).click();
-    await expect(page.getByRole("button", { name: "Landscaping" })).toHaveAttribute(
+    await expect(page.getByRole("button", { name: "Roofing", exact: true })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
+    await expect(page.getByRole("button", { name: "All trades" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Landscaping (not on your plan)" }).click();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Pro covers all four trades" }),
+    ).toHaveText("Landscaping isn't on your plan. Pro covers all four trades. See plans");
   });
 });

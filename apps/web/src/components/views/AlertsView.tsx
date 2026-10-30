@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { AlertSettingsState } from "../../hooks/useAlertSettings";
 import { AreaMap } from "../alerts/AreaMap";
 import { BasePostcodeForm } from "../alerts/BasePostcodeForm";
@@ -83,10 +84,17 @@ function AlertSettingsForm({
           <SettingRow
             key={trade}
             label={trade}
+            description={settings.tradeNotes[trade]}
             checked={settings.trades[trade]}
             onToggle={() => settings.toggleTrade(trade)}
           />
         ))}
+        {settings.limits.maxTrades < settings.tradeOptions.length && (
+          <PlanNote>
+            Your plan covers your main trade, the first you chose. Any others you switch on are
+            kept, and start straight away with Pro.
+          </PlanNote>
+        )}
       </Card>
 
       <SectionTitle>Area</SectionTitle>
@@ -100,7 +108,24 @@ function AlertSettingsForm({
           onChange={settings.setDistance}
         />
         <AreaMap base={base} radiusMiles={settings.distance} postcode={settings.basePostcode} />
+        {settings.plan !== "pro" && (
+          <PlanNote>
+            Your plan covers up to {settings.limits.maxRadiusMiles} miles. Pro goes up to 50.
+          </PlanNote>
+        )}
       </Card>
     </>
+  );
+}
+
+/** What the plan limits here, with the way to a plan that doesn't (KES-52). */
+function PlanNote({ children }: { children: ReactNode }) {
+  return (
+    <p className="m-0 mb-3.5 rounded-xl bg-chip p-3 text-sm text-ink">
+      {children}{" "}
+      <a href="/pricing" className="font-semibold text-ink underline">
+        See plans
+      </a>
+    </p>
   );
 }

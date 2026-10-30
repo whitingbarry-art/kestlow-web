@@ -1,7 +1,8 @@
 import { DEFAULT_DELIVERY } from "../data/alerts";
 import { SAMPLE_LEADS, TRADES } from "../data/leads";
 import { matchesSearch, sortLeads } from "../logic/leads";
-import type { Lead } from "../types/lead";
+import type { SubscriptionSummary } from "../types/billing";
+import type { Lead, Trade } from "../types/lead";
 import type { AlertSettings, LeadsApi } from "./leads";
 
 /** Bromley town centre, the API's default base, which the sample leads are placed around. */
@@ -14,18 +15,34 @@ const SAMPLE_BASE = { lat: 51.4057, lng: 0.0144 };
  * alert settings. It can't look postcodes up, so the base stays at Bromley whatever postcode is
  * set.
  */
+/** No subscription yet, with the free trial on offer: a new account's plan. */
+export const FREE_PLAN: SubscriptionSummary = {
+  plan: "free",
+  status: null,
+  interval: null,
+  trialEndsAt: null,
+  currentPeriodEnd: null,
+  cancelAtPeriodEnd: false,
+  paymentFailedAt: null,
+  foundingMember: false,
+  trialAvailable: true,
+};
+
 export function createSampleLeadsApi(
   leads: Lead[] = SAMPLE_LEADS,
   pageSize = 20,
   savedIds: string[] = [],
   basePostcode: string | null = null,
+  startingSubscription: SubscriptionSummary = FREE_PLAN,
 ): LeadsApi {
   let saved = [...savedIds];
+  let subscription: SubscriptionSummary = startingSubscription;
   let settings: AlertSettings = {
     postcode: basePostcode,
     radiusMiles: 15,
     base: SAMPLE_BASE,
     trades: [...TRADES],
+    chosenTrades: null,
     delivery: DEFAULT_DELIVERY,
   };
   return {
@@ -69,6 +86,21 @@ export function createSampleLeadsApi(
       ),
     subscribePush: () => Promise.resolve(),
     unsubscribePush: () => Promise.resolve(),
+    getSubscription: () => Promise.resolve(subscription),
+    startTrial() {
+      if (subscription.trialAvailable)
+        subscription = {
+          ...FREE_PLAN,
+          plan: "pro",
+          status: "trialing",
+          interval: "month",
+          trialEndsAt: new Date(Date.now() + 14 * 864e5).toISOString(),
+          currentPeriodEnd: new Date(Date.now() + 14 * 864e5).toISOString(),
+          trialAvailable: false,
+        };
+      return Promise.resolve(subscription);
+    },
+    checkout: () => Promise.resolve({ ok: true, url: "https://checkout.stripe.com/c/pay/sample" }),
     getAlertSettings() {
       return Promise.resolve(settings);
     },
@@ -95,10 +127,39 @@ export function createSampleLeadsApi(
         ...(tidy !== undefined && { postcode: tidy }),
         ...(radiusMiles !== undefined && { radiusMiles }),
         // Kept in the usual order, each once, like the real API.
-        ...(trades && { trades: TRADES.filter((t) => trades.includes(t)) }),
+        // In the order chosen, each once, like the real API (KES-52).
+        ...(trades && { trades: [...new Set(trades)], chosenTrades: [...new Set(trades)] }),
         ...(delivery && { delivery }),
       };
       return Promise.resolve({ ok: true, settings });
+    },
+  };
+}
+
+/**
+ * The sample API on a plan that covers fewer than all four trades (KES-52): Free's one by default.
+ * Like the real API it keeps every trade chosen, and the plan covers the first ones.
+ */
+export function onTradeLimitedPlan(
+  { maxTrades = 1, chosen = ["Roofing"] }: { maxTrades?: number; chosen?: Trade[] } = {},
+  api: LeadsApi = createSampleLeadsApi(),
+): LeadsApi {
+  let chosenTrades = chosen;
+  const limited = (settings: AlertSettings): AlertSettings => ({
+    ...settings,
+    chosenTrades,
+    trades: chosenTrades.slice(0, maxTrades),
+    plan: "free",
+    limits: { maxRadiusMiles: 15, maxTrades, push: false, digest: "weekly" },
+  });
+  return {
+    ...api,
+    getAlertSettings: async () => limited(await api.getAlertSettings()),
+    async updateAlertSettings(changes) {
+      const result = await api.updateAlertSettings(changes);
+      if (!result.ok) return result;
+      if (changes.trades) chosenTrades = [...new Set(changes.trades)];
+      return { ok: true, settings: limited(result.settings) };
     },
   };
 }

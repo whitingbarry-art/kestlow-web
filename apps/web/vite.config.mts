@@ -24,6 +24,9 @@ export default defineConfig({
     proxy: {
       "/api": { target: "http://127.0.0.1:5181", rewrite: (path) => path.replace(/^\/api/, "") },
     },
+    // Playwright writes HTML traces and reports here mid-run; watching them reloads the page under
+    // the tests.
+    watch: { ignored: ["**/e2e-results/**", "**/e2e-report/**"] },
   },
   test: {
     projects: [

@@ -42,6 +42,11 @@ export function LeadCard({
           <div className="mt-0.5 text-sm text-muted">
             {lead.council} &middot; {formatLeadDistance(lead)}
           </div>
+          {lead.masked && (
+            <div className="mt-0.5 text-sm font-semibold text-ink">
+              Exact address with Solo or Pro
+            </div>
+          )}
         </div>
         {lead.isNew && <NewBadge />}
       </div>

@@ -6,6 +6,7 @@ import type {
   AlertSettingsResult,
   BasePostcodeResult,
   LeadsApi,
+  PlanLimits,
 } from "../api/leads";
 import { useLeadsApi } from "../api/LeadsApiContext";
 import {
@@ -43,10 +44,17 @@ const MEASURED_FROM_BASE = new Set(["leads", "lead", "saved"]);
 /** The fields of `from` that `changes` touches, to put them back as they were. */
 function pick(from: AlertSettings, changes: Pick<AlertSettingsChanges, "trades" | "delivery">) {
   return {
-    ...("trades" in changes && { trades: from.trades }),
+    ...("trades" in changes && { trades: from.trades, chosenTrades: from.chosenTrades }),
     ...("delivery" in changes && { delivery: from.delivery }),
   };
 }
+
+/** Pro's limits, which apply until the API says which plan someone's on (KES-52). */
+const FULL_LIMITS: PlanLimits = {
+  maxRadiusMiles: DISTANCE_MAX_MILES,
+  maxTrades: TRADES.length,
+  push: true,
+};
 
 /** The slider saves this long after it stops moving, so dragging doesn't send every mile. */
 export const DISTANCE_SAVE_DELAY_MS = 500;
@@ -63,7 +71,8 @@ export function useAlertSettings({
       if (!result.ok) return;
       queryClient.setQueryData(ALERT_SETTINGS_KEY, result.settings);
       // A new base or distance measures leads differently, so fetch them again (in the background).
-      if ("postcode" in changes || "radiusMiles" in changes)
+      // So do trades, on a plan that limits them (KES-52).
+      if ("postcode" in changes || "radiusMiles" in changes || "trades" in changes)
         void queryClient.invalidateQueries({
           predicate: (query) => MEASURED_FROM_BASE.has(String(query.queryKey[0])),
         });
@@ -75,7 +84,16 @@ export function useAlertSettings({
     (changes: Pick<AlertSettingsChanges, "trades" | "delivery">) => {
       const before = queryClient.getQueryData<AlertSettings>(ALERT_SETTINGS_KEY);
       if (!before) return;
-      queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, { ...before, ...changes });
+      // All the trades chosen are kept; the plan covers the first ones (KES-52).
+      const maxTrades = before.limits?.maxTrades ?? TRADES.length;
+      queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, {
+        ...before,
+        ...changes,
+        ...(changes.trades && {
+          chosenTrades: changes.trades,
+          trades: changes.trades.slice(0, maxTrades),
+        }),
+      });
       const putBack = () =>
         queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, (now) =>
           now ? { ...now, ...pick(before, changes) } : before,
@@ -94,7 +112,11 @@ export function useAlertSettings({
 
   const settings = settingsQuery.data;
   const delivery = settings?.delivery ?? DEFAULT_DELIVERY;
-  const chosenTrades = settings?.trades ?? TRADES;
+  // Every trade they chose, main trade first, and the ones their plan covers (KES-52).
+  const chosenTrades = settings?.chosenTrades ?? settings?.trades ?? TRADES;
+  const coveredTrades = settings?.trades ?? TRADES;
+  // What their plan allows (KES-52); everything until the API says otherwise.
+  const limits = settings?.limits ?? FULL_LIMITS;
 
   // Why push couldn't be turned on in this browser, shown under the delivery choices.
   const [pushProblem, setPushProblem] = useState<{ message: string; help: boolean } | null>(null);
@@ -133,6 +155,8 @@ export function useAlertSettings({
     (key: DeliveryChannel) => {
       const turnOn = !delivery[key];
       if (key !== "push") return changeNow({ delivery: { ...delivery, [key]: turnOn } });
+      if (turnOn && !limits.push)
+        return setPushProblem({ message: "Push alerts come with Solo and Pro.", help: true });
       // Push needs this browser's permission and subscription first (KES-32); turning it off
       // forgets the browser, and goes ahead even if that fails, so alerts stop either way.
       setPushProblem(null);
@@ -143,21 +167,24 @@ export function useAlertSettings({
         })
         .catch(pushFailed);
     },
-    [api, changeNow, delivery, pushBrowser, pushFailed],
+    [api, changeNow, delivery, limits.push, pushBrowser, pushFailed],
   );
 
   const toggleTrade = useCallback(
     (trade: Trade) =>
+      // In the order chosen, so a new one goes after the main trade, and switching the main one
+      // off makes the next its main trade (KES-52).
       changeNow({
-        // Kept in the usual order, as the API keeps them.
-        trades: TRADES.filter((t) => (t === trade) !== chosenTrades.includes(t)),
+        trades: chosenTrades.includes(trade)
+          ? chosenTrades.filter((t) => t !== trade)
+          : [...chosenTrades, trade],
       }),
     [changeNow, chosenTrades],
   );
 
   const setDistance = useCallback(
     (miles: number) => {
-      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, DISTANCE_MAX_MILES);
+      const radiusMiles = clamp(miles, DISTANCE_MIN_MILES, limits.maxRadiusMiles);
       setDraftDistance(radiusMiles);
       if (pendingSave.current) clearTimeout(pendingSave.current.timer);
       const save = () => {
@@ -169,7 +196,7 @@ export function useAlertSettings({
       };
       pendingSave.current = { timer: setTimeout(save, DISTANCE_SAVE_DELAY_MS), save };
     },
-    [updateSettings],
+    [updateSettings, limits.maxRadiusMiles],
   );
 
   // Leaving the page straight after moving the slider still saves the distance.
@@ -206,10 +233,32 @@ export function useAlertSettings({
   const trades = Object.fromEntries(
     TRADES.map((t) => [t, chosenTrades.includes(t)]),
   ) as TradeSettings;
+  // On a plan that limits trades, which is their main trade, and which wait for Pro (KES-52).
+  const limited = limits.maxTrades < TRADES.length;
+  const tradeNotes = Object.fromEntries(
+    TRADES.map((t) => [
+      t,
+      !limited || !chosenTrades.includes(t)
+        ? undefined
+        : coveredTrades.includes(t)
+          ? limits.maxTrades === 1
+            ? "Your main trade"
+            : "On your plan"
+          : "Switches on with Pro",
+    ]),
+  ) as Record<Trade, string | undefined>;
   const { refetch } = settingsQuery;
 
   return {
-    deliveryOptions: DELIVERY_OPTIONS,
+    // The free plan's email comes on Monday mornings (KES-52).
+    deliveryOptions:
+      limits.digest === "weekly"
+        ? DELIVERY_OPTIONS.map((option) =>
+            option.key === "email"
+              ? { ...option, description: "Weekly digest, Monday at 7:30am" }
+              : option,
+          )
+        : DELIVERY_OPTIONS,
     pushProblem: pushProblem?.message ?? null,
     /** The push message is steps to follow, not a problem, so it's shown calmly (KES-120). */
     pushProblemIsHelp: pushProblem?.help ?? false,
@@ -220,11 +269,17 @@ export function useAlertSettings({
     toggleDelivery,
     tradeOptions: TRADES,
     trades,
+    tradeNotes,
+    /** Every trade they chose, main trade first; empty until they first choose (KES-52). */
+    chosenTrades: settings?.chosenTrades === null ? [] : chosenTrades,
     toggleTrade,
     distance,
     distanceLabel: formatDistance(distance),
     distanceMin: DISTANCE_MIN_MILES,
-    distanceMax: DISTANCE_MAX_MILES,
+    distanceMax: limits.maxRadiusMiles,
+    /** The plan they're on and what it allows (KES-52), for the notes beside each limit. */
+    plan: settings?.plan ?? "pro",
+    limits,
     setDistance,
     basePostcode: settings?.postcode ?? null,
     /** Where leads are measured from, for the area map; undefined until loaded. */

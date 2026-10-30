@@ -5,8 +5,11 @@ import { useLeads } from "../hooks/useLeads";
 import { useIsDesktop } from "../hooks/useMediaQuery";
 import { useNavigation } from "../hooks/useNavigation";
 import { useSession, useSignOut } from "../hooks/useSession";
+import { useStartTrial } from "../hooks/useStartTrial";
 import { useTheme } from "../hooks/useTheme";
 import { VerifyEmailBanner } from "./auth/VerifyEmailBanner";
+import { SubscribedNotice } from "./billing/SubscribedNotice";
+import { TrialBanner } from "./billing/TrialBanner";
 import { BottomNav } from "./layout/BottomNav";
 import { DetailPanel } from "./layout/DetailPanel";
 import { Sidebar } from "./layout/Sidebar";
@@ -34,6 +37,7 @@ export function App() {
     [showView, closeDetail],
   );
   const signOut = useSignOut();
+  useStartTrial();
   // SignedInGate only shows the app once someone's signed in, so there's always a user here.
   const userName = useSession().data?.name ?? "";
   // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
@@ -71,6 +75,25 @@ export function App() {
       >
         <TopBar onToggleTheme={toggleTheme} onSignOut={() => signOut.mutate()} />
         <VerifyEmailBanner />
+        <SubscribedNotice />
+        <TrialBanner />
+        {leads.saveProblem && (
+          <div className="mx-4 mt-3 flex flex-wrap items-center gap-3 rounded-card border-2 border-amber bg-card p-3.5 text-[15px] desk:mx-6">
+            <p role="status" className="m-0 flex-1 basis-60">
+              {leads.saveProblem}{" "}
+              <a href="/pricing" className="font-semibold text-ink underline">
+                See plans
+              </a>
+            </p>
+            <button
+              type="button"
+              onClick={leads.clearSaveProblem}
+              className="min-h-11 font-semibold text-ink underline"
+            >
+              Close
+            </button>
+          </div>
+        )}
         {view === "leads" && <LeadsView leads={leads} cardsClickable={isDesktop} />}
         {view === "saved" && <SavedView leads={leads} cardsClickable={isDesktop} />}
         {view === "alerts" && <AlertsView settings={alertSettings} />}

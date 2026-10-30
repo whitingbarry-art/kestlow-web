@@ -1,4 +1,5 @@
 import type { DeliverySettings } from "../types/alerts";
+import type { BillingInterval, PaidPlan, SubscriptionSummary } from "../types/billing";
 import type { Lead, LeadSort, LeadsPage, Trade } from "../types/lead";
 
 /** What the app needs from the leads API; tests and Storybook swap in `createSampleLeadsApi`. */
@@ -29,7 +30,19 @@ export interface LeadsApi {
   subscribePush: (subscription: PushSubscriptionJSON) => Promise<void>;
   /** Forgets one of the user's browsers. */
   unsubscribePush: (endpoint: string) => Promise<void>;
+  /** The plan they're on, and whether the free trial is still on offer (KES-48, KES-49). */
+  getSubscription: () => Promise<SubscriptionSummary>;
+  /**
+   * Starts the free Pro trial if they can have one, giving back their plan either way, or null
+   * where payments aren't set up (KES-49).
+   */
+  startTrial: () => Promise<SubscriptionSummary | null>;
+  /** A Stripe Checkout page for a plan, or a message to show instead (KES-50). */
+  checkout: (plan: PaidPlan, interval: BillingInterval) => Promise<CheckoutResult>;
 }
+
+/** Checkout gives the page to send the person to, or a message to show. */
+export type CheckoutResult = { ok: true; url: string } | { ok: false; message: string };
 
 export interface AlertSettings {
   /** The base postcode, or null until it's set. */
@@ -37,9 +50,26 @@ export interface AlertSettings {
   radiusMiles: number;
   /** Where leads are measured from: the postcode, or the default area until one is set. */
   base: { lat: number; lng: number };
-  /** The trades they want alerts for. */
+  /** The trades their plan covers, of the ones they chose (KES-52). */
   trades: Trade[];
+  /**
+   * Every trade they chose, in the order chosen, so the first is their main trade; null until
+   * they choose (KES-52). A plan with more trades switches the rest on without choosing again.
+   */
+  chosenTrades?: Trade[] | null;
   delivery: DeliverySettings;
+  /** The plan they're on and what it allows (KES-52); the settings above already fit it. */
+  plan?: PaidPlan | "free";
+  limits?: PlanLimits;
+}
+
+/** What someone's plan allows in their alert settings (KES-52). */
+export interface PlanLimits {
+  maxRadiusMiles: number;
+  maxTrades: number;
+  push: boolean;
+  /** How often the email digest comes: every morning, or Monday mornings on the free plan. */
+  digest?: "daily" | "weekly";
 }
 
 export interface AlertSettingsChanges {
@@ -134,6 +164,35 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
       if (!res.ok)
         throw new ApiError(res.status, `DELETE /me/push-subscriptions failed with ${res.status}`);
     },
+    async getSubscription() {
+      const subscription = await get<SubscriptionSummary>("/me/subscription");
+      if (!subscription) throw new ApiError(404, "GET /me/subscription failed with 404");
+      return subscription;
+    },
+    async startTrial() {
+      const res = await fetch(`${baseUrl}/billing/trial`, {
+        method: "POST",
+        credentials: "include",
+      });
+      // Payments aren't set up (404), or the email isn't confirmed yet (403): no trial for now.
+      if (res.status === 404 || res.status === 403) return null;
+      if (!res.ok) throw new ApiError(res.status, `POST /billing/trial failed with ${res.status}`);
+      return ((await res.json()) as { subscription: SubscriptionSummary }).subscription;
+    },
+    async checkout(plan, interval) {
+      const res = await fetch(`${baseUrl}/billing/checkout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, interval }),
+      });
+      if (res.ok) return { ok: true, url: ((await res.json()) as { url: string }).url };
+      // Already on a plan (409), or payments not set up (404), come with a message.
+      const { error } = (await res.json().catch(() => ({}))) as { error?: string };
+      if (res.status === 409 || res.status === 404)
+        return { ok: false, message: error ?? "Payments aren't available just now." };
+      throw new ApiError(res.status, `POST /billing/checkout failed with ${res.status}`);
+    },
     async getAlertSettings() {
       const settings = await get<AlertSettings>("/me/alert-settings");
       if (!settings) throw new ApiError(404, "GET /me/alert-settings failed with 404");
@@ -147,8 +206,9 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
         body: JSON.stringify(changes),
       });
       if (res.ok) return { ok: true, settings: (await res.json()) as AlertSettings };
-      // A wrong postcode or distance (400), or postcodes.io being down (503), come with a message.
-      if (res.status === 400 || res.status === 503) {
+      // A wrong postcode or distance (400), a setting beyond the plan (403, KES-52), or
+      // postcodes.io being down (503), come with a message.
+      if (res.status === 400 || res.status === 403 || res.status === 503) {
         const { error } = (await res.json().catch(() => ({}))) as { error?: string };
         return { ok: false, message: error ?? "Something went wrong. Please try again." };
       }

@@ -28,8 +28,8 @@ export function VerifyEmailBanner() {
   return (
     <div className="mx-4 mt-3 rounded-card border-2 border-amber bg-card p-3.5 text-[15px] desk:mx-6">
       <p className="m-0">
-        <b>Please confirm your email.</b> We sent a link to {user.email}. Alerts start once you've
-        used it.
+        <b>Please confirm your email.</b> We sent a link to {user.email}. Your alerts and your free
+        14-day Pro trial start once you've used it.
       </p>
       <p role="status" className="m-0 min-h-[1lh] text-sm font-semibold">
         {status}

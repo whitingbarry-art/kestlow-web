@@ -77,6 +77,21 @@ export function addPin(map: L.Map, at: L.LatLngExpression) {
 }
 
 /** Keeps the tiles filling a container that changes size, such as a sliding panel. */
+/**
+ * A soft circle over roughly where a site is (KES-52), for the free plan, whose leads only give
+ * the place to about a kilometre: wide enough that it doesn't point at any one house.
+ */
+export function addArea(map: L.Map, at: L.LatLngExpression) {
+  return L.circle(at, {
+    radius: 900,
+    color: NAVY,
+    fillColor: AMBER,
+    weight: 2,
+    fillOpacity: 0.2,
+    interactive: false,
+  }).addTo(map);
+}
+
 export function fillContainer(map: L.Map, container: HTMLElement) {
   if (typeof ResizeObserver === "undefined") return () => {};
   const resize = new ResizeObserver(() => map.invalidateSize({ animate: false }));

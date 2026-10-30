@@ -29,3 +29,13 @@ type Story = StoryObj<typeof meta>;
 export const AllTrades: Story = {};
 
 export const Roofing: Story = { args: { active: "Roofing" } };
+
+/** A one-trade plan (KES-52): their trade, then the others locked. */
+export const OneTradePlan: Story = {
+  args: {
+    options: ["Roofing"],
+    active: "Roofing",
+    locked: ["Electrical", "Landscaping", "Groundworks"],
+    onSelectLocked: fn(),
+  },
+};

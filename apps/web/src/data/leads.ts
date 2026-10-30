@@ -36,6 +36,7 @@ export const SAMPLE_LEADS: Lead[] = [
     sourceUrl: "https://planning.example.gov.uk/applications/EX%2F26%2F01482",
     location: { lat: 51.4247, lng: 0.0261 },
     approximate: false,
+    masked: false,
   },
   {
     id: "sample-2",
@@ -53,6 +54,7 @@ export const SAMPLE_LEADS: Lead[] = [
     sourceUrl: "https://planning.example.gov.uk/applications/SD%2F26%2F00977",
     location: { lat: 51.3709, lng: 0.1063 },
     approximate: false,
+    masked: false,
   },
   {
     id: "sample-3",
@@ -70,6 +72,7 @@ export const SAMPLE_LEADS: Lead[] = [
     sourceUrl: "https://planning.example.gov.uk/applications/DC%2F26%2F03310",
     location: { lat: 51.4893, lng: -0.1146 },
     approximate: false,
+    masked: false,
   },
   {
     id: "sample-4",
@@ -88,5 +91,6 @@ export const SAMPLE_LEADS: Lead[] = [
     sourceUrl: "https://planning.example.gov.uk/applications/EX%2F26%2F01455",
     location: { lat: 51.3801, lng: -0.0918 },
     approximate: false,
+    masked: false,
   },
 ];
