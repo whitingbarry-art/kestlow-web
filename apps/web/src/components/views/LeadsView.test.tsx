@@ -46,7 +46,7 @@ describe("LeadsView trade buttons", () => {
   it("keeps All trades when the plan covers more than one", async () => {
     expect(
       await tradeButtons(
-        onTradeLimitedPlan(["Roofing", "Landscaping"]),
+        onTradeLimitedPlan({ maxTrades: 2, chosen: ["Roofing", "Landscaping"] }),
         /Electrical.*not on your plan/,
       ),
     ).toEqual([

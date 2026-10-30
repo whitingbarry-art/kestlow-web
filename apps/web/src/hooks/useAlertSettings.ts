@@ -44,7 +44,7 @@ const MEASURED_FROM_BASE = new Set(["leads", "lead", "saved"]);
 /** The fields of `from` that `changes` touches, to put them back as they were. */
 function pick(from: AlertSettings, changes: Pick<AlertSettingsChanges, "trades" | "delivery">) {
   return {
-    ...("trades" in changes && { trades: from.trades }),
+    ...("trades" in changes && { trades: from.trades, chosenTrades: from.chosenTrades }),
     ...("delivery" in changes && { delivery: from.delivery }),
   };
 }
@@ -84,7 +84,16 @@ export function useAlertSettings({
     (changes: Pick<AlertSettingsChanges, "trades" | "delivery">) => {
       const before = queryClient.getQueryData<AlertSettings>(ALERT_SETTINGS_KEY);
       if (!before) return;
-      queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, { ...before, ...changes });
+      // All the trades chosen are kept; the plan covers the first ones (KES-52).
+      const maxTrades = before.limits?.maxTrades ?? TRADES.length;
+      queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, {
+        ...before,
+        ...changes,
+        ...(changes.trades && {
+          chosenTrades: changes.trades,
+          trades: changes.trades.slice(0, maxTrades),
+        }),
+      });
       const putBack = () =>
         queryClient.setQueryData<AlertSettings>(ALERT_SETTINGS_KEY, (now) =>
           now ? { ...now, ...pick(before, changes) } : before,
@@ -103,7 +112,9 @@ export function useAlertSettings({
 
   const settings = settingsQuery.data;
   const delivery = settings?.delivery ?? DEFAULT_DELIVERY;
-  const chosenTrades = settings?.trades ?? TRADES;
+  // Every trade they chose, main trade first, and the ones their plan covers (KES-52).
+  const chosenTrades = settings?.chosenTrades ?? settings?.trades ?? TRADES;
+  const coveredTrades = settings?.trades ?? TRADES;
   // What their plan allows (KES-52); everything until the API says otherwise.
   const limits = settings?.limits ?? FULL_LIMITS;
 
@@ -160,17 +171,15 @@ export function useAlertSettings({
   );
 
   const toggleTrade = useCallback(
-    (trade: Trade) => {
-      // Kept in the usual order, as the API keeps them.
-      const toggled = TRADES.filter((t) => (t === trade) !== chosenTrades.includes(t));
-      // On a one-trade plan, choosing a trade swaps it for the one they had (KES-52).
-      const trades =
-        toggled.length > limits.maxTrades && chosenTrades.includes(trade) === false
-          ? [trade]
-          : toggled;
-      changeNow({ trades });
-    },
-    [changeNow, chosenTrades, limits.maxTrades],
+    (trade: Trade) =>
+      // In the order chosen, so a new one goes after the main trade, and switching the main one
+      // off makes the next its main trade (KES-52).
+      changeNow({
+        trades: chosenTrades.includes(trade)
+          ? chosenTrades.filter((t) => t !== trade)
+          : [...chosenTrades, trade],
+      }),
+    [changeNow, chosenTrades],
   );
 
   const setDistance = useCallback(
@@ -224,6 +233,20 @@ export function useAlertSettings({
   const trades = Object.fromEntries(
     TRADES.map((t) => [t, chosenTrades.includes(t)]),
   ) as TradeSettings;
+  // On a plan that limits trades, which is their main trade, and which wait for Pro (KES-52).
+  const limited = limits.maxTrades < TRADES.length;
+  const tradeNotes = Object.fromEntries(
+    TRADES.map((t) => [
+      t,
+      !limited || !chosenTrades.includes(t)
+        ? undefined
+        : coveredTrades.includes(t)
+          ? limits.maxTrades === 1
+            ? "Your main trade"
+            : "On your plan"
+          : "Switches on with Pro",
+    ]),
+  ) as Record<Trade, string | undefined>;
   const { refetch } = settingsQuery;
 
   return {
@@ -246,6 +269,9 @@ export function useAlertSettings({
     toggleDelivery,
     tradeOptions: TRADES,
     trades,
+    tradeNotes,
+    /** Every trade they chose, main trade first; empty until they first choose (KES-52). */
+    chosenTrades: settings?.chosenTrades === null ? [] : chosenTrades,
     toggleTrade,
     distance,
     distanceLabel: formatDistance(distance),

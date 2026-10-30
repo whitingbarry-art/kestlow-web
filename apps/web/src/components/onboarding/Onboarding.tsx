@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { TRADES } from "../../data/leads";
 import { useAlertSettings } from "../../hooks/useAlertSettings";
 import { useSignOut } from "../../hooks/useSession";
+import { useSubscription } from "../../hooks/useSubscription";
 import { formatDistance } from "../../logic/alerts";
 import type { Trade } from "../../types/lead";
 import { AreaMap } from "../alerts/AreaMap";
@@ -34,9 +35,8 @@ export function Onboarding({ onDone }: OnboardingProps) {
   const id = useId();
   const [step, setStep] = useState<Step>(1);
   const [postcode, setPostcode] = useState(settings.basePostcode ?? "");
-  const [trades, setTrades] = useState<Trade[]>(
-    settings.tradeOptions.filter((t) => settings.trades[t]),
-  );
+  // In the order ticked: the first is their main trade (KES-52).
+  const [trades, setTrades] = useState<Trade[]>(settings.chosenTrades);
   const [miles, setMiles] = useState(settings.distance);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -73,7 +73,12 @@ export function Onboarding({ onDone }: OnboardingProps) {
   }
 
   const toggleTrade = (trade: Trade) =>
-    setTrades((chosen) => TRADES.filter((t) => (t === trade) !== chosen.includes(t)));
+    setTrades((chosen) =>
+      chosen.includes(trade) ? chosen.filter((t) => t !== trade) : [...chosen, trade],
+    );
+  // Free and Solo cover one trade; the rest switch on with the trial or Pro, without asking again.
+  const oneTrade = settings.limits.maxTrades === 1;
+  const trialAvailable = useSubscription().data?.trialAvailable ?? false;
 
   let question: ReactNode;
   if (step === 1)
@@ -100,8 +105,19 @@ export function Onboarding({ onDone }: OnboardingProps) {
     );
   else if (step === 2)
     question = (
-      <fieldset className="m-0 border-0 p-0" aria-describedby={`${id}-message`}>
+      <fieldset
+        className="m-0 border-0 p-0"
+        aria-describedby={oneTrade ? `${id}-trades-hint ${id}-message` : `${id}-message`}
+      >
         <legend className="mb-2 font-bold">Tick all that apply</legend>
+        {oneTrade && (
+          <p id={`${id}-trades-hint`} className="m-0 mb-3 text-sm text-muted">
+            The first you tick is your main trade.{" "}
+            {trialAvailable
+              ? "Your free 14-day Pro trial covers every trade you tick; after it, the free plan and Solo cover your main trade."
+              : "The free plan and Solo cover your main trade; Pro covers every trade you tick."}
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-2">
           {TRADES.map((trade) => (
             <label
@@ -112,9 +128,14 @@ export function Onboarding({ onDone }: OnboardingProps) {
                 type="checkbox"
                 checked={trades.includes(trade)}
                 onChange={() => toggleTrade(trade)}
-                className="size-5"
+                className="size-5 shrink-0"
               />
               {trade}
+              {oneTrade && trades[0] === trade && (
+                <span className="ml-auto rounded-full bg-navy px-2 py-0.5 text-xs font-bold text-white dark:bg-amber dark:text-navy">
+                  Main
+                </span>
+              )}
             </label>
           ))}
         </div>

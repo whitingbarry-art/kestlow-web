@@ -50,8 +50,13 @@ export interface AlertSettings {
   radiusMiles: number;
   /** Where leads are measured from: the postcode, or the default area until one is set. */
   base: { lat: number; lng: number };
-  /** The trades they want alerts for. */
+  /** The trades their plan covers, of the ones they chose (KES-52). */
   trades: Trade[];
+  /**
+   * Every trade they chose, in the order chosen, so the first is their main trade; null until
+   * they choose (KES-52). A plan with more trades switches the rest on without choosing again.
+   */
+  chosenTrades?: Trade[] | null;
   delivery: DeliverySettings;
   /** The plan they're on and what it allows (KES-52); the settings above already fit it. */
   plan?: PaidPlan | "free";

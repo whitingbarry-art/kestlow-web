@@ -84,13 +84,15 @@ function AlertSettingsForm({
           <SettingRow
             key={trade}
             label={trade}
+            description={settings.tradeNotes[trade]}
             checked={settings.trades[trade]}
             onToggle={() => settings.toggleTrade(trade)}
           />
         ))}
         {settings.limits.maxTrades < settings.tradeOptions.length && (
           <PlanNote>
-            Your plan covers 1 trade, so choosing another swaps it. Pro covers all four.
+            Your plan covers your main trade, the first you chose. Any others you switch on are
+            kept, and start straight away with Pro.
           </PlanNote>
         )}
       </Card>

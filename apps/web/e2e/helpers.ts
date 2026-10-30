@@ -8,7 +8,10 @@ export function testEmail(label: string) {
 export const PASSWORD = "ladder-teapot-rain-e2e";
 
 /** Creates an account and answers the three onboarding questions, ending on Leads. */
-export async function signUp(page: Page, { name = "E2E Tester", postcode = "BR1 1LT" } = {}) {
+export async function signUp(
+  page: Page,
+  { name = "E2E Tester", postcode = "BR1 1LT", trades = ["Roofing"] } = {},
+) {
   const email = testEmail(name.toLowerCase().replace(/\W+/g, "-"));
   await page.goto("/");
   await page.getByRole("button", { name: "Create an account" }).click();
@@ -18,6 +21,7 @@ export async function signUp(page: Page, { name = "E2E Tester", postcode = "BR1 
   await page.getByRole("button", { name: "Create account" }).click();
   await page.getByLabel("Your postcode").fill(postcode);
   await page.getByRole("button", { name: "Continue" }).click();
+  for (const trade of trades) await page.getByRole("checkbox", { name: trade }).check();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("button", { name: "Show my leads" }).click();
   await expect(page.getByRole("heading", { name: "New leads near you" })).toBeVisible();

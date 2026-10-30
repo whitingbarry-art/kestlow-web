@@ -42,6 +42,7 @@ export function createSampleLeadsApi(
     radiusMiles: 15,
     base: SAMPLE_BASE,
     trades: [...TRADES],
+    chosenTrades: null,
     delivery: DEFAULT_DELIVERY,
   };
   return {
@@ -126,7 +127,8 @@ export function createSampleLeadsApi(
         ...(tidy !== undefined && { postcode: tidy }),
         ...(radiusMiles !== undefined && { radiusMiles }),
         // Kept in the usual order, each once, like the real API.
-        ...(trades && { trades: TRADES.filter((t) => trades.includes(t)) }),
+        // In the order chosen, each once, like the real API (KES-52).
+        ...(trades && { trades: [...new Set(trades)], chosenTrades: [...new Set(trades)] }),
         ...(delivery && { delivery }),
       };
       return Promise.resolve({ ok: true, settings });
@@ -135,20 +137,29 @@ export function createSampleLeadsApi(
 }
 
 /**
- * The sample API with settings as a plan with fewer than all four trades gives them (KES-52):
- * Free's one by default, or more to try a bigger allowance.
+ * The sample API on a plan that covers fewer than all four trades (KES-52): Free's one by default.
+ * Like the real API it keeps every trade chosen, and the plan covers the first ones.
  */
 export function onTradeLimitedPlan(
-  trades: Trade[] = ["Roofing"],
+  { maxTrades = 1, chosen = ["Roofing"] }: { maxTrades?: number; chosen?: Trade[] } = {},
   api: LeadsApi = createSampleLeadsApi(),
 ): LeadsApi {
+  let chosenTrades = chosen;
+  const limited = (settings: AlertSettings): AlertSettings => ({
+    ...settings,
+    chosenTrades,
+    trades: chosenTrades.slice(0, maxTrades),
+    plan: "free",
+    limits: { maxRadiusMiles: 15, maxTrades, push: false, digest: "weekly" },
+  });
   return {
     ...api,
-    getAlertSettings: async () => ({
-      ...(await api.getAlertSettings()),
-      trades,
-      plan: "free",
-      limits: { maxRadiusMiles: 15, maxTrades: trades.length, push: false, digest: "weekly" },
-    }),
+    getAlertSettings: async () => limited(await api.getAlertSettings()),
+    async updateAlertSettings(changes) {
+      const result = await api.updateAlertSettings(changes);
+      if (!result.ok) return result;
+      if (changes.trades) chosenTrades = [...new Set(changes.trades)];
+      return { ok: true, settings: limited(result.settings) };
+    },
   };
 }
