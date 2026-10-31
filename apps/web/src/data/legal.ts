@@ -42,7 +42,8 @@ export const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
 
 export const PRIVACY: LegalDocument = {
   title: "Privacy notice",
-  updated: UPDATED,
+  // Where people found us, kept with their account (KES-125).
+  updated: "31 October 2026",
   intro: [
     "This notice explains what personal information Kestlow keeps, why, who helps us look after it, and your rights. We keep as little as we can, we never sell it, and we don't use advertising or tracking cookies.",
   ],
@@ -61,6 +62,7 @@ export const PRIVACY: LegalDocument = {
         {
           list: [
             "Your account: your name, email address, whether you've confirmed it, and your password, which we only ever store scrambled so no one can read it. We need these to give you an account (to perform our contract with you).",
+            "Where you found us: if you signed up from one of our cards, ads or links, which one, so we can tell which work and stop paying for the ones that don't. It's a short code, such as a shop's name, never anything about you, and it's deleted with your account (our legitimate interest in knowing which advertising works).",
             "Your alert settings: your base postcode and its position on the map, how far you'll travel, your trades, and how you want alerts. We need these to find leads for you (contract).",
             "Leads you save, and a record of which leads we've already told you about, so we never send the same one twice (contract).",
             "Push alerts: if you turn them on, your browser gives us an address to send them to. We use it only for your alerts, and it's deleted when you turn push off (your consent).",
@@ -68,7 +70,7 @@ export const PRIVACY: LegalDocument = {
             "Security: we briefly use IP addresses and email addresses to slow down repeated sign-in attempts and messages, which stops people guessing passwords or flooding inboxes (legitimate interest).",
             "Messages you send us, through the Contact us form or by email: your name, email address and what you wrote, so we can reply (legitimate interest in answering you).",
             "Error reports: when something breaks in Kestlow, we keep what broke and on which page, never who you are, so we can fix it (legitimate interest in keeping Kestlow working).",
-            "The waitlist: if you joined it, your email address, the first half of your postcode, your trades, your survey answers and, if you came from one of our cards or links, which one, to tell you when Kestlow opens near you, set fair prices and see which cards work (your consent).",
+            "The waitlist, which has now closed: if you joined it, your email address, the first half of your postcode, your trades, your survey answers and, if you came from one of our cards or links, which one, to tell you when Kestlow opens near you, set fair prices and see which cards work (your consent).",
             "Free trials: whether you've had one. If you delete your account, we keep only a scrambled copy of your email address (a one-way hash, which can't be turned back into the address), so the same email can't start a second free trial (legitimate interest in preventing misuse of free trials).",
             "Payments, once paid plans start: your plan, when it renews, and Stripe's references for you and your payments, so we can bill you (contract) and keep the accounts the law requires (legal obligation). Card and bank details go straight to Stripe; we never see or keep them.",
           ],

@@ -21,7 +21,7 @@ interface ContactFormProps {
 
 /**
  * The Contact us form (KES-116). The API checks it, and anything that needs fixing is listed in a
- * summary that takes focus, with each linking to its field, as on the waitlist form.
+ * summary that takes focus, with each linking to its field.
  */
 export function ContactForm({ send, name = "", email = "" }: ContactFormProps) {
   const id = useId();
