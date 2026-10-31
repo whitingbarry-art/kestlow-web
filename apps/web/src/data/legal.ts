@@ -34,7 +34,10 @@ export function icoRegistration(number: string | null): string {
 }
 
 const UPDATED = "30 October 2026";
-/** Who runs Kestlow, as the legal pages, Contact us and the footer name them. */
+/**
+ * Who runs Kestlow, named only where the law needs it: the Terms and Privacy notice, which every
+ * page's footer links to (KES-124). Elsewhere the site says Kestlow.
+ */
 export const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
 
 export const PRIVACY: LegalDocument = {

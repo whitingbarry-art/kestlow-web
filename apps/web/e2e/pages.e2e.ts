@@ -24,17 +24,20 @@ test.describe("the pages anyone can read", () => {
     await expect(page.getByText("Error reports: 30 days.")).toBeVisible();
   });
 
-  test("Contact us and the footer give who runs Kestlow and its address (KES-122)", async ({
+  test("Contact us and the footer give Kestlow's address, and only the Terms name who runs it (KES-122, KES-124)", async ({
     page,
   }) => {
     await page.goto("/contact");
 
     await expect
       .poll(() => page.locator("address").innerText())
-      .toBe("Barry Whiting, trading as Kestlow\n4th Floor\n18 St. Cross Street\nLondon\nEC1N 8UN");
-    await expect(page.locator("footer")).toContainText(
-      "Barry Whiting, trading as Kestlow, 4th Floor, 18 St. Cross Street, London, EC1N 8UN",
-    );
+      .toBe("Kestlow\n4th Floor\n18 St. Cross Street\nLondon\nEC1N 8UN");
+    const footer = page.locator("footer");
+    await expect(footer).toContainText("Kestlow, 4th Floor, 18 St. Cross Street, London, EC1N 8UN");
+    await expect(footer).not.toContainText("Barry Whiting");
+
+    await footer.getByRole("link", { name: "Terms" }).click();
+    await expect(page.getByText(/Barry Whiting, trading as Kestlow/)).toBeVisible();
   });
 
   test("the contact form lists what needs fixing, linked to each field", async ({ page }) => {
