@@ -18,10 +18,15 @@ describe("WaitlistPage", () => {
     );
   });
 
-  it("says who collects the details and how to have them deleted", () => {
+  it("points to who looks after the details, without a name, and how to have them deleted", () => {
     render(<WaitlistPage join={vi.fn<JoinWaitlist>()} />);
 
-    expect(screen.getByText(/Kestlow is run by Barry Whiting\./)).toBeInTheDocument();
+    // Named only in the privacy notice (KES-124).
+    expect(screen.queryByText(/Barry Whiting/)).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "privacy notice" })).toHaveAttribute(
+      "href",
+      "/privacy",
+    );
     expect(screen.getByRole("link", { name: "privacy@kestlow.co.uk" })).toHaveAttribute(
       "href",
       "mailto:privacy@kestlow.co.uk",

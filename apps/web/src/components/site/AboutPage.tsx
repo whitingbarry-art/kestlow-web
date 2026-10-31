@@ -1,5 +1,4 @@
 import { CONTACT } from "../../data/contact";
-import { DATA_CONTROLLER } from "../../data/waitlist";
 import { PublicLayout } from "./PublicLayout";
 
 const linkClass = "font-semibold text-ink underline";
@@ -60,8 +59,8 @@ export function AboutPage() {
             Who we are
           </h2>
           <p className="m-0">
-            Kestlow is a small, independent business run by {DATA_CONTROLLER.name}, a software
-            engineer who saw how much work tradespeople were missing out on. We'd love to hear from
+            Kestlow is a small, independent business run by a software engineer from south-east
+            London, who saw how much work tradespeople were missing out on. We'd love to hear from
             you, whether it's a question, an idea or something that isn't working:{" "}
             <a href="/contact" className={linkClass}>
               get in touch

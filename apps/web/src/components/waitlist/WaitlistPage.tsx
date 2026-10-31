@@ -133,8 +133,11 @@ export function WaitlistPage({ join, source }: WaitlistPageProps) {
             We use your email address only to tell you when Kestlow opens and about the founding
             member offer. We keep your answers to set prices and decide where to launch, and we only
             keep the first half of your postcode. If you came from one of our cards, we note which
-            shop, to see which cards work. We never sell or share your details. Kestlow is run by{" "}
-            {DATA_CONTROLLER.name}. To see or delete your details, email{" "}
+            shop, to see which cards work. We never sell or share your details. Our{" "}
+            <a href="/privacy" className="font-semibold text-ink underline">
+              privacy notice
+            </a>{" "}
+            says who looks after them. To see or delete your details, email{" "}
             <a
               href={`mailto:${DATA_CONTROLLER.email}`}
               className="font-semibold text-ink underline"

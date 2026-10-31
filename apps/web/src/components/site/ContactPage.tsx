@@ -1,6 +1,5 @@
 import { createHttpSendContact, type SendContact } from "../../api/contact";
 import { BUSINESS_ADDRESS, CONTACT } from "../../data/contact";
-import { OWNER } from "../../data/legal";
 import { useSession } from "../../hooks/useSession";
 import { ContactForm } from "./ContactForm";
 import { PublicLayout } from "./PublicLayout";
@@ -52,7 +51,7 @@ export function ContactPage({ send = httpSend }: { send?: SendContact }) {
         </h2>
         {/* One line each, as an address is written on an envelope. */}
         <address className="not-italic">
-          {[OWNER, ...BUSINESS_ADDRESS.split(", ")].map((line) => (
+          {["Kestlow", ...BUSINESS_ADDRESS.split(", ")].map((line) => (
             <span key={line} className="block">
               {line}
             </span>

@@ -1,5 +1,4 @@
 import { BUSINESS_ADDRESS } from "../../data/contact";
-import { OWNER } from "../../data/legal";
 import { SITE_LINKS } from "../../data/navigation";
 import { cn } from "../../utils/cn";
 
@@ -23,7 +22,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
         </ul>
       </nav>
       <p className="mt-3 mb-0 text-center">
-        {/* The postcode never splits across two lines. */}© {new Date().getFullYear()} {OWNER},{" "}
+        {/* The postcode never splits across two lines. */}© {new Date().getFullYear()} Kestlow,{" "}
         {BUSINESS_ADDRESS.replace(/ (\S+)$/, "\u00a0$1")}
       </p>
     </footer>
