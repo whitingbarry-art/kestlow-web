@@ -22,6 +22,25 @@ describe("AuthScreen", () => {
     );
   });
 
+  it("opens at Create your account from the launch page, and keeps where they came from", async () => {
+    window.history.replaceState(null, "", "/?start=trial&ref=ad-trial");
+    const user = userEvent.setup();
+    const authApi = createSampleAuthApi(null);
+    const register = vi.spyOn(authApi, "register");
+    renderScreen(authApi);
+
+    expect(screen.getByRole("heading", { name: "Create your account" })).toBeVisible();
+    await user.type(screen.getByLabelText("Your name"), "Dave");
+    await user.type(screen.getByLabelText("Email address"), "dave@example.com");
+    await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+
+    await vi.waitFor(() =>
+      expect(register).toHaveBeenCalledWith(expect.objectContaining({ source: "ad-trial" })),
+    );
+    await vi.waitFor(() => expect(window.location.search).toBe(""));
+  });
+
   it("registers with a name, email and password", async () => {
     const user = userEvent.setup();
     const authApi = createSampleAuthApi(null);

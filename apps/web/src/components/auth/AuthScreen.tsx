@@ -4,6 +4,7 @@ import { useAuthApi } from "../../api/AuthApiContext";
 import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
+import { openedToSignUp, sourceFrom, withoutSignUp } from "../../logic/signUp";
 import { buttonClassName } from "../ui/buttonStyles";
 import { inputClassName } from "../ui/inputStyles";
 import { PasswordInput } from "../ui/PasswordInput";
@@ -31,11 +32,16 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
   const api = useAuthApi();
   const queryClient = useQueryClient();
   const id = useId();
-  // "Ask for a new link" on an expired reset page opens straight at Forgot your password.
+  // "Ask for a new link" on an expired reset page opens straight at Forgot your password, and the
+  // launch page's buttons at Create your account (KES-125).
   const [mode, setMode] = useState<AuthMode>(() =>
-    initialMode === "sign-in" && new URLSearchParams(window.location.search).has("forgot")
-      ? "forgot"
-      : initialMode,
+    initialMode !== "sign-in"
+      ? initialMode
+      : new URLSearchParams(window.location.search).has("forgot")
+        ? "forgot"
+        : openedToSignUp(window.location.search)
+          ? "register"
+          : initialMode,
   );
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -93,14 +99,21 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
     try {
       result =
         mode === "register"
-          ? await api.register({ name, email: text("email"), password: text("password") })
+          ? await api.register({
+              name,
+              email: text("email"),
+              password: text("password"),
+              source: sourceFrom(window.location.search),
+            })
           : await api.signIn({ email: text("email"), password: text("password") });
     } catch {
       result = { ok: false, message: "We couldn't reach Kestlow. Please try again in a minute." };
     }
     setSending(false);
-    if (result.ok) await queryClient.invalidateQueries({ queryKey: SESSION_KEY });
-    else setError(result.message);
+    if (!result.ok) return setError(result.message);
+    // The launch page's ?start and ?ref have done their job (KES-125).
+    window.history.replaceState(window.history.state, "", withoutSignUp(window.location.href));
+    await queryClient.invalidateQueries({ queryKey: SESSION_KEY });
   }
 
   const switchButton = (next: AuthMode, label: string) => (

@@ -1,10 +1,10 @@
 import { Check } from "lucide-react";
-import type { JoinWaitlist } from "../../api/waitlist";
-import { DATA_CONTROLLER, PLANS, PROMISES } from "../../data/waitlist";
+import { PLANS, PROMISES } from "../../data/waitlist";
+import { signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
-import { PlanCard } from "./PlanCard";
-import { WaitlistForm } from "./WaitlistForm";
+import { PlanCard } from "../waitlist/PlanCard";
+import { SiteFooter } from "./SiteFooter";
 
 const STEPS = [
   {
@@ -21,23 +21,20 @@ const STEPS = [
   },
 ];
 
-interface WaitlistPageProps {
-  join: JoinWaitlist;
-  /** The ?ref= the page was opened with, such as a counter card's shop code (KES-121). */
+interface LaunchPageProps {
+  /** The ?ref= the page was opened with, such as a counter card's shop code or an ad (KES-125). */
   source?: string;
 }
 
-/** The public landing page: what Kestlow does, the plans, and the waitlist sign-up (KES-97). */
-export function WaitlistPage({ join, source }: WaitlistPageProps) {
+/**
+ * The public landing page at /waitlist/, where the counter cards' QR codes and the ads point
+ * (KES-125): what Kestlow does, the plans, and a way into the free trial. Its buttons carry the
+ * ?ref= on to creating an account, so we can tell which card or ad brought someone in.
+ */
+export function LaunchPage({ source }: LaunchPageProps) {
+  const start = signUpHref(source);
   return (
     <div className="min-h-screen">
-      <a
-        href="#join"
-        className="sr-only z-30 rounded-xl bg-card font-bold text-ink focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:px-4 focus:py-3"
-      >
-        Skip to the sign-up form
-      </a>
-
       <header className="brand-surface pt-5 pb-12 text-white [--focus:#ffffff]">
         <div className="mx-auto max-w-5xl px-4">
           <div className="flex items-center justify-between gap-4">
@@ -52,14 +49,17 @@ export function WaitlistPage({ join, source }: WaitlistPageProps) {
           </h1>
           <p className="mt-4 mb-0 max-w-2xl text-lg text-side-link">
             Kestlow alerts roofers, electricians, landscapers and groundworkers to new planning
-            applications near them. Starting with Bromley and the councils around it.
+            applications near them. Covering Bromley and the councils around it.
           </p>
           <a
-            href="#join"
+            href={start}
             className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
           >
-            Join the waitlist
+            Start your free 14-day trial
           </a>
+          <p className="mt-3 mb-0 text-side-link">
+            Pro free for 14 days, no card needed. Then choose a plan, or carry on free.
+          </p>
         </div>
       </header>
 
@@ -86,10 +86,11 @@ export function WaitlistPage({ join, source }: WaitlistPageProps) {
 
         <section aria-labelledby="plans" className="py-12">
           <h2 id="plans" className="m-0 text-2xl font-bold">
-            Planned prices at launch
+            Plans and prices
           </h2>
           <p className="mt-2 mb-0 text-muted">
-            Nothing to pay now: joining the waitlist is free. Prices may change before we launch.
+            Every account starts with 14 days of Pro free. No VAT is added: we're not registered for
+            VAT.
           </p>
           <div className="mt-4 rounded-card border-2 border-amber bg-card p-4">
             <p className="m-0">
@@ -110,44 +111,13 @@ export function WaitlistPage({ join, source }: WaitlistPageProps) {
               </li>
             ))}
           </ul>
-        </section>
-
-        <section aria-labelledby="join-title" id="join" tabIndex={-1} className="py-12">
-          <h2 id="join-title" className="m-0 text-2xl font-bold">
-            Join the waitlist
-          </h2>
-          <p className="mt-2 mb-6 max-w-2xl text-muted">
-            We'll email you when Kestlow opens in your area. Five quick questions help us set fair
-            prices and choose where to start.
-          </p>
-          <div className="max-w-2xl">
-            <WaitlistForm join={join} source={source} />
-          </div>
+          <a href={start} className={buttonClassName("primary", "mt-8 inline-block px-6")}>
+            Start your free 14-day trial
+          </a>
         </section>
       </main>
 
-      <footer className="border-t border-line py-8">
-        <div className="mx-auto max-w-5xl px-4 text-sm text-muted">
-          <h2 className="m-0 text-base font-bold text-ink">Your details</h2>
-          <p className="mt-2 mb-0 max-w-2xl">
-            We use your email address only to tell you when Kestlow opens and about the founding
-            member offer. We keep your answers to set prices and decide where to launch, and we only
-            keep the first half of your postcode. If you came from one of our cards, we note which
-            shop, to see which cards work. We never sell or share your details. Our{" "}
-            <a href="/privacy" className="font-semibold text-ink underline">
-              privacy notice
-            </a>{" "}
-            says who looks after them. To see or delete your details, email{" "}
-            <a
-              href={`mailto:${DATA_CONTROLLER.email}`}
-              className="font-semibold text-ink underline"
-            >
-              {DATA_CONTROLLER.email}
-            </a>
-            .
-          </p>
-        </div>
-      </footer>
+      <SiteFooter className="border-t border-line" />
     </div>
   );
 }

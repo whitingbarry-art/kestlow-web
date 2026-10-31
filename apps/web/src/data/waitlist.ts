@@ -1,5 +1,5 @@
-// The plans and prices are the starting points from the Architecture and Delivery Plan's
-// "Pricing and billing" section; the landing page tests them before launch (KES-97).
+// The plans and prices, from the Architecture and Delivery Plan's "Pricing and billing" section,
+// as the launch page and /pricing show them (KES-97, KES-125). Stripe holds the prices charged.
 
 import { CONTACT } from "./contact";
 
@@ -60,38 +60,8 @@ export const PLANS: Plan[] = [
 ];
 
 export const PROMISES = [
-  "14 days of Pro free when we launch, with no card needed",
+  "14 days of Pro free, with no card needed",
   "No contract and no per-lead fees",
-  "Cancel, pause or switch plan in two clicks",
+  "Cancel any time",
   "Keep using Kestlow free if you don't subscribe",
-];
-
-export interface Option {
-  value: string;
-  label: string;
-}
-
-export const CURRENT_SPEND: Option[] = [
-  { value: "nothing", label: "Nothing" },
-  { value: "under-50", label: "Under £50 a month" },
-  { value: "50-150", label: "£50 to £150 a month" },
-  { value: "150-300", label: "£150 to £300 a month" },
-  { value: "over-300", label: "Over £300 a month" },
-];
-
-export const WOULD_PAY: Option[] = [
-  { value: "nothing", label: "Nothing, I'd only use a free plan" },
-  { value: "under-20", label: "Under £20 a month" },
-  { value: "20-40", label: "£20 to £40 a month" },
-  { value: "40-60", label: "£40 to £60 a month" },
-  { value: "over-60", label: "Over £60 a month" },
-];
-
-export const PLAN_CHOICES: Option[] = [
-  { value: "free", label: "Free" },
-  { value: "solo-monthly", label: "Solo, £29 a month" },
-  { value: "solo-yearly", label: "Solo, £290 a year" },
-  { value: "pro-monthly", label: "Pro, £49 a month" },
-  { value: "pro-yearly", label: "Pro, £490 a year" },
-  { value: "unsure", label: "Not sure yet" },
 ];
