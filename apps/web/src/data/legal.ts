@@ -42,8 +42,8 @@ export const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
 
 export const PRIVACY: LegalDocument = {
   title: "Privacy notice",
-  // Where people found us, kept with their account (KES-125).
-  updated: "31 October 2026",
+  // Where people found us, kept with their account (KES-125), and sign-up steps (KES-130).
+  updated: "1 November 2026",
   intro: [
     "This notice explains what personal information Kestlow keeps, why, who helps us look after it, and your rights. We keep as little as we can, we never sell it, and we don't use advertising or tracking cookies.",
   ],
@@ -63,6 +63,7 @@ export const PRIVACY: LegalDocument = {
           list: [
             "Your account: your name, email address, whether you've confirmed it, and your password, which we only ever store scrambled so no one can read it. We need these to give you an account (to perform our contract with you).",
             "Where you found us: if you signed up from one of our cards, ads or links, which one, so we can tell which work and stop paying for the ones that don't. It's a short code, such as a shop's name, never anything about you, and it's deleted with your account (our legitimate interest in knowing which advertising works).",
+            "Signing up from our cards and ads: how far people get, such as seeing the page, tapping the trial or trying to sign up, and why a sign-up didn't work, with the card or ad's code. No cookies, no IP addresses, nothing that says who you are, and deleted after 90 days (our legitimate interest in knowing which advertising works and fixing what stops people signing up).",
             "Your alert settings: your base postcode and its position on the map, how far you'll travel, your trades, and how you want alerts. We need these to find leads for you (contract).",
             "Leads you save, and a record of which leads we've already told you about, so we never send the same one twice (contract).",
             "Push alerts: if you turn them on, your browser gives us an address to send them to. We use it only for your alerts, and it's deleted when you turn push off (your consent).",

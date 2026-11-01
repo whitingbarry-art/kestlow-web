@@ -5,8 +5,8 @@ import { createSampleAuthApi } from "../../api/sampleAuthApi";
 import { providers } from "../../test/providers";
 import { AuthScreen } from "./AuthScreen";
 
-const renderScreen = (authApi: AuthApi = createSampleAuthApi(null)) =>
-  render(<AuthScreen />, { wrapper: providers(undefined, authApi) });
+const renderScreen = (authApi: AuthApi = createSampleAuthApi(null), recordStep = vi.fn()) =>
+  render(<AuthScreen recordStep={recordStep} />, { wrapper: providers(undefined, authApi) });
 
 describe("AuthScreen", () => {
   it("shows the API's message when sign-in fails", async () => {
@@ -237,5 +237,39 @@ describe("AuthScreen", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "We couldn't reach Kestlow. Please try again in a minute.",
     );
+  });
+
+  it("counts the steps of a sign-up from an ad, and why it was refused (KES-130)", async () => {
+    window.history.replaceState(null, "", "/?start=trial&ref=ad-free");
+    const user = userEvent.setup();
+    const authApi = createSampleAuthApi(null);
+    vi.spyOn(authApi, "register").mockResolvedValue({
+      ok: false,
+      message: "There's already an account with that email. Sign in instead.",
+      code: "USER_ALREADY_EXISTS",
+    });
+    const recordStep = vi.fn();
+    renderScreen(authApi, recordStep);
+
+    expect(recordStep).toHaveBeenCalledWith("register_viewed", { source: "ad-free" });
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+    expect(recordStep).toHaveBeenCalledWith("register_refused", {
+      source: "ad-free",
+      reason: "name-missing",
+    });
+
+    await user.type(screen.getByLabelText("Your name"), "Dave");
+    await user.type(screen.getByLabelText("Email address"), "dave@example.com");
+    await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+
+    await vi.waitFor(() =>
+      expect(recordStep).toHaveBeenCalledWith("register_refused", {
+        source: "ad-free",
+        reason: "user-already-exists",
+      }),
+    );
+    expect(recordStep.mock.calls.filter(([step]) => step === "register_tried")).toHaveLength(2);
+    window.history.replaceState(null, "", "/");
   });
 });

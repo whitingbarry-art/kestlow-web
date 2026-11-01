@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
+import { useEffect } from "react";
 import { PLANS, PROMISES } from "../../data/waitlist";
+import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
 import { signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
@@ -24,6 +26,8 @@ const STEPS = [
 interface LaunchPageProps {
   /** The ?ref= the page was opened with, such as a counter card's shop code or an ad (KES-125). */
   source?: string;
+  /** Counts the visit and the trial taps (KES-130); tests pass a spy. */
+  recordStep?: RecordStep;
 }
 
 /**
@@ -31,8 +35,11 @@ interface LaunchPageProps {
  * (KES-125): what Kestlow does, the plans, and a way into the free trial. Its buttons carry the
  * ?ref= on to creating an account, so we can tell which card or ad brought someone in.
  */
-export function LaunchPage({ source }: LaunchPageProps) {
+export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPageProps) {
   const start = signUpHref(source);
+  // Which card or ad brought people here, and how many go on to the trial (KES-130).
+  useEffect(() => recordStep("launch_viewed", { source }), [recordStep, source]);
+  const tapped = () => recordStep("trial_tapped", { source });
   return (
     <div className="min-h-screen">
       <header className="brand-surface pt-5 pb-12 text-white [--focus:#ffffff]">
@@ -53,6 +60,7 @@ export function LaunchPage({ source }: LaunchPageProps) {
           </p>
           <a
             href={start}
+            onClick={tapped}
             className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
           >
             Start your free 14-day trial
@@ -111,7 +119,11 @@ export function LaunchPage({ source }: LaunchPageProps) {
               </li>
             ))}
           </ul>
-          <a href={start} className={buttonClassName("primary", "mt-8 inline-block px-6")}>
+          <a
+            href={start}
+            onClick={tapped}
+            className={buttonClassName("primary", "mt-8 inline-block px-6")}
+          >
             Start your free 14-day trial
           </a>
         </section>
