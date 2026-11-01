@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { LaunchPage } from "./LaunchPage";
 
 describe("LaunchPage", () => {
@@ -33,5 +34,18 @@ describe("LaunchPage", () => {
     expect(screen.getByRole("contentinfo")).toHaveTextContent("© ");
     expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
     expect(screen.queryByText(/Barry Whiting/)).not.toBeInTheDocument();
+  });
+
+  it("counts the visit and a tap on the trial, with the card or ad's code (KES-130)", async () => {
+    const recordStep = vi.fn();
+    render(<LaunchPage source="ad-numbers" recordStep={recordStep} />);
+    expect(recordStep).toHaveBeenCalledWith("launch_viewed", { source: "ad-numbers" });
+
+    const start = screen.getAllByRole("link", { name: "Start your free 14-day trial" })[0];
+    // jsdom doesn't navigate; the tap is what's counted.
+    start.addEventListener("click", (event) => event.preventDefault());
+    await userEvent.click(start);
+
+    expect(recordStep).toHaveBeenCalledWith("trial_tapped", { source: "ad-numbers" });
   });
 });

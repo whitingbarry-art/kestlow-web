@@ -9,7 +9,10 @@ export interface SessionUser {
 }
 
 /** Signing in or registering either works or has a message to show. */
-export type AuthResult = { ok: true } | { ok: false; message: string };
+export type AuthResult =
+  | { ok: true }
+  // `code` is Better Auth's, such as USER_ALREADY_EXISTS, for counting why sign-ups fail (KES-130).
+  | { ok: false; message: string; code?: string };
 
 /** What the app needs from accounts (KES-23); tests and Storybook swap in a fake. */
 export interface AuthApi {
@@ -84,7 +87,7 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
   async function result(res: Response): Promise<AuthResult> {
     if (res.ok) return { ok: true };
     const { code } = (await res.json().catch(() => ({}))) as { code?: string };
-    return { ok: false, message: (code && MESSAGES[code]) ?? FALLBACK };
+    return { ok: false, message: (code && MESSAGES[code]) ?? FALLBACK, code };
   }
 
   return {

@@ -4,6 +4,11 @@ import { useAuthApi } from "../../api/AuthApiContext";
 import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
+import {
+  recordStep as defaultRecordStep,
+  reasonFromCode,
+  type RecordStep,
+} from "../../logic/funnel";
 import { openedToSignUp, sourceFrom, withoutSignUp } from "../../logic/signUp";
 import { buttonClassName } from "../ui/buttonStyles";
 import { inputClassName } from "../ui/inputStyles";
@@ -22,13 +27,18 @@ const TITLES: Record<AuthMode, string> = {
 
 interface AuthScreenProps {
   initialMode?: AuthMode;
+  /** Counts the sign-up steps (KES-130); tests pass a spy. */
+  recordStep?: RecordStep;
 }
 
 /**
  * What signed-out people see (KES-23): sign in, create an account, or get help with a forgotten
  * password. Switching between them moves focus to the new heading.
  */
-export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
+export function AuthScreen({
+  initialMode = "sign-in",
+  recordStep = defaultRecordStep,
+}: AuthScreenProps) {
   const api = useAuthApi();
   const queryClient = useQueryClient();
   const id = useId();
@@ -57,6 +67,13 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
     details.email,
   ]);
 
+  // Where people who came to create an account get to, and why they don't (KES-130).
+  const source = sourceFrom(window.location.search);
+  const refused = (reason: string) => recordStep("register_refused", { source, reason });
+  useEffect(() => {
+    if (mode === "register") recordStep("register_viewed", { source });
+  }, [mode, recordStep, source]);
+
   useEffect(() => {
     document.title = `${TITLES[mode]} – Kestlow`;
     // Only after a switch: on first load the page starts at the top as usual.
@@ -79,7 +96,11 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
       return typeof value === "string" ? value : "";
     };
     const name = text("name").trim();
-    if (mode === "register" && !name) return setError("Enter your name.");
+    if (mode === "register") recordStep("register_tried", { source });
+    if (mode === "register" && !name) {
+      refused("name-missing");
+      return setError("Enter your name.");
+    }
     if (mode === "register") {
       // Only strong passwords are accepted; the API checks too, this saves the round trip. If the
       // checker can't load (a bad signal, or a new deploy replaced it), the API's check is enough.
@@ -89,8 +110,10 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
         checker &&
         password.length >= 8 &&
         checker.checkPassword(password, [name, text("email")]).strength !== "strong"
-      )
+      ) {
+        refused("password-too-weak");
         return setError(WEAK_PASSWORD_MESSAGE);
+      }
     }
 
     setSending(true);
@@ -103,14 +126,17 @@ export function AuthScreen({ initialMode = "sign-in" }: AuthScreenProps) {
               name,
               email: text("email"),
               password: text("password"),
-              source: sourceFrom(window.location.search),
+              source,
             })
           : await api.signIn({ email: text("email"), password: text("password") });
     } catch {
       result = { ok: false, message: "We couldn't reach Kestlow. Please try again in a minute." };
     }
     setSending(false);
-    if (!result.ok) return setError(result.message);
+    if (!result.ok) {
+      if (mode === "register") refused(reasonFromCode(result.code));
+      return setError(result.message);
+    }
     // The launch page's ?start and ?ref have done their job (KES-125).
     window.history.replaceState(window.history.state, "", withoutSignUp(window.location.href));
     await queryClient.invalidateQueries({ queryKey: SESSION_KEY });

@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
 import { LaunchPage } from "./LaunchPage";
 
 const meta = {
   title: "Site/LaunchPage",
   component: LaunchPage,
-  args: { source: "screwfix-bromley" },
+  args: { source: "screwfix-bromley", recordStep: fn() },
   parameters: { layout: "fullscreen" },
 } satisfies Meta<typeof LaunchPage>;
 

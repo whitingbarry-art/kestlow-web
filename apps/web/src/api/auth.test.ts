@@ -79,9 +79,11 @@ describe("createHttpAuthApi", () => {
   ])("explains %s in plain words", async (code, status, message) => {
     fetch.mockResolvedValue(json({ code, message: "raw" }, status));
 
+    // With Better Auth's code, for counting why sign-ups fail (KES-130).
     await expect(api.signIn({ email: "a@b.c", password: "x" })).resolves.toEqual({
       ok: false,
       message,
+      code,
     });
   });
 
