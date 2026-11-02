@@ -57,7 +57,8 @@ export function LivePreview({ load, start, onStart }: LivePreviewProps) {
               <h3 className="mt-8 mb-1 text-lg font-bold">A few of them</h3>
               <p className="mt-0 mb-4 text-muted">
                 Real applications, shown as the free plan shows them: a week late and by area. Solo
-                and Pro show the address, the council's page and who applied, the day they're in.
+                and Pro show the address, the council's page and, if a company applied, its name,
+                the day they're in.
               </p>
               {/* Two on a phone, so the page doesn't become a long list; each starts the trial. */}
               <ul className="m-0 grid gap-3 p-0 desk:grid-cols-2">

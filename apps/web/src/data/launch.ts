@@ -82,7 +82,7 @@ export const PLAN_ROWS: {
     solo: "Up to 15 miles",
     pro: "Up to 50 miles",
   },
-  { label: "Address, council link and applicant", free: false, solo: true, pro: true },
+  { label: "Address, council link and company applicant", free: false, solo: true, pro: true },
   { label: "Push alerts", free: false, solo: true, pro: true },
   { label: "Email", free: "Weekly", solo: "Every morning", pro: "Every morning" },
   {
@@ -107,6 +107,11 @@ export const FAQS: { question: string; answer: string }[] = [
     question: "Does a lead mean I'll get the job?",
     answer:
       "No. A lead tells you about building work while it's still being planned, so you can get in touch early. Winning it is down to you.",
+  },
+  {
+    question: "Why can't I see the homeowner's name?",
+    answer:
+      "We show the name of a company that applies, such as a builder or developer, but never a private homeowner's, to respect their privacy. You don't need a name to get in touch: write to the homeowner at the address.",
   },
   {
     question: "Can I contact the people on an application?",

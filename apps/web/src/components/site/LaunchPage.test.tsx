@@ -90,13 +90,17 @@ describe("LaunchPage", () => {
     expect(table).toHaveTextContent("A week late");
     expect(table).toHaveTextContent("Up to 50 miles");
     expect(screen.getByText("Does a lead mean I'll get the job?")).toBeInTheDocument();
+    // Never a homeowner's name (KES-131).
+    expect(screen.getByText("Why can't I see the homeowner's name?")).toBeInTheDocument();
     // What Free holds back is on its card, which phones see when the table is left out.
     expect(
-      screen.getByText("The area only: no address, council link or applicant"),
+      screen.getByText("The area only: no address, council link or applicant's name"),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("Full details: address, council link and applicant")).toHaveLength(
-      2,
-    );
+    expect(
+      screen.getAllByText(
+        "Full details: the address, council link and, if a company applied, its name",
+      ),
+    ).toHaveLength(2);
     // The phone picture uses made-up sample leads, and says so.
     expect(screen.getByText("Kestlow on a phone, with example leads")).toBeInTheDocument();
   });

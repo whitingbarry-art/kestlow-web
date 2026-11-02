@@ -64,7 +64,8 @@ export function LeadAnatomy() {
     ["Where", `${lead.address}, ${lead.council}, ${lead.miles} miles from your base`],
     ["Trades it needs", lead.trades.join(", ")],
     ["Type", lead.applicationType],
-    ["Who applied", lead.applicant ?? "Not given"],
+    // Kestlow shows a company's name, never a private homeowner's (KES-131).
+    ["Who applied", 'The company\'s name, or "Private individual" for a homeowner'],
     ["Council reference", lead.reference ?? ""],
     ["Plus", "a link to the council's page, with the plans and drawings"],
   ];

@@ -36,7 +36,7 @@ export const PLANS: Plan[] = [
       { text: "Save up to 10 leads" },
       { text: "Leads 7 days after they're published", limit: true },
       // Held back on Free (KES-52), said up front so nobody's surprised.
-      { text: "The area only: no address, council link or applicant", limit: true },
+      { text: "The area only: no address, council link or applicant's name", limit: true },
       { text: "1 trade, up to 15 miles", limit: true },
       { text: "A weekly email, no push alerts", limit: true },
     ],
@@ -48,7 +48,7 @@ export const PLANS: Plan[] = [
     summary: "Hear about jobs in your trade first.",
     features: [
       { text: "Leads as soon as they're published" },
-      { text: "Full details: address, council link and applicant" },
+      { text: "Full details: the address, council link and, if a company applied, its name" },
       { text: "Push alerts and a daily email at 07:30" },
       { text: "Save as many leads as you like" },
       { text: "1 trade", limit: true },
@@ -62,7 +62,7 @@ export const PLANS: Plan[] = [
     summary: "Every trade, further afield.",
     features: [
       { text: "Leads as soon as they're published" },
-      { text: "Full details: address, council link and applicant" },
+      { text: "Full details: the address, council link and, if a company applied, its name" },
       { text: "Push alerts and a daily email at 07:30" },
       { text: "Save as many leads as you like" },
       { text: "All 4 trades" },
