@@ -147,7 +147,8 @@ export const PRIVACY: LegalDocument = {
 
 export const TERMS: LegalDocument = {
   title: "Terms of service",
-  updated: UPDATED,
+  // No pausing (Barry, 2 Nov): plans are cancelled instead (KES-51).
+  updated: "2 November 2026",
   intro: [
     `These terms are the agreement between you and ${OWNER} ("we", "us"), ${BUSINESS_ADDRESS}, for using Kestlow. Please read them: by creating an account or using Kestlow, you agree to them. If anything's unclear, email ${CONTACT.hello}.`,
   ],
@@ -204,15 +205,14 @@ export const TERMS: LegalDocument = {
         "Kestlow has a free plan. Once paid plans start:",
         {
           list: [
-            "New accounts get 14 days of the Pro plan free, with no card needed. If you don't choose a paid plan by the end, your account moves to the free plan and you're not charged anything. We'll email you 3 days before your trial ends. There's one free trial per person: an email address that has had one won't get another, even after its account is deleted.",
+            "New accounts get 14 days of the Pro plan free, with no card needed. If you don't choose a paid plan by the end, your account moves to the free plan and you're not charged anything. We'll email you at least 3 days before your trial ends. There's one free trial per person: an email address that has had one won't get another, even after its account is deleted.",
             "Paid plans are monthly or yearly, paid in advance by card or Direct Debit through our payment provider, Stripe, and renew automatically until you cancel. We'll email you at least 7 days before a yearly plan renews.",
             "We're not registered for VAT, so no VAT is added to our prices. If that changes, we'll tell you at least 30 days before.",
             "You can cancel at any time from your Account page. You'll keep your plan until the end of the period you've paid for, and won't be charged again.",
-            "Instead of cancelling, you can pause a paid plan for up to 3 months, once in any 12 months. You're not charged while it's paused, and your account works like the free plan until it restarts.",
             "Changing plan: an upgrade starts straight away, charged for the rest of the period. A downgrade starts when your next payment is due: you keep your current plan until then, and nothing is refunded.",
-            "Founding members: the first 100 customers to pay keep their launch price for as long as they stay subscribed. Pausing doesn't lose it; cancelling does.",
+            "Founding members: the first 100 customers to pay keep their launch price for as long as they stay subscribed. Cancelling loses it.",
             "Prices are as shown when you sign up. If we change a price, we'll email you at least 30 days before it affects you, so you can cancel first if you'd rather.",
-            "If a payment fails, Stripe tries again and we'll email you. You keep your plan for 7 days while it's sorted; after that, your account moves to the free plan until it's paid.",
+            "If a payment fails, we'll email you so you can update your card, and Stripe tries again over the following days. You keep your plan while it does; if the payment still can't be taken, your plan is cancelled and your account moves to the free plan.",
             "We don't refund payments for time you've had. Our refund policy covers the exceptions, such as a charge we take by mistake.",
           ],
         },

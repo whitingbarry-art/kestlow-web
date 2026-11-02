@@ -39,6 +39,8 @@ export interface LeadsApi {
   startTrial: () => Promise<SubscriptionSummary | null>;
   /** A Stripe Checkout page for a plan, or a message to show instead (KES-50). */
   checkout: (plan: PaidPlan, interval: BillingInterval) => Promise<CheckoutResult>;
+  /** Stripe's Customer Portal, where a paying customer manages their plan (KES-51). */
+  openPortal: () => Promise<CheckoutResult>;
 }
 
 /** Checkout gives the page to send the person to, or a message to show. */
@@ -195,6 +197,19 @@ export function createHttpLeadsApi(baseUrl = import.meta.env.VITE_API_URL || "/a
       if (res.status === 409 || res.status === 404)
         return { ok: false, message: error ?? "Payments aren't available just now." };
       throw new ApiError(res.status, `POST /billing/checkout failed with ${res.status}`);
+    },
+    async openPortal() {
+      const res = await fetch(`${baseUrl}/billing/portal`, {
+        method: "POST",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) return { ok: true, url: ((await res.json()) as { url: string }).url };
+      // No paid plan to manage (404) comes with a message.
+      const { error } = (await res.json().catch(() => ({}))) as { error?: string };
+      if (res.status === 404)
+        return { ok: false, message: error ?? "There's no paid plan to manage yet." };
+      throw new ApiError(res.status, `POST /billing/portal failed with ${res.status}`);
     },
     async getAlertSettings() {
       const settings = await get<AlertSettings>("/me/alert-settings");

@@ -27,6 +27,7 @@ export const pendingLeadsApi: LeadsApi = {
   getSubscription: () => new Promise(() => {}),
   startTrial: () => new Promise(() => {}),
   checkout: () => new Promise(() => {}),
+  openPortal: () => new Promise(() => {}),
 };
 
 /** An API that always fails, for error states. */
@@ -44,4 +45,5 @@ export const failingLeadsApi: LeadsApi = {
   getSubscription: () => Promise.reject(new Error("Network error")),
   startTrial: () => Promise.reject(new Error("Network error")),
   checkout: () => Promise.reject(new Error("Network error")),
+  openPortal: () => Promise.reject(new Error("Network error")),
 };

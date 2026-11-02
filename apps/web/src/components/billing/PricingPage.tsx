@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useLeadsApi } from "../../api/LeadsApiContext";
-import { CONTACT } from "../../data/contact";
 import { PLANS } from "../../data/waitlist";
 import { SUBSCRIPTION_KEY, useSubscription } from "../../hooks/useSubscription";
 import { describePlan, formatBillingDate } from "../../logic/billing";
@@ -11,6 +10,7 @@ import { Button } from "../ui/Button";
 import { ErrorState } from "../ui/ErrorState";
 import { LoadingState } from "../ui/LoadingState";
 import { PlanCard } from "../waitlist/PlanCard";
+import { ManagePlanButton } from "./ManagePlanButton";
 
 /** The paid plans, as Checkout knows them, in the order they're shown. */
 const PAID_PLANS: { plan: PaidPlan; name: string }[] = [
@@ -90,13 +90,10 @@ export function PricingPage({ goTo = (url) => window.location.assign(url) }: Pri
       )}
 
       {subscribed ? (
-        <p className="mt-6 mb-0 rounded-card bg-card p-4">
-          To change or cancel your plan, email{" "}
-          <a href={`mailto:${CONTACT.billing}`} className="font-semibold text-ink underline">
-            {CONTACT.billing}
-          </a>{" "}
-          for now. Managing it here yourself is coming soon.
-        </p>
+        // Changing or cancelling happens in Stripe's Customer Portal (KES-51).
+        <div className="mt-6 rounded-card bg-card p-4">
+          <ManagePlanButton goTo={goTo} />
+        </div>
       ) : (
         <>
           <h2 className="mt-8 mb-3 text-xl font-bold">Choose your plan</h2>

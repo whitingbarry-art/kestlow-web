@@ -37,3 +37,7 @@ export function describePlan(subscription: SubscriptionSummary): string {
       : `${name}, renews ${formatBillingDate(currentPeriodEnd)}`;
   return name;
 }
+
+/** Whether someone has a paid plan, or had one, to manage in the Customer Portal (KES-51). */
+export const canManagePlan = (subscription: SubscriptionSummary | undefined) =>
+  Boolean(subscription?.status && subscription.status !== "trialing");
