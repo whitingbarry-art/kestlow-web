@@ -1,11 +1,15 @@
 import { Check } from "lucide-react";
 import { useEffect } from "react";
+import { createPreviewLoader, type LoadPreview } from "../../api/preview";
 import { PLANS, PROMISES } from "../../data/waitlist";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
 import { signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PlanCard } from "../waitlist/PlanCard";
+import { LivePreview } from "./launch/LivePreview";
+import { PhoneMockup } from "./launch/PhoneMockup";
+import { Faq, Features, LeadAnatomy, PlanComparison } from "./launch/Sections";
 import { SiteFooter } from "./SiteFooter";
 
 const STEPS = [
@@ -23,27 +27,42 @@ const STEPS = [
   },
 ];
 
+const defaultLoadPreview = createPreviewLoader();
+
 interface LaunchPageProps {
   /** The ?ref= the page was opened with, such as a counter card's shop code or an ad (KES-125). */
   source?: string;
   /** Counts the visit and the trial taps (KES-130); tests pass a spy. */
   recordStep?: RecordStep;
+  /** Loads the live local numbers and leads (KES-131); tests and stories pass their own. */
+  loadPreview?: LoadPreview;
 }
 
 /**
  * The public landing page at /waitlist/, where the counter cards' QR codes and the ads point
- * (KES-125): what Kestlow does, the plans, and a way into the free trial. Its buttons carry the
+ * (KES-125, KES-131): what Kestlow does, real local leads, why it's worth it, what a lead holds,
+ * the plans, straight answers, and a way into the free trial throughout. Its buttons carry the
  * ?ref= on to creating an account, so we can tell which card or ad brought someone in.
  */
-export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPageProps) {
+export function LaunchPage({
+  source,
+  recordStep = defaultRecordStep,
+  loadPreview = defaultLoadPreview,
+}: LaunchPageProps) {
   const start = signUpHref(source);
   // Which card or ad brought people here, and how many go on to the trial (KES-130).
   useEffect(() => recordStep("launch_viewed", { source }), [recordStep, source]);
   const tapped = () => recordStep("trial_tapped", { source });
+  const trialButton = (className: string) => (
+    <a href={start} onClick={tapped} className={buttonClassName("primary", className)}>
+      Start your free 14-day trial
+    </a>
+  );
+
   return (
     <div className="min-h-screen">
-      <header className="brand-surface pt-5 pb-12 text-white [--focus:#ffffff]">
-        <div className="mx-auto max-w-5xl px-4">
+      <header className="brand-surface pt-5 pb-14 text-white [--focus:#ffffff] desk:pb-20">
+        <div className="mx-auto max-w-6xl px-4">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />
             {/* The app shows the sign-in screen to anyone who isn't signed in. */}
@@ -51,27 +70,56 @@ export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPag
               Sign in
             </a>
           </div>
-          <h1 className="mt-10 mb-0 max-w-2xl text-3xl leading-tight font-bold desk:text-5xl">
-            Hear about building work while it’s still being planned
-          </h1>
-          <p className="mt-4 mb-0 max-w-2xl text-lg text-side-link">
-            Kestlow alerts roofers, electricians, landscapers and groundworkers to new planning
-            applications near them. Covering Bromley and the councils around it.
-          </p>
-          <a
-            href={start}
-            onClick={tapped}
-            className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
-          >
-            Start your free 14-day trial
-          </a>
-          <p className="mt-3 mb-0 text-side-link">
-            Pro free for 14 days, no card needed. Then choose a plan, or carry on free.
-          </p>
+          <div className="mt-10 grid items-center gap-10 desk:grid-cols-[1.1fr_1fr]">
+            <div>
+              <h1 className="m-0 text-3xl leading-tight font-bold desk:text-5xl">
+                Hear about building work while it’s still being planned
+              </h1>
+              <p className="mt-4 mb-0 text-lg text-side-link">
+                Kestlow picks out the new planning applications near you that need a roofer,
+                electrician, landscaper or groundworker, and sends them to your phone every morning.
+              </p>
+              <ul className="mt-5 mb-0 flex flex-col gap-2 pl-0">
+                {[
+                  "New applications from 8 councils around Bromley",
+                  "Picked out for your trade, with the distance",
+                  "Pro free for 14 days, no card needed",
+                ].map((point) => (
+                  <li key={point} className="flex list-none gap-2">
+                    <Check size={20} strokeWidth={2.5} className="mt-0.5 shrink-0 text-amber" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              {trialButton("mt-7 inline-block flex-none px-6")}
+              <p className="mt-3 mb-0 text-sm text-side-link">
+                Then choose a plan, or carry on free. No contract.
+              </p>
+            </div>
+            {/* The photo, with the phone over its bottom-left corner on wider screens. */}
+            <div className="relative desk:pl-24">
+              <picture>
+                <source media="(min-width: 900px)" srcSet="/launch/roofers-1200.webp" />
+                <img
+                  src="/launch/roofers-640.webp"
+                  alt="Two roofers in safety harnesses fixing a roof"
+                  width={1200}
+                  height={800}
+                  className="block h-auto w-full rounded-card object-cover"
+                />
+              </picture>
+              <div className="-mt-16 desk:absolute desk:-top-8 desk:left-0 desk:mt-0">
+                <PhoneMockup />
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4">
+      <main className="mx-auto max-w-6xl px-4">
+        <LivePreview load={loadPreview} />
+        <Features />
+
         <section aria-labelledby="how" className="py-12">
           <h2 id="how" className="m-0 text-2xl font-bold">
             How it works
@@ -92,6 +140,8 @@ export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPag
           </ol>
         </section>
 
+        <LeadAnatomy />
+
         <section aria-labelledby="plans" className="py-12">
           <h2 id="plans" className="m-0 text-2xl font-bold">
             Plans and prices
@@ -111,6 +161,7 @@ export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPag
               <PlanCard key={plan.name} plan={plan} />
             ))}
           </div>
+          <PlanComparison />
           <ul className="mt-6 mb-0 grid gap-2 pl-0 sm:grid-cols-2">
             {PROMISES.map((promise) => (
               <li key={promise} className="flex list-none gap-2">
@@ -119,17 +170,26 @@ export function LaunchPage({ source, recordStep = defaultRecordStep }: LaunchPag
               </li>
             ))}
           </ul>
-          <a
-            href={start}
-            onClick={tapped}
-            className={buttonClassName("primary", "mt-8 inline-block px-6")}
-          >
-            Start your free 14-day trial
-          </a>
+        </section>
+
+        <Faq />
+
+        <section
+          aria-labelledby="start"
+          className="brand-surface my-12 rounded-card px-6 py-10 text-center text-white [--focus:#ffffff]"
+        >
+          <h2 id="start" className="m-0 text-2xl font-bold desk:text-3xl">
+            See the work near you this morning
+          </h2>
+          <p className="mx-auto mt-3 mb-0 max-w-xl text-side-link">
+            14 days of Pro, free, with no card. If it's not for you, just stop.
+          </p>
+          {trialButton("mt-6 inline-block px-6")}
         </section>
       </main>
 
       <SiteFooter className="border-t border-line" />
+      <p className="m-0 pb-6 text-center text-xs text-muted">Photo by Raze Solar on Unsplash.</p>
     </div>
   );
 }

@@ -1,0 +1,5 @@
+---
+"web": minor
+---
+
+Make the launch page sell (KES-131). A new hero with a photo of roofers at work (Unsplash licence, credited) and a phone showing Kestlow's own lead cards with labelled example leads; a live section with the real number of leads near Bromley in the last 30 days, per trade, and a few recent ones as the free plan shows them; eight selling points, all true today; what each lead holds, using a labelled example; a Free, Solo and Pro comparison as the API applies the plans; straight answers to common questions (where leads come from, the 8 councils covered, contacting applicants, the trial, cancelling, data); and a closing call to try it. The trial buttons still count taps and carry the card or ad's code.
