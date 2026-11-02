@@ -62,14 +62,16 @@ export function LaunchPage({
   return (
     <div className="min-h-screen">
       <header className="brand-surface relative overflow-hidden pt-5 pb-12 text-white [--focus:#ffffff] desk:pb-20">
-        {/* On phones the photo sits behind the headline, darkened so the words stay readable,
-            rather than taking a screen of its own. */}
+        {/* The roofers behind the headline, darkened so the words stay readable: from the top on
+            phones, and from the left on wider screens, where the phone sits on the right. */}
         <img
           src="/launch/roofers-640.webp"
+          srcSet="/launch/roofers-640.webp 640w, /launch/roofers-1200.webp 1200w"
+          sizes="100vw"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover desk:hidden"
+          className="absolute inset-0 h-full w-full object-cover desk:object-[center_30%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/90 to-navy desk:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/90 to-navy desk:bg-gradient-to-r desk:from-navy desk:via-navy/85 desk:to-navy/30" />
         <div className="relative mx-auto max-w-6xl px-4">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />
@@ -104,20 +106,9 @@ export function LaunchPage({
                 Then choose a plan, or carry on free. No contract.
               </p>
             </div>
-            {/* On wider screens, the photo with the phone over its corner. */}
-            <div className="relative hidden pl-24 desk:block">
-              <picture>
-                <img
-                  src="/launch/roofers-1200.webp"
-                  alt="Two roofers in safety harnesses fixing a roof"
-                  width={1200}
-                  height={800}
-                  className="block h-auto w-full rounded-card object-cover"
-                />
-              </picture>
-              <div className="absolute -top-8 left-0">
-                <PhoneMockup />
-              </div>
+            {/* On wider screens, the app on a phone, over the photo. */}
+            <div className="hidden desk:block">
+              <PhoneMockup />
             </div>
           </div>
         </div>
