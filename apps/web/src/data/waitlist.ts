@@ -9,12 +9,19 @@ import { CONTACT } from "./contact";
  */
 export const DATA_CONTROLLER = { name: "Barry Whiting", email: CONTACT.privacy };
 
+export interface PlanFeature {
+  text: string;
+  /** What the plan holds back or caps, shown in amber beside what it includes (KES-131). */
+  limit?: true;
+}
+
 export interface Plan {
   name: string;
   monthly: string;
   yearly: string | null;
   summary: string;
-  features: string[];
+  /** What it includes first, then its limits. */
+  features: PlanFeature[];
 }
 
 export const PLANS: Plan[] = [
@@ -24,11 +31,14 @@ export const PLANS: Plan[] = [
     yearly: null,
     summary: "See what's being planned near you.",
     features: [
-      "Leads 7 days after they're published",
-      "1 trade",
-      "Up to 15 miles",
-      "Weekly email",
-      "Save up to 10 leads",
+      { text: "Free, for as long as you like" },
+      { text: "New planning applications near you, picked out for your trade" },
+      { text: "Save up to 10 leads" },
+      { text: "Leads 7 days after they're published", limit: true },
+      // Held back on Free (KES-52), said up front so nobody's surprised.
+      { text: "The area only: no address, council link or applicant", limit: true },
+      { text: "1 trade, up to 15 miles", limit: true },
+      { text: "A weekly email, no push alerts", limit: true },
     ],
   },
   {
@@ -37,11 +47,12 @@ export const PLANS: Plan[] = [
     yearly: "£290",
     summary: "Hear about jobs in your trade first.",
     features: [
-      "Leads as soon as they're published",
-      "1 trade",
-      "Up to 15 miles",
-      "Push alerts and a daily email at 07:30",
-      "Save as many leads as you like",
+      { text: "Leads as soon as they're published" },
+      { text: "Full details: address, council link and applicant" },
+      { text: "Push alerts and a daily email at 07:30" },
+      { text: "Save as many leads as you like" },
+      { text: "1 trade", limit: true },
+      { text: "Up to 15 miles", limit: true },
     ],
   },
   {
@@ -50,11 +61,12 @@ export const PLANS: Plan[] = [
     yearly: "£490",
     summary: "Every trade, further afield.",
     features: [
-      "Leads as soon as they're published",
-      "All 4 trades",
-      "Up to 50 miles",
-      "Push alerts and a daily email at 07:30",
-      "Save as many leads as you like",
+      { text: "Leads as soon as they're published" },
+      { text: "Full details: address, council link and applicant" },
+      { text: "Push alerts and a daily email at 07:30" },
+      { text: "Save as many leads as you like" },
+      { text: "All 4 trades" },
+      { text: "Up to 50 miles" },
     ],
   },
 ];

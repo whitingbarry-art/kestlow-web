@@ -1,4 +1,4 @@
-import { Check } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Plan } from "../../data/waitlist";
 
@@ -24,10 +24,19 @@ export function PlanCard({ plan, interval = "month", children }: PlanCardProps) 
         {yearly ? "2 months free" : plan.yearly && `or ${plan.yearly} a year, 2 months free`}
       </p>
       <ul className="mt-4 mb-0 flex flex-col gap-1.5 pl-0">
-        {plan.features.map((feature) => (
-          <li key={feature} className="flex list-none gap-2">
-            <Check size={18} strokeWidth={2.5} className="mt-0.5 shrink-0 text-match-text" />
-            {feature}
+        {/* What it includes with a blue tick, its limits with an amber dash (KES-131); the
+            words say which, too, for anyone who can't tell the colours apart. */}
+        {plan.features.map(({ text, limit }) => (
+          <li key={text} className="flex list-none gap-2">
+            {limit ? (
+              <Minus size={18} strokeWidth={3} className="mt-0.5 shrink-0 text-limit" />
+            ) : (
+              <Check size={18} strokeWidth={2.5} className="mt-0.5 shrink-0 text-pro" />
+            )}
+            <span>
+              {limit && <span className="sr-only">Limit: </span>}
+              {text}
+            </span>
           </li>
         ))}
       </ul>
