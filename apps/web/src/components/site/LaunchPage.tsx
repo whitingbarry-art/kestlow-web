@@ -61,18 +61,22 @@ export function LaunchPage({
 
   return (
     <div className="min-h-screen">
-      <header className="brand-surface relative overflow-hidden pt-5 pb-12 text-white [--focus:#ffffff] desk:pb-20">
+      {/* A fixed height on wider screens, so the photo never zooms as the window changes size;
+          the text scales with the width to fit it. */}
+      <header className="brand-surface relative overflow-hidden pt-5 pb-12 text-white [--focus:#ffffff] desk:flex desk:h-[620px] desk:flex-col desk:pb-10">
         {/* The roofers behind the headline, darkened so the words stay readable: from the top on
-            phones, and from the left on wider screens, where the phone sits on the right. */}
+            phones, and from the left on wider screens, where the phone sits on the right. The
+            photo is always the header's height and its own shape, anchored right, its left edge
+            fading out so very wide screens show no seam where the dark blue takes over. */}
         <img
-          src="/launch/roofers-640.webp"
+          src="/launch/roofers-1200.webp"
           srcSet="/launch/roofers-640.webp 640w, /launch/roofers-1200.webp 1200w"
-          sizes="100vw"
+          sizes="(min-width: 900px) 930px, 100vw"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover desk:object-[center_30%]"
+          className="absolute top-0 left-1/2 h-full w-auto max-w-none -translate-x-1/2 desk:right-0 desk:left-auto desk:translate-x-0 desk:[mask-image:linear-gradient(to_right,transparent,black_45%)]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/90 to-navy desk:bg-gradient-to-r desk:from-navy desk:via-navy/85 desk:to-navy/30" />
-        <div className="relative mx-auto max-w-6xl px-4">
+        <div className="relative mx-auto w-full max-w-6xl px-4 desk:flex desk:flex-1 desk:flex-col">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />
             {/* The app shows the sign-in screen to anyone who isn't signed in. */}
@@ -80,12 +84,13 @@ export function LaunchPage({
               Sign in
             </a>
           </div>
-          <div className="mt-8 grid items-center gap-10 desk:mt-10 desk:grid-cols-[1.1fr_1fr]">
-            <div>
-              <h1 className="m-0 text-3xl leading-tight font-bold desk:text-5xl">
+          {/* The text takes whatever room is left; the phone keeps its size and stays on screen. */}
+          <div className="mt-8 grid items-center gap-10 desk:mt-0 desk:flex-1 desk:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="max-w-2xl">
+              <h1 className="m-0 text-3xl leading-tight font-bold desk:text-[clamp(2.25rem,3.6vw,3rem)]">
                 Hear about building work while it’s still being planned
               </h1>
-              <p className="mt-4 mb-0 text-lg text-side-link">
+              <p className="mt-4 mb-0 text-lg text-side-link desk:text-[clamp(1rem,1.5vw,1.125rem)]">
                 Kestlow picks out the new planning applications near you that need a roofer,
                 electrician, landscaper or groundworker, and sends them to your phone every morning.
               </p>
