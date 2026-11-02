@@ -101,6 +101,8 @@ export function createSampleLeadsApi(
       return Promise.resolve(subscription);
     },
     checkout: () => Promise.resolve({ ok: true, url: "https://checkout.stripe.com/c/pay/sample" }),
+    openPortal: () =>
+      Promise.resolve({ ok: true, url: "https://billing.stripe.com/p/session/sample" }),
     getAlertSettings() {
       return Promise.resolve(settings);
     },

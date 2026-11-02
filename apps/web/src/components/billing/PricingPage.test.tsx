@@ -55,8 +55,9 @@ describe("PricingPage", () => {
     expect(screen.queryByRole("button", { name: "Start my free trial" })).not.toBeInTheDocument();
   });
 
-  it("doesn't sell a plan to someone already paying for one", async () => {
-    renderPricing(
+  it("doesn't sell a plan to someone already paying, but opens the Customer Portal (KES-51)", async () => {
+    const user = userEvent.setup();
+    const goTo = renderPricing(
       withPlan({
         ...FREE_PLAN,
         plan: "solo",
@@ -68,7 +69,9 @@ describe("PricingPage", () => {
 
     expect(await screen.findByText("Solo, renews 30 November")).toBeVisible();
     expect(screen.queryByRole("button", { name: /Choose/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "billing@kestlow.co.uk" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Manage my plan" }));
+    expect(goTo).toHaveBeenCalledWith("https://billing.stripe.com/p/session/sample");
   });
 
   it("shows Checkout's message when it can't go ahead", async () => {
