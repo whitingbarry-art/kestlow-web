@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { PASSWORD, testEmail } from "./helpers";
+import { PASSWORD, signUp, testEmail } from "./helpers";
 
 test.describe("the launch page (KES-125)", () => {
   test("a counter card's QR code leads to the free trial, keeping the shop's code", async ({
@@ -19,5 +19,24 @@ test.describe("the launch page (KES-125)", () => {
 
     await expect(page.getByRole("heading", { name: "Where are you based?" })).toBeVisible();
     await expect(page).toHaveURL(/\/$/);
+  });
+
+  test("kestlow.co.uk shows the launch page signed out, with a way to sign in", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Hear about building work while it’s still being planned",
+    );
+
+    await page.getByRole("link", { name: "Sign in" }).click();
+    await expect(page.getByRole("heading", { name: "Sign in to Kestlow" })).toBeVisible();
+  });
+
+  test("someone signed in goes straight to their leads", async ({ page }) => {
+    await signUp(page, { name: "Return Tester" });
+
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "New leads near you" })).toBeVisible();
   });
 });

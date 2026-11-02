@@ -1,4 +1,4 @@
-import { openedToSignUp, signUpHref, sourceFrom, withoutSignUp } from "./signUp";
+import { askedForAccount, openedToSignUp, signUpHref, sourceFrom, withoutSignUp } from "./signUp";
 
 describe("signing up from the launch page (KES-125)", () => {
   it("links to Create your account, carrying the card or ad's code", () => {
@@ -18,5 +18,13 @@ describe("signing up from the launch page (KES-125)", () => {
       "https://kestlow.co.uk/?q=BR1",
     );
     expect(withoutSignUp("https://kestlow.co.uk/?start=trial")).toBe("https://kestlow.co.uk/");
+  });
+
+  it("knows when someone signed out came to sign in rather than for the launch page (KES-131)", () => {
+    for (const search of ["?signin", "?start=trial&ref=ad-free", "?forgot"])
+      expect(askedForAccount(search)).toBe(true);
+    for (const search of ["", "?ref=screwfix-bromley", "?q=Bromley"])
+      expect(askedForAccount(search)).toBe(false);
+    expect(withoutSignUp("https://kestlow.co.uk/?signin")).toBe("https://kestlow.co.uk/");
   });
 });

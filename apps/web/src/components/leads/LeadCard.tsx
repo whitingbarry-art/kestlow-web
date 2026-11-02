@@ -15,6 +15,8 @@ interface LeadCardProps {
   clickable: boolean;
   onOpen: (id: string) => void;
   onToggleSave: (id: string) => void;
+  /** View and Save; left off where a card is only an example, as on the launch page (KES-131). */
+  actions?: boolean;
 }
 
 export function LeadCard({
@@ -24,6 +26,7 @@ export function LeadCard({
   clickable,
   onOpen,
   onToggleSave,
+  actions = true,
 }: LeadCardProps) {
   const handleView = (event: MouseEvent) => {
     event.stopPropagation();
@@ -52,10 +55,12 @@ export function LeadCard({
       </div>
       <div className="my-2.5 text-[15px]">{lead.description}</div>
       <LeadTags lead={lead} showReceived />
-      <div className="flex gap-2">
-        <Button onClick={handleView}>View lead</Button>
-        <SaveButton saved={saved} onToggle={() => onToggleSave(lead.id)} />
-      </div>
+      {actions && (
+        <div className="flex gap-2">
+          <Button onClick={handleView}>View lead</Button>
+          <SaveButton saved={saved} onToggle={() => onToggleSave(lead.id)} />
+        </div>
+      )}
     </Card>
   );
 }

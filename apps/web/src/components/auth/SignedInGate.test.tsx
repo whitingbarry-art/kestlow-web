@@ -38,6 +38,18 @@ describe("SignedInGate", () => {
     expect(screen.queryByText("The app")).not.toBeInTheDocument();
   });
 
+  it("shows what it's given to people signed out instead, such as the launch page (KES-131)", async () => {
+    render(
+      <SignedInGate signedOut={<p>The launch page</p>}>
+        <p>The app</p>
+      </SignedInGate>,
+      { wrapper: providers(undefined, createSampleAuthApi(null)) },
+    );
+
+    expect(await screen.findByText("The launch page")).toBeInTheDocument();
+    expect(screen.queryByText("The app")).not.toBeInTheDocument();
+  });
+
   it("lets them in once they sign in, and back out when they sign out", async () => {
     const user = userEvent.setup();
     renderGate(createSampleAuthApi(null));

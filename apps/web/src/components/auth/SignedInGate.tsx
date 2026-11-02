@@ -6,10 +6,12 @@ import { AuthScreen } from "./AuthScreen";
 
 interface SignedInGateProps {
   children: ReactNode;
+  /** What signed-out people see instead of the sign-in screen, such as the launch page (KES-131). */
+  signedOut?: ReactNode;
 }
 
 /** Shows the app to signed-in people and the sign-in screen to everyone else (KES-23). */
-export function SignedInGate({ children }: SignedInGateProps) {
+export function SignedInGate({ children, signedOut }: SignedInGateProps) {
   const session = useSession();
 
   if (session.isPending) return <LoadingState message="Checking you're signed in…" />;
@@ -20,5 +22,5 @@ export function SignedInGate({ children }: SignedInGateProps) {
         onRetry={() => void session.refetch()}
       />
     );
-  return session.data ? children : <AuthScreen />;
+  return session.data ? children : (signedOut ?? <AuthScreen />);
 }

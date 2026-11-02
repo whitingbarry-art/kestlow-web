@@ -20,7 +20,7 @@ test.describe("accounts", () => {
   });
 
   test("the sign-up form links to the terms and privacy notice", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?signin");
     await page.getByRole("button", { name: "Create an account" }).click();
 
     await expect(page.getByRole("link", { name: "terms of service" })).toHaveAttribute(

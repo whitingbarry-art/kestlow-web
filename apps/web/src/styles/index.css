@@ -18,6 +18,9 @@
   --selected: #b36b00;
   --switch-off: #5b6b7a;
   --error: #b3261e;
+  /* What a plan includes, and its limits (KES-131). */
+  --pro: #1d63a8;
+  --limit: #b36b00;
   --focus: var(--ink);
   --card-shadow: 0 2px 10px rgba(18, 48, 74, 0.08);
   /* A softer amber than the logo's, which it turns on hover. */
@@ -41,6 +44,8 @@
   --selected: #f5a623;
   --switch-off: #76879a;
   --error: #ff8a80;
+  --pro: #7cb8ff;
+  --limit: #f5a623;
   --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
   --scrollbar: #a8731f;
   --scrollbar-hover: #f5a623;
@@ -71,6 +76,8 @@
   --color-selected: var(--selected);
   --color-switch-off: var(--switch-off);
   --color-error: var(--error);
+  --color-pro: var(--pro);
+  --color-limit: var(--limit);
   --shadow-card: var(--card-shadow);
 }
 
