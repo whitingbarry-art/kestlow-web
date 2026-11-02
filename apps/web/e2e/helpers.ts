@@ -13,7 +13,8 @@ export async function signUp(
   { name = "E2E Tester", postcode = "BR1 1LT", trades = ["Roofing"] } = {},
 ) {
   const email = testEmail(name.toLowerCase().replace(/\W+/g, "-"));
-  await page.goto("/");
+  // kestlow.co.uk is the launch page when signed out; ?signin opens the sign-in screens (KES-131).
+  await page.goto("/?signin");
   await page.getByRole("button", { name: "Create an account" }).click();
   await page.getByLabel("Your name").fill(name);
   await page.getByLabel("Email address").fill(email);

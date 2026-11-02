@@ -10,9 +10,11 @@ import { VerifyEmailScreen } from "./components/auth/VerifyEmailScreen";
 import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 import { AboutPage } from "./components/site/AboutPage";
 import { ContactPage } from "./components/site/ContactPage";
+import { LaunchPage } from "./components/site/LaunchPage";
 import { LegalPage } from "./components/site/LegalPage";
 import { PRIVACY, REFUNDS, TERMS } from "./data/legal";
 import { createErrorReporter, reportUncaughtErrors } from "./logic/errorReporting";
+import { askedForAccount, sourceFrom } from "./logic/signUp";
 import "./styles/index.css";
 
 const container = document.getElementById("root");
@@ -46,7 +48,14 @@ createRoot(container).render(
     <ErrorBoundary reporter={import.meta.env.PROD ? reporter : { report: console.error }}>
       <AppProviders>
         {pages[window.location.pathname] ?? (
-          <SignedInGate>
+          // Signed out, kestlow.co.uk is the launch page (KES-131), unless they came to sign in.
+          <SignedInGate
+            signedOut={
+              askedForAccount(window.location.search) ? undefined : (
+                <LaunchPage source={sourceFrom(window.location.search)} />
+              )
+            }
+          >
             <OnboardingGate>
               <App />
             </OnboardingGate>

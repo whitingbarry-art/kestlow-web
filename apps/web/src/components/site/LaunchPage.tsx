@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
 import { PLANS, PROMISES } from "../../data/waitlist";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
-import { signUpHref } from "../../logic/signUp";
+import { SIGN_IN_HREF, signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PlanCard } from "../waitlist/PlanCard";
@@ -52,6 +52,9 @@ export function LaunchPage({
   const start = signUpHref(source);
   // Which card or ad brought people here, and how many go on to the trial (KES-130).
   useEffect(() => recordStep("launch_viewed", { source }), [recordStep, source]);
+  useEffect(() => {
+    document.title = "Kestlow: planning leads for tradespeople";
+  }, []);
   const tapped = () => recordStep("trial_tapped", { source });
   const trialButton = (className: string) => (
     <a href={start} onClick={tapped} className={buttonClassName("primary", className)}>
@@ -79,8 +82,7 @@ export function LaunchPage({
         <div className="relative mx-auto w-full max-w-6xl px-4 desk:flex desk:flex-1 desk:flex-col">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />
-            {/* The app shows the sign-in screen to anyone who isn't signed in. */}
-            <a href="/" className="inline-block py-2 font-semibold text-white underline">
+            <a href={SIGN_IN_HREF} className="inline-block py-2 font-semibold text-white underline">
               Sign in
             </a>
           </div>

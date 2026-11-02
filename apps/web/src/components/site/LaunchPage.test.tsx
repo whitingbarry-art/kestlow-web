@@ -18,7 +18,7 @@ describe("LaunchPage", () => {
   it("lets people who already have an account sign in", () => {
     render(<LaunchPage loadPreview={loadPreview} />);
 
-    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute("href", "/?signin");
   });
 
   it("starts the free trial, carrying the card or ad's code to the new account (KES-125)", () => {
