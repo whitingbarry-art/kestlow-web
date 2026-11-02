@@ -81,7 +81,8 @@ describe("the legal documents", () => {
 
     expect(terms).toContain("14 days of the Pro plan free, with no card needed");
     expect(terms).toContain("We're not registered for VAT");
-    expect(terms).toContain("pause a paid plan for up to 3 months");
+    // No pausing (KES-51): a plan is cancelled instead.
+    expect(terms).not.toMatch(/pause/i);
     expect(terms).toContain("Founding members: the first 100 customers");
     expect(terms).toContain("at least 7 days before a yearly plan renews");
     expect(terms).toContain("by card or Direct Debit");
@@ -95,6 +96,5 @@ describe("the legal documents", () => {
     expect(refunds).not.toMatch(/money-back/i);
     expect(refunds).toContain("we'll refund the mistaken charge in full");
     expect(textOf(TERMS)).toContain("There's one free trial per person");
-    expect(textOf(TERMS)).toContain("once in any 12 months");
   });
 });
