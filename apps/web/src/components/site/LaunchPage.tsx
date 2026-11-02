@@ -61,8 +61,16 @@ export function LaunchPage({
 
   return (
     <div className="min-h-screen">
-      <header className="brand-surface pt-5 pb-14 text-white [--focus:#ffffff] desk:pb-20">
-        <div className="mx-auto max-w-6xl px-4">
+      <header className="brand-surface relative overflow-hidden pt-5 pb-12 text-white [--focus:#ffffff] desk:pb-20">
+        {/* On phones the photo sits behind the headline, darkened so the words stay readable,
+            rather than taking a screen of its own. */}
+        <img
+          src="/launch/roofers-640.webp"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover desk:hidden"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-navy/80 via-navy/90 to-navy desk:hidden" />
+        <div className="relative mx-auto max-w-6xl px-4">
           <div className="flex items-center justify-between gap-4">
             <BrandLogo />
             {/* The app shows the sign-in screen to anyone who isn't signed in. */}
@@ -70,7 +78,7 @@ export function LaunchPage({
               Sign in
             </a>
           </div>
-          <div className="mt-10 grid items-center gap-10 desk:grid-cols-[1.1fr_1fr]">
+          <div className="mt-8 grid items-center gap-10 desk:mt-10 desk:grid-cols-[1.1fr_1fr]">
             <div>
               <h1 className="m-0 text-3xl leading-tight font-bold desk:text-5xl">
                 Hear about building work while it’s still being planned
@@ -96,19 +104,18 @@ export function LaunchPage({
                 Then choose a plan, or carry on free. No contract.
               </p>
             </div>
-            {/* The photo, with the phone over its bottom-left corner on wider screens. */}
-            <div className="relative desk:pl-24">
+            {/* On wider screens, the photo with the phone over its corner. */}
+            <div className="relative hidden pl-24 desk:block">
               <picture>
-                <source media="(min-width: 900px)" srcSet="/launch/roofers-1200.webp" />
                 <img
-                  src="/launch/roofers-640.webp"
+                  src="/launch/roofers-1200.webp"
                   alt="Two roofers in safety harnesses fixing a roof"
                   width={1200}
                   height={800}
                   className="block h-auto w-full rounded-card object-cover"
                 />
               </picture>
-              <div className="-mt-16 desk:absolute desk:-top-8 desk:left-0 desk:mt-0">
+              <div className="absolute -top-8 left-0">
                 <PhoneMockup />
               </div>
             </div>
@@ -117,24 +124,31 @@ export function LaunchPage({
       </header>
 
       <main className="mx-auto max-w-6xl px-4">
-        <LivePreview load={loadPreview} />
+        <LivePreview load={loadPreview} start={start} onStart={tapped} />
         <Features />
 
-        <section aria-labelledby="how" className="py-12">
+        <section aria-labelledby="how" className="py-8 desk:py-12">
           <h2 id="how" className="m-0 text-2xl font-bold">
             How it works
           </h2>
-          <ol className="mt-5 mb-0 grid gap-4 pl-0 desk:grid-cols-3">
+          <ol className="mt-5 mb-0 grid gap-2 pl-0 desk:grid-cols-3 desk:gap-4">
             {STEPS.map((step, index) => (
-              <li key={step.title} className="list-none rounded-card bg-card p-5 shadow-card">
+              <li
+                key={step.title}
+                className="flex list-none gap-3 rounded-card bg-card p-4 shadow-card desk:block desk:p-5"
+              >
                 <span
                   aria-hidden="true"
-                  className="grid size-8 place-items-center rounded-full bg-amber font-bold text-navy"
+                  className="grid size-8 shrink-0 place-items-center rounded-full bg-amber font-bold text-navy"
                 >
                   {index + 1}
                 </span>
-                <h3 className="mt-3 mb-0 text-lg font-bold">{step.title}</h3>
-                <p className="mt-1 mb-0 text-muted">{step.text}</p>
+                <div>
+                  <h3 className="m-0 text-base font-bold desk:mt-3 desk:text-lg">{step.title}</h3>
+                  <p className="mt-0.5 mb-0 text-sm text-muted desk:mt-1 desk:text-base">
+                    {step.text}
+                  </p>
+                </div>
               </li>
             ))}
           </ol>
@@ -142,7 +156,7 @@ export function LaunchPage({
 
         <LeadAnatomy />
 
-        <section aria-labelledby="plans" className="py-12">
+        <section aria-labelledby="plans" className="py-8 desk:py-12">
           <h2 id="plans" className="m-0 text-2xl font-bold">
             Plans and prices
           </h2>

@@ -93,4 +93,19 @@ describe("LaunchPage", () => {
     // The phone picture uses made-up sample leads, and says so.
     expect(screen.getByText("Kestlow on a phone, with example leads")).toBeInTheDocument();
   });
+
+  it("starts the trial from an example lead, with the ad's code (KES-131)", async () => {
+    const recordStep = vi.fn();
+    render(<LaunchPage source="ad-numbers" recordStep={recordStep} loadPreview={loadPreview} />);
+
+    const example = await screen.findByRole("link", {
+      name: /Start your free trial to see it in full/,
+    });
+    expect(example).toHaveAttribute("href", "/?start=trial&ref=ad-numbers");
+    example.addEventListener("click", (event) => event.preventDefault());
+    await userEvent.click(example);
+    expect(recordStep).toHaveBeenCalledWith("trial_tapped", { source: "ad-numbers" });
+    // Examples are only examples: nothing to view or save.
+    expect(screen.queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+  });
 });

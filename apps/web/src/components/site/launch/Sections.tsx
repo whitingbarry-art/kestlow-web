@@ -28,20 +28,26 @@ const ICONS: Record<FeatureIcon, LucideIcon> = {
 /** Why Kestlow (KES-131): what it does, each true today. */
 export function Features() {
   return (
-    <section aria-labelledby="why" className="py-12">
+    <section aria-labelledby="why" className="py-8 desk:py-12">
       <h2 id="why" className="m-0 text-2xl font-bold">
         Why tradespeople use Kestlow
       </h2>
-      <ul className="mt-6 mb-0 grid gap-4 pl-0 sm:grid-cols-2 desk:grid-cols-4">
+      {/* A compact list on phones, so all eight fit on about a screen; cards on wider screens. */}
+      <ul className="mt-5 mb-0 grid gap-2 pl-0 sm:grid-cols-2 desk:mt-6 desk:grid-cols-4 desk:gap-4">
         {FEATURES.map(({ icon, title, text }) => {
           const Icon = ICONS[icon];
           return (
-            <li key={title} className="list-none rounded-card bg-card p-5 shadow-card">
-              <span className="grid size-11 place-items-center rounded-xl bg-amber text-navy">
-                <Icon size={22} strokeWidth={2.25} aria-hidden="true" />
+            <li
+              key={title}
+              className="flex list-none gap-3 rounded-card bg-card p-4 shadow-card desk:block desk:p-5"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-amber text-navy desk:size-11">
+                <Icon size={20} strokeWidth={2.25} aria-hidden="true" />
               </span>
-              <h3 className="mt-3 mb-0 text-lg font-bold">{title}</h3>
-              <p className="mt-1 mb-0 text-muted">{text}</p>
+              <div>
+                <h3 className="m-0 text-base font-bold desk:mt-3 desk:text-lg">{title}</h3>
+                <p className="mt-0.5 mb-0 text-sm text-muted desk:mt-1 desk:text-base">{text}</p>
+              </div>
             </li>
           );
         })}
@@ -63,7 +69,7 @@ export function LeadAnatomy() {
     ["Plus", "a link to the council's page, with the plans and drawings"],
   ];
   return (
-    <section aria-labelledby="what" className="py-12">
+    <section aria-labelledby="what" className="py-8 desk:py-12">
       <h2 id="what" className="m-0 text-2xl font-bold">
         What you get in each lead
       </h2>
@@ -102,7 +108,8 @@ export function PlanComparison() {
       aria-label="Plans compared"
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
-      className="mt-8 overflow-x-auto rounded-card bg-card shadow-card"
+      // On phones the plan cards above say the same without scrolling sideways, so it's left out.
+      className="mt-8 overflow-x-auto rounded-card bg-card shadow-card max-desk:hidden"
     >
       <table className="w-full min-w-[34rem] border-collapse text-left">
         <caption className="sr-only">Free, Solo and Pro compared</caption>
@@ -138,7 +145,7 @@ export function PlanComparison() {
 /** Straight answers to what people ask (KES-131). */
 export function Faq() {
   return (
-    <section aria-labelledby="faq" className="py-12">
+    <section aria-labelledby="faq" className="py-8 desk:py-12">
       <h2 id="faq" className="m-0 text-2xl font-bold">
         Questions people ask
       </h2>

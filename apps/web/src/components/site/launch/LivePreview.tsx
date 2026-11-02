@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LeadsPreview, LoadPreview } from "../../../api/preview";
 import { TRADES } from "../../../data/leads";
+import { cn } from "../../../utils/cn";
 import { LeadCard } from "../../leads/LeadCard";
 
 const nothing = () => {};
@@ -10,7 +11,14 @@ const nothing = () => {};
  * work before they sign up. The leads are shown exactly as the free plan shows them. If the API
  * can't be reached, the section quietly isn't there.
  */
-export function LivePreview({ load }: { load: LoadPreview }) {
+interface LivePreviewProps {
+  load: LoadPreview;
+  /** Where the trial starts, so tapping an example starts it (KES-131). */
+  start: string;
+  onStart: () => void;
+}
+
+export function LivePreview({ load, start, onStart }: LivePreviewProps) {
   const [preview, setPreview] = useState<LeadsPreview | null | "failed">(null);
   useEffect(() => {
     let current = true;
@@ -24,7 +32,7 @@ export function LivePreview({ load }: { load: LoadPreview }) {
 
   if (preview === "failed") return null;
   return (
-    <section aria-labelledby="live" aria-busy={preview === null} className="py-12">
+    <section aria-labelledby="live" aria-busy={preview === null} className="py-8 desk:py-12">
       <h2 id="live" className="m-0 text-2xl font-bold">
         Real work near Bromley
       </h2>
@@ -51,19 +59,34 @@ export function LivePreview({ load }: { load: LoadPreview }) {
                 Real applications, shown as the free plan shows them: a week late and by area. Solo
                 and Pro show the address, the council's page and who applied, the day they're in.
               </p>
-              <div className="grid gap-3 desk:grid-cols-2" inert>
-                {preview.examples.map((lead) => (
-                  <LeadCard
-                    key={lead.id}
-                    lead={lead}
-                    selected={false}
-                    saved={false}
-                    clickable={false}
-                    onOpen={nothing}
-                    onToggleSave={nothing}
-                  />
+              {/* Two on a phone, so the page doesn't become a long list; each starts the trial. */}
+              <ul className="m-0 grid gap-3 p-0 desk:grid-cols-2">
+                {preview.examples.map((lead, index) => (
+                  <li key={lead.id} className={cn("list-none", index >= 2 && "max-desk:hidden")}>
+                    {/* The card's own words name the link, so voice control matches what's
+                        seen; the hidden end says where it goes. */}
+                    <a
+                      href={start}
+                      onClick={onStart}
+                      className="block rounded-card text-ink no-underline"
+                    >
+                      <LeadCard
+                        lead={lead}
+                        selected={false}
+                        saved={false}
+                        clickable={false}
+                        onOpen={nothing}
+                        onToggleSave={nothing}
+                        actions={false}
+                      />
+                      <span className="sr-only"> Start your free trial to see it in full.</span>
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <p className="mt-3 mb-0 text-sm text-muted">
+                Tap one to see it in full with a free trial.
+              </p>
             </>
           )}
         </>
