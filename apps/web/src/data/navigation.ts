@@ -1,4 +1,5 @@
 import {
+  Accessibility,
   Bell,
   Bookmark,
   ClipboardList,
@@ -18,10 +19,11 @@ export const NAV_ITEMS: NavItem[] = [
   { view: "account", label: "Account", icon: UserRound },
 ];
 
-/** The pages anyone can read, signed in or not (KES-116, KES-37). */
+/** The pages anyone can read, signed in or not (KES-116, KES-37, KES-132). */
 export const SITE_LINKS = [
   { href: "/about", label: "About us", icon: Info },
   { href: "/contact", label: "Contact us", icon: Mail },
+  { href: "/accessibility", label: "Accessibility", icon: Accessibility },
   { href: "/terms", label: "Terms", icon: FileText },
   { href: "/privacy", label: "Privacy", icon: ShieldCheck },
   { href: "/refunds", label: "Refunds", icon: RotateCcw },

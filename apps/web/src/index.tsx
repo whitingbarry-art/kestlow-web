@@ -9,6 +9,7 @@ import { ResetPasswordScreen } from "./components/auth/ResetPasswordScreen";
 import { VerifyEmailScreen } from "./components/auth/VerifyEmailScreen";
 import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 import { AboutPage } from "./components/site/AboutPage";
+import { AccessibilityPage } from "./components/site/AccessibilityPage";
 import { ContactPage } from "./components/site/ContactPage";
 import { LaunchPage } from "./components/site/LaunchPage";
 import { LegalPage } from "./components/site/LegalPage";
@@ -32,6 +33,7 @@ const pages: Record<string, ReactNode> = {
   "/verify-email": <VerifyEmailScreen token={token} />,
   "/about": <AboutPage />,
   "/contact": <ContactPage />,
+  "/accessibility": <AccessibilityPage />,
   "/terms": <LegalPage document={TERMS} />,
   "/privacy": <LegalPage document={PRIVACY} />,
   "/refunds": <LegalPage document={REFUNDS} />,
