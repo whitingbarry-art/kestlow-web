@@ -1,0 +1,6 @@
+# Cloudflare Pages headers (KES-135). Only kestlow.co.uk belongs in search results, so the
+# pages.dev addresses (production and every preview) ask search engines not to list them.
+https://kestlow-web.pages.dev/*
+  X-Robots-Tag: noindex
+https://:version.kestlow-web.pages.dev/*
+  X-Robots-Tag: noindex

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The pages anyone can read (KES-135); keep in step with SITE_LINKS in src/data/navigation.ts. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://kestlow.co.uk/</loc></url>
+  <url><loc>https://kestlow.co.uk/about</loc></url>
+  <url><loc>https://kestlow.co.uk/contact</loc></url>
+  <url><loc>https://kestlow.co.uk/accessibility</loc></url>
+  <url><loc>https://kestlow.co.uk/terms</loc></url>
+  <url><loc>https://kestlow.co.uk/privacy</loc></url>
+  <url><loc>https://kestlow.co.uk/refunds</loc></url>
+</urlset>

@@ -6,7 +6,10 @@ const linkClass = "font-semibold text-ink underline";
 /** Who runs Kestlow, who it's for, and where its leads come from (KES-116). */
 export function AboutPage() {
   return (
-    <PublicLayout title="About us">
+    <PublicLayout
+      title="About us"
+      description="What Kestlow does, who it's for, and where its planning leads come from: councils' public planning registers, checked every day."
+    >
       <div className="flex flex-col gap-8 text-lg leading-relaxed">
         <section aria-labelledby="about-what">
           <h2 id="about-what" className="mt-0 mb-2 text-xl font-bold">

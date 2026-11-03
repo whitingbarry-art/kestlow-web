@@ -17,6 +17,8 @@ export interface LegalSection {
 
 export interface LegalDocument {
   title: string;
+  /** What search results say about it (KES-135). */
+  description: string;
   /** When the words last changed, shown at the top. */
   updated: string;
   intro: string[];
@@ -42,6 +44,8 @@ export const OWNER = `${DATA_CONTROLLER.name}, trading as Kestlow`;
 
 export const PRIVACY: LegalDocument = {
   title: "Privacy notice",
+  description:
+    "What personal information Kestlow keeps, why, who helps us look after it, and your rights under UK GDPR.",
   // Where people found us, kept with their account (KES-125), and sign-up steps (KES-130).
   updated: "1 November 2026",
   intro: [
@@ -147,6 +151,8 @@ export const PRIVACY: LegalDocument = {
 
 export const TERMS: LegalDocument = {
   title: "Terms of service",
+  description:
+    "The terms for using Kestlow: plans, the free trial, payment, renewal, cancelling and what we're responsible for.",
   // No pausing (Barry, 2 Nov): plans are cancelled instead (KES-51).
   updated: "2 November 2026",
   intro: [
@@ -266,6 +272,7 @@ export const TERMS: LegalDocument = {
 
 export const REFUNDS: LegalDocument = {
   title: "Refund policy",
+  description: "When Kestlow refunds a payment, and how to ask for one.",
   updated: UPDATED,
   intro: ["This policy applies once paid plans start, and sits alongside our terms of service."],
   sections: [

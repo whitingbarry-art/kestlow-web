@@ -133,3 +133,11 @@ export const FAQS: { question: string; answer: string }[] = [
       "Only what's needed to run your account and send your alerts. We never sell them. Our privacy notice has the details.",
   },
 ];
+
+/**
+ * The launch page's title and description for search results and link previews (KES-135).
+ * index.html and waitlist/index.html repeat them for crawlers that don't run JavaScript.
+ */
+export const LAUNCH_TITLE = "Kestlow: planning leads for tradespeople";
+export const LAUNCH_DESCRIPTION =
+  "Planning leads for roofers, electricians, landscapers and groundworkers in south-east London, Kent and Surrey, sent to your phone. Try Pro free for 14 days.";
