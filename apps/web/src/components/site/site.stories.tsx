@@ -7,6 +7,7 @@ import { StoryProviders } from "../../stories/StoryProviders";
 import { PRIVACY, REFUNDS, TERMS } from "../../data/legal";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { AboutPage } from "./AboutPage";
+import { AccessibilityPage } from "./AccessibilityPage";
 import { ContactPage } from "./ContactPage";
 import { LegalPage } from "./LegalPage";
 
@@ -29,6 +30,13 @@ type Story = StoryObj<typeof meta>;
 export const About: Story = { render: () => <AboutPage /> };
 
 export const AboutOnMobile: Story = { globals: mobileViewport, render: () => <AboutPage /> };
+
+export const Accessibility: Story = { render: () => <AccessibilityPage /> };
+
+export const AccessibilityOnMobile: Story = {
+  globals: mobileViewport,
+  render: () => <AccessibilityPage />,
+};
 
 export const Contact: Story = {
   render: () => <ContactPage send={() => Promise.resolve({ ok: true })} />,
