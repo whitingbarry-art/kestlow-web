@@ -1,0 +1,9 @@
+# Kestlow (KES-135). Search engines are welcome on the public pages. The rest is people's own
+# accounts, behind a sign-in, so there's nothing there for search results.
+User-agent: *
+Disallow: /api/
+Disallow: /pricing
+Disallow: /reset-password
+Disallow: /verify-email
+
+Sitemap: https://kestlow.co.uk/sitemap.xml

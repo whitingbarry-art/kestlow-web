@@ -5,6 +5,7 @@ import { LegalPage } from "./LegalPage";
 
 const DOCUMENT: LegalDocument = {
   title: "Test policy",
+  description: "A policy for tests.",
   updated: "1 January 2027",
   intro: ["Email privacy@kestlow.co.uk or see https://ico.org.uk."],
   sections: [

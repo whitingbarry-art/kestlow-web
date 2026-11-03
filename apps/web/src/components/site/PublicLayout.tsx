@@ -1,18 +1,19 @@
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { usePageMeta } from "../../hooks/usePageMeta";
 import { BrandLogo } from "../ui/BrandLogo";
 import { SiteFooter } from "./SiteFooter";
 
 interface PublicLayoutProps {
   /** The page's name, for its heading and the browser tab. */
   title: string;
+  /** What search results say about the page (KES-135); pages left out of search have none. */
+  description?: string;
   children: ReactNode;
 }
 
 /** The pages anyone can read (KES-116): the brand header, a readable column and the footer. */
-export function PublicLayout({ title, children }: PublicLayoutProps) {
-  useEffect(() => {
-    document.title = `${title} – Kestlow`;
-  }, [title]);
+export function PublicLayout({ title, description, children }: PublicLayoutProps) {
+  usePageMeta({ title: `${title} – Kestlow`, description });
 
   return (
     <div className="flex min-h-screen flex-col">

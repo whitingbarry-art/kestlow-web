@@ -20,7 +20,10 @@ export function ContactPage({ send = httpSend }: { send?: SendContact }) {
   const user = session.data;
 
   return (
-    <PublicLayout title="Contact us">
+    <PublicLayout
+      title="Contact us"
+      description="Questions, ideas or something not working? Get in touch with Kestlow by form or email."
+    >
       <p className="mt-0 mb-8 text-lg leading-relaxed">
         Questions, ideas, or something not working as it should? Send us a message and we'll get
         back to you.

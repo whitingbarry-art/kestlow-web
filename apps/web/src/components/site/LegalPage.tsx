@@ -40,7 +40,7 @@ function Block({ block }: { block: LegalBlock }) {
 /** A privacy notice, terms or policy (KES-37), from its words in data/legal.ts. */
 export function LegalPage({ document }: { document: LegalDocument }) {
   return (
-    <PublicLayout title={document.title}>
+    <PublicLayout title={document.title} description={document.description}>
       <div className="leading-relaxed">
         <p className="mt-0 mb-6 text-sm text-muted">Last updated {document.updated}</p>
         {document.intro.map((text) => (

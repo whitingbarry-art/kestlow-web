@@ -13,7 +13,10 @@ const ACCESSIBILITY_UPDATED = "3 November 2026";
  */
 export function AccessibilityPage() {
   return (
-    <PublicLayout title="Accessibility">
+    <PublicLayout
+      title="Accessibility"
+      description="How Kestlow works for everyone: what we aim for, how we check, what doesn't work well yet, and how to tell us about a problem."
+    >
       <div className="flex flex-col gap-8 text-lg leading-relaxed">
         <p className="m-0 text-base text-muted">Last updated {ACCESSIBILITY_UPDATED}.</p>
 

@@ -1,7 +1,9 @@
 import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
+import { LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
 import { PLANS, PROMISES } from "../../data/waitlist";
+import { usePageMeta } from "../../hooks/usePageMeta";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
 import { SIGN_IN_HREF, signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
@@ -52,9 +54,8 @@ export function LaunchPage({
   const start = signUpHref(source);
   // Which card or ad brought people here, and how many go on to the trial (KES-130).
   useEffect(() => recordStep("launch_viewed", { source }), [recordStep, source]);
-  useEffect(() => {
-    document.title = "Kestlow: planning leads for tradespeople";
-  }, []);
+  // The same page answers at / and /waitlist/; search engines should only list kestlow.co.uk/.
+  usePageMeta({ title: LAUNCH_TITLE, description: LAUNCH_DESCRIPTION, path: "/" });
   const tapped = () => recordStep("trial_tapped", { source });
   const trialButton = (className: string) => (
     <a href={start} onClick={tapped} className={buttonClassName("primary", className)}>
