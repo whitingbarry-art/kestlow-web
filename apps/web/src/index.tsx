@@ -9,10 +9,13 @@ import { ResetPasswordScreen } from "./components/auth/ResetPasswordScreen";
 import { VerifyEmailScreen } from "./components/auth/VerifyEmailScreen";
 import { OnboardingGate } from "./components/onboarding/OnboardingGate";
 import { AboutPage } from "./components/site/AboutPage";
+import { AreaPage } from "./components/site/AreaPage";
+import { AreasIndexPage } from "./components/site/AreasIndexPage";
 import { AccessibilityPage } from "./components/site/AccessibilityPage";
 import { ContactPage } from "./components/site/ContactPage";
 import { LaunchPage } from "./components/site/LaunchPage";
 import { LegalPage } from "./components/site/LegalPage";
+import { AREAS_INDEX_PATH, areaPageFor } from "./data/areas";
 import { PRIVACY, REFUNDS, TERMS } from "./data/legal";
 import { createErrorReporter, reportUncaughtErrors } from "./logic/errorReporting";
 import { askedForAccount, sourceFrom } from "./logic/signUp";
@@ -28,6 +31,7 @@ if (import.meta.env.PROD) reportUncaughtErrors(reporter);
 // The pages emailed links open (KES-40, KES-41) and the ones anyone can read, signed in or not
 // (KES-116); everything else is the app.
 const token = new URLSearchParams(window.location.search).get("token");
+const areaPage = areaPageFor(window.location.pathname);
 const pages: Record<string, ReactNode> = {
   "/reset-password": <ResetPasswordScreen token={token} />,
   "/verify-email": <VerifyEmailScreen token={token} />,
@@ -37,6 +41,9 @@ const pages: Record<string, ReactNode> = {
   "/terms": <LegalPage document={TERMS} />,
   "/privacy": <LegalPage document={PRIVACY} />,
   "/refunds": <LegalPage document={REFUNDS} />,
+  // The town and trade pages search engines find (KES-136).
+  [AREAS_INDEX_PATH]: <AreasIndexPage />,
+  ...(areaPage && { [window.location.pathname]: <AreaPage {...areaPage} /> }),
   // Plans and Checkout (KES-50): for someone signed in, as Checkout is for their account.
   "/pricing": (
     <SignedInGate>

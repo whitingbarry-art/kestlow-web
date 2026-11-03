@@ -36,3 +36,15 @@ test.describe("search engines", () => {
     await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
   });
 });
+
+test("the footer leads to every town and trade page", async ({ page }) => {
+  await page.goto("/about");
+  await page
+    .locator("footer")
+    .getByRole("link", { name: "Planning leads by town and trade" })
+    .click();
+
+  await expect(page).toHaveURL("/planning-leads");
+  await page.getByRole("link", { name: "Roofing leads in Sevenoaks" }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Roofing leads in Sevenoaks");
+});

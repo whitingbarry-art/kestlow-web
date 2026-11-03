@@ -5,9 +5,14 @@ import { createSampleLeadsApi } from "../../api/sampleLeadsApi";
 import { mobileViewport } from "../../stories/fixtures";
 import { StoryProviders } from "../../stories/StoryProviders";
 import { PRIVACY, REFUNDS, TERMS } from "../../data/legal";
+import { areaPageFor } from "../../data/areas";
+import { SAMPLE_LEADS } from "../../data/leads";
+import type { CouncilPreview } from "../../api/councilPreview";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { AboutPage } from "./AboutPage";
 import { AccessibilityPage } from "./AccessibilityPage";
+import { AreaPage } from "./AreaPage";
+import { AreasIndexPage } from "./AreasIndexPage";
 import { ContactPage } from "./ContactPage";
 import { LegalPage } from "./LegalPage";
 
@@ -36,6 +41,43 @@ export const Accessibility: Story = { render: () => <AccessibilityPage /> };
 export const AccessibilityOnMobile: Story = {
   globals: mobileViewport,
   render: () => <AccessibilityPage />,
+};
+
+// A town and trade page (KES-136) with made-up numbers and the sample leads, as the free plan shows them.
+const COUNCIL_PREVIEW: CouncilPreview = {
+  council: "Bromley",
+  days: 30,
+  total: 103,
+  byTrade: { Roofing: 56, Electrical: 95, Landscaping: 9, Groundworks: 35 },
+  examples: {
+    Roofing: SAMPLE_LEADS.slice(0, 3).map((lead) => ({ ...lead, masked: true })),
+    Electrical: [],
+    Landscaping: [],
+    Groundworks: [],
+  },
+};
+const areaPage = (
+  <AreaPage
+    {...areaPageFor("/roofing-leads/bromley")!}
+    load={() => Promise.resolve(COUNCIL_PREVIEW)}
+    recordStep={() => {}}
+  />
+);
+
+export const TownAndTrade: Story = {
+  render: () => areaPage,
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).findByText(/could need a roofer\.$/)).toBeVisible();
+  },
+};
+
+export const TownAndTradeOnMobile: Story = { globals: mobileViewport, render: () => areaPage };
+
+export const TownsAndTrades: Story = { render: () => <AreasIndexPage /> };
+
+export const TownsAndTradesOnMobile: Story = {
+  globals: mobileViewport,
+  render: () => <AreasIndexPage />,
 };
 
 export const Contact: Story = {

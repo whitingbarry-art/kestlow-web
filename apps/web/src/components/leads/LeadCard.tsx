@@ -17,6 +17,11 @@ interface LeadCardProps {
   onToggleSave: (id: string) => void;
   /** View and Save; left off where a card is only an example, as on the launch page (KES-131). */
   actions?: boolean;
+  /**
+   * How far it is; left off where the distance would be from somewhere the reader isn't, as on
+   * the town and trade pages (KES-136).
+   */
+  distance?: boolean;
 }
 
 export function LeadCard({
@@ -27,6 +32,7 @@ export function LeadCard({
   onOpen,
   onToggleSave,
   actions = true,
+  distance = true,
 }: LeadCardProps) {
   const handleView = (event: MouseEvent) => {
     event.stopPropagation();
@@ -43,7 +49,8 @@ export function LeadCard({
         <div>
           <h2 className="m-0 text-[17px] font-bold">{lead.address}</h2>
           <div className="mt-0.5 text-sm text-muted">
-            {lead.council} &middot; {formatLeadDistance(lead)}
+            {lead.council}
+            {distance && <> &middot; {formatLeadDistance(lead)}</>}
           </div>
           {lead.masked && (
             <div className="mt-0.5 text-sm font-semibold text-ink">
