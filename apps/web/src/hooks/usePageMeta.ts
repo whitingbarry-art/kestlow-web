@@ -1,7 +1,5 @@
 import { useEffect } from "react";
-
-/** The one address search engines should show, whichever address served the page (KES-135). */
-export const SITE_URL = "https://kestlow.co.uk";
+import { SITE_URL } from "../data/site";
 
 export interface PageMeta {
   /** The browser tab's title, whole: "About us – Kestlow". */

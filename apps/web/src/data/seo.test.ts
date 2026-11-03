@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { sitemapXml } from "./areas";
 import { LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "./launch";
 import { SITE_LINKS } from "./navigation";
 
@@ -8,15 +9,19 @@ const web = path.join(import.meta.dirname, "../..");
 const read = (file: string) => readFileSync(path.join(web, file), "utf8");
 
 describe("what search engines read", () => {
-  it("lists the launch page and every page in the footer in the sitemap", () => {
-    const listed = [...read("public/sitemap.xml").matchAll(/<loc>(.+?)<\/loc>/g)].map(
-      ([, url]) => url,
-    );
+  it("lists the launch page, the footer's pages and every town and trade page in the sitemap", () => {
+    const listed = [
+      ...sitemapXml(SITE_LINKS.map((link) => link.href)).matchAll(/<loc>(.+?)<\/loc>/g),
+    ].map(([, url]) => url);
 
-    expect(listed).toEqual([
+    expect(listed.slice(0, 1 + SITE_LINKS.length + 2)).toEqual([
       "https://kestlow.co.uk/",
       ...SITE_LINKS.map((link) => `https://kestlow.co.uk${link.href}`),
+      "https://kestlow.co.uk/planning-leads",
+      "https://kestlow.co.uk/roofing-leads/bromley",
     ]);
+    expect(listed).toHaveLength(1 + SITE_LINKS.length + 1 + 8 * 4);
+    expect(listed).toContain("https://kestlow.co.uk/groundworks-leads/tandridge");
   });
 
   it("keeps private pages out of search and points to the sitemap", () => {

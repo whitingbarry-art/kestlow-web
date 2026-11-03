@@ -1,3 +1,4 @@
+import { AREAS_INDEX_PATH } from "../../data/areas";
 import { BUSINESS_ADDRESS } from "../../data/contact";
 import { SITE_LINKS } from "../../data/navigation";
 import { cn } from "../../utils/cn";
@@ -6,7 +7,7 @@ interface SiteFooterProps {
   className?: string;
 }
 
-/** Links to About us and Contact us, at the foot of every page. */
+/** Links to About us, Contact us and the rest, at the foot of every page. */
 export function SiteFooter({ className }: SiteFooterProps) {
   return (
     <footer className={cn("px-4 py-6 text-sm text-muted", className)}>
@@ -21,6 +22,12 @@ export function SiteFooter({ className }: SiteFooterProps) {
           ))}
         </ul>
       </nav>
+      {/* So search engines, and people, find the town and trade pages from every page (KES-136). */}
+      <p className="mt-3 mb-0 text-center">
+        <a href={AREAS_INDEX_PATH} className="font-semibold text-ink underline">
+          Planning leads by town and trade
+        </a>
+      </p>
       <p className="mt-3 mb-0 text-center">
         {/* The postcode never splits across two lines. */}© {new Date().getFullYear()} Kestlow,{" "}
         {BUSINESS_ADDRESS.replace(/ (\S+)$/, "\u00a0$1")}
