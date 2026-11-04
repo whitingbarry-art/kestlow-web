@@ -31,6 +31,26 @@ describe("LaunchPage", () => {
     expect(screen.queryByText(/waitlist/i)).not.toBeInTheDocument();
   });
 
+  it("leads with free weekly leads by email, carrying the ad's code (KES-137)", async () => {
+    const user = userEvent.setup();
+    const request = vi.fn(() => Promise.resolve({ ok: true as const, status: "sent" as const }));
+    render(<LaunchPage source="ad-first" loadPreview={loadPreview} leadEmailsApi={{ request }} />);
+
+    expect(screen.getByRole("link", { name: "Get this week's leads free" })).toHaveAttribute(
+      "href",
+      "#free-leads",
+    );
+    const section = screen.getByRole("region", { name: "Get this week's leads near you, free" });
+    expect(section).toHaveAttribute("id", "free-leads");
+
+    await user.selectOptions(screen.getByLabelText("Your trade"), "Roofing");
+    await user.type(screen.getByLabelText("Your postcode"), "BR1");
+    await user.type(screen.getByLabelText("Your email"), "dave@example.com");
+    await user.click(screen.getByRole("button", { name: "Send me this week's leads" }));
+
+    expect(request).toHaveBeenCalledWith(expect.objectContaining({ source: "ad-first" }));
+  });
+
   it("shows today's prices, and promises only what Kestlow does now", () => {
     render(<LaunchPage loadPreview={loadPreview} />);
 

@@ -5,5 +5,6 @@ Disallow: /api/
 Disallow: /pricing
 Disallow: /reset-password
 Disallow: /verify-email
+Disallow: /leads-by-email/
 
 Sitemap: https://kestlow.co.uk/sitemap.xml

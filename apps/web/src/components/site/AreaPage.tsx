@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import {
   createCouncilPreviewLoader,
   type CouncilPreview,
@@ -16,15 +17,19 @@ import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/fu
 import { signUpHref } from "../../logic/signUp";
 import { LeadCard } from "../leads/LeadCard";
 import { buttonClassName } from "../ui/buttonStyles";
+import { LeadEmailsForm } from "./LeadEmailsForm";
 import { PublicLayout } from "./PublicLayout";
 
 const linkClass = "font-semibold text-ink underline";
 const nothing = () => {};
 const defaultLoad = createCouncilPreviewLoader();
+const defaultLeadEmailsApi = createHttpLeadEmailsApi();
 
 interface AreaPageProps extends AreaPageInfo {
   load?: LoadCouncilPreview;
   recordStep?: RecordStep;
+  /** Asks for free weekly leads by email (KES-137); tests and stories pass their own. */
+  leadEmailsApi?: Pick<LeadEmailsApi, "request">;
 }
 
 /**
@@ -37,6 +42,7 @@ export function AreaPage({
   council,
   load = defaultLoad,
   recordStep = defaultRecordStep,
+  leadEmailsApi = defaultLeadEmailsApi,
 }: AreaPageProps) {
   const { heading, description } = areaPageMeta({ trade, council });
   const source = `seo-${trade.slug}-${council.slug}`;
@@ -118,13 +124,25 @@ export function AreaPage({
           </section>
         )}
 
-        <section aria-labelledby="area-start" className="flex flex-col gap-3">
-          <h2 id="area-start" className="m-0 text-xl font-bold">
-            Try it free
+        <section aria-labelledby="area-emails" className="flex flex-col gap-3">
+          <h2 id="area-emails" className="m-0 text-xl font-bold">
+            Get this week's {trade.trade.toLowerCase()} leads free
           </h2>
           <p className="m-0">
-            Pro is free for 14 days, with no card needed. After that, Solo is £29 a month for one
-            trade, or carry on with the free plan.
+            No account needed. Every Monday we'll email you the week's planning applications near
+            you that could need {trade.someone}, as the free plan shows them.
+          </p>
+          <LeadEmailsForm api={leadEmailsApi} source={source} trade={trade.trade} />
+        </section>
+
+        <section aria-labelledby="area-start" className="flex flex-col gap-3">
+          <h2 id="area-start" className="m-0 text-xl font-bold">
+            Or try Pro free
+          </h2>
+          <p className="m-0">
+            Pro is free for 14 days, with no card needed: leads the morning they're in, with the
+            full address. After that, Solo is £29 a month for one trade, or carry on with the free
+            plan.
           </p>
           {trial}
         </section>

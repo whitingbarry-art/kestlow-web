@@ -46,8 +46,8 @@ export const PRIVACY: LegalDocument = {
   title: "Privacy notice",
   description:
     "What personal information Kestlow keeps, why, who helps us look after it, and your rights under UK GDPR.",
-  // Where people found us, kept with their account (KES-125), and sign-up steps (KES-130).
-  updated: "1 November 2026",
+  // Free weekly leads by email, without an account (KES-137).
+  updated: "4 November 2026",
   intro: [
     "This notice explains what personal information Kestlow keeps, why, who helps us look after it, and your rights. We keep as little as we can, we never sell it, and we don't use advertising or tracking cookies.",
   ],
@@ -67,7 +67,8 @@ export const PRIVACY: LegalDocument = {
           list: [
             "Your account: your name, email address, whether you've confirmed it, and your password, which we only ever store scrambled so no one can read it. We need these to give you an account (to perform our contract with you).",
             "Where you found us: if you signed up from one of our cards, ads or links, which one, so we can tell which work and stop paying for the ones that don't. It's a short code, such as a shop's name, never anything about you, and it's deleted with your account (our legitimate interest in knowing which advertising works).",
-            "Signing up from our cards and ads: how far people get, such as seeing the page, tapping the trial or trying to sign up, and why a sign-up didn't work, with the card or ad's code. No cookies, no IP addresses, nothing that says who you are, and deleted after 90 days (our legitimate interest in knowing which advertising works and fixing what stops people signing up).",
+            "Free weekly leads by email, if you ask for them without an account: your email address, your postcode (or its first half) and its position on the map, your trade, which card or ad brought you, and when you confirmed and were last sent leads. We use them only to send you each week's leads (your consent, which you give by clicking the link in our confirmation email). Every email has a link to stop them.",
+            "Signing up from our cards and ads: how far people get, such as seeing the page, asking for free weekly leads, tapping the trial or trying to sign up, and why a sign-up didn't work, with the card or ad's code. No cookies, no IP addresses, nothing that says who you are, and deleted after 90 days (our legitimate interest in knowing which advertising works and fixing what stops people signing up).",
             "Your alert settings: your base postcode and its position on the map, how far you'll travel, your trades, and how you want alerts. We need these to find leads for you (contract).",
             "Leads you save, and a record of which leads we've already told you about, so we never send the same one twice (contract).",
             "Push alerts: if you turn them on, your browser gives us an address to send them to. We use it only for your alerts, and it's deleted when you turn push off (your consent).",
@@ -106,7 +107,7 @@ export const PRIVACY: LegalDocument = {
             "Google: our support inbox, where emails and Contact us messages arrive, runs on Gmail.",
             "GitHub: runs the nightly jobs that collect planning applications and send push alerts.",
             "Your browser's push service (from Google, Mozilla, Apple or Microsoft, depending on your browser): delivers push alerts to your device.",
-            "postcodes.io: looks up where your base postcode is. Only the postcode is sent.",
+            "postcodes.io: looks up where a postcode you give us is. Only the postcode is sent.",
             "Stripe, once paid plans start: takes payments by card or Direct Debit, and keeps the payment details needed to do that.",
             "OpenStreetMap: provides the map images. Your browser fetches them directly, so OpenStreetMap sees your IP address, as with any website you visit.",
           ],
@@ -119,7 +120,8 @@ export const PRIVACY: LegalDocument = {
       blocks: [
         {
           list: [
-            "Your account and everything that goes with it: until you delete your account. Deleting it, from the Account page, removes your account, settings, saved leads, alert history and push alerts straight away, and any waitlist sign-up with the same email address.",
+            "Your account and everything that goes with it: until you delete your account. Deleting it, from the Account page, removes your account, settings, saved leads, alert history and push alerts straight away, and any waitlist sign-up or free weekly leads with the same email address.",
+            "Free weekly leads by email: until you stop them, which deletes your details straight away. If you don't confirm within a week of asking, we delete them.",
             "Signed-in sessions: up to 30 days.",
             "Password reset links last an hour, and email confirmation links 24 hours.",
             "Messages you send us: up to two years, then we delete them.",
@@ -135,7 +137,7 @@ export const PRIVACY: LegalDocument = {
     {
       heading: "Your rights",
       blocks: [
-        "You can ask us for a copy of your information, to correct it, to delete it, to limit how we use it, to object to how we use it, or to have it sent to you in a format a computer can read. Where we rely on your consent, such as for push alerts or the waitlist, you can withdraw it at any time. You can delete your account yourself from the Account page; for anything else, email " +
+        "You can ask us for a copy of your information, to correct it, to delete it, to limit how we use it, to object to how we use it, or to have it sent to you in a format a computer can read. Where we rely on your consent, such as for push alerts, free weekly leads or the waitlist, you can withdraw it at any time. You can delete your account yourself from the Account page; for anything else, email " +
           `${CONTACT.privacy}. We'll reply within one month.`,
         "If you're unhappy with how we've handled your information, please tell us first and we'll put it right. You can also complain to the Information Commissioner's Office at https://ico.org.uk or on 0303 123 1113.",
       ],

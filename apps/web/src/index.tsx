@@ -14,6 +14,7 @@ import { AreasIndexPage } from "./components/site/AreasIndexPage";
 import { AccessibilityPage } from "./components/site/AccessibilityPage";
 import { ContactPage } from "./components/site/ContactPage";
 import { LaunchPage } from "./components/site/LaunchPage";
+import { LeadEmailsPage } from "./components/site/LeadEmailsPage";
 import { LegalPage } from "./components/site/LegalPage";
 import { AREAS_INDEX_PATH, areaPageFor } from "./data/areas";
 import { PRIVACY, REFUNDS, TERMS } from "./data/legal";
@@ -35,6 +36,9 @@ const areaPage = areaPageFor(window.location.pathname);
 const pages: Record<string, ReactNode> = {
   "/reset-password": <ResetPasswordScreen token={token} />,
   "/verify-email": <VerifyEmailScreen token={token} />,
+  // The links in the free weekly leads emails (KES-137).
+  "/leads-by-email/confirm": <LeadEmailsPage action="confirm" token={token} />,
+  "/leads-by-email/stop": <LeadEmailsPage action="stop" token={token} />,
   "/about": <AboutPage />,
   "/contact": <ContactPage />,
   "/accessibility": <AccessibilityPage />,

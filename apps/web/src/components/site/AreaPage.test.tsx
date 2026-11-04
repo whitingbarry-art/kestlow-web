@@ -69,6 +69,22 @@ describe("AreaPage", () => {
     await screen.findByText(/could need a roofer\.$/);
   });
 
+  it("offers the trade's free weekly leads by email, with the trade chosen (KES-137)", () => {
+    render(
+      <AreaPage
+        {...roofingInBromley}
+        load={() => new Promise(() => {})}
+        recordStep={vi.fn()}
+        leadEmailsApi={{ request: vi.fn() }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Get this week's roofing leads free" }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Your trade")).toHaveValue("Roofing");
+  });
+
   it("links to the other trades in the council and the same trade elsewhere", () => {
     render(
       <AreaPage {...roofingInBromley} load={() => Promise.resolve(PREVIEW)} recordStep={vi.fn()} />,
