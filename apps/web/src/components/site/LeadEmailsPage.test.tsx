@@ -34,7 +34,7 @@ describe("LeadEmailsPage", () => {
     expect(await screen.findByText(/You're all set/)).toBeInTheDocument();
   });
 
-  it("says when a link has expired, or has no token, and how to ask again", async () => {
+  it("says when a link has expired or isn't complete, and what to do", async () => {
     const { unmount } = render(
       <LeadEmailsPage
         action="confirm"
@@ -51,7 +51,7 @@ describe("LeadEmailsPage", () => {
 
     const fake = api();
     render(<LeadEmailsPage action="stop" token={null} api={fake} />);
-    expect(await screen.findByText(/That link has stopped working/)).toBeInTheDocument();
+    expect(await screen.findByText(/That link isn't complete/)).toBeInTheDocument();
     expect(fake.stop).not.toHaveBeenCalled();
   });
 

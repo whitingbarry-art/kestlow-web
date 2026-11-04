@@ -65,7 +65,9 @@ export function LeadEmailsPage({ action, token, api = defaultApi }: LeadEmailsPa
           )}
         {status === "expired" &&
           paragraph(
-            "That link has stopped working: links to confirm last a week. You can ask for your leads again.",
+            action === "confirm"
+              ? "That link has stopped working: links to confirm last a week. You can ask for your leads again."
+              : "That link isn't complete. Please use the Stop these emails link in one of our emails.",
           )}
         {status === "failed" &&
           paragraph("Something went wrong on our side. Please open the link again in a minute.")}
@@ -87,7 +89,7 @@ export function LeadEmailsPage({ action, token, api = defaultApi }: LeadEmailsPa
         </section>
       )}
 
-      {(status === "expired" || status === "stopped") && (
+      {((status === "expired" && action === "confirm") || status === "stopped") && (
         <a href="/#free-leads" className="text-lg font-semibold text-ink underline">
           {status === "expired" ? "Ask for your leads again" : "Changed your mind? Ask again"}
         </a>
