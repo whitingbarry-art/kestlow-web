@@ -13,6 +13,12 @@ type Status = "idle" | "sending" | "sent" | "outside" | "failed";
 // The order the fields appear in, so the error summary lists them the same way.
 const FIELDS: Field[] = ["trade", "postcode", "email"];
 
+/** A postcode as it's written, "br11aa" → "BR1 1AA", for saying it back; a first half stays as it is. */
+const tidyPostcode = (input: string) => {
+  const postcode = input.toUpperCase().replace(/\s+/g, "");
+  return postcode.length > 4 ? `${postcode.slice(0, -3)} ${postcode.slice(-3)}` : postcode;
+};
+
 interface LeadEmailsFormProps {
   api: Pick<LeadEmailsApi, "request">;
   /** The page's ?ref=, carried to the request so we can see which ad or card works. */
@@ -49,7 +55,7 @@ export function LeadEmailsForm({ api, source, trade }: LeadEmailsFormProps) {
       const value = form.get(field);
       return typeof value === "string" ? value.trim() : "";
     };
-    setSentTo({ email: text("email"), postcode: text("postcode").toUpperCase() });
+    setSentTo({ email: text("email"), postcode: tidyPostcode(text("postcode")) });
     setStatus("sending");
     try {
       const result = await api.request({

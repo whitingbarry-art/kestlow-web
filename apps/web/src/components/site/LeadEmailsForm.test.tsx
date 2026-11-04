@@ -36,10 +36,10 @@ describe("LeadEmailsForm", () => {
     const request = vi.fn<Request>(() => Promise.resolve({ ok: true, status: "outside" }));
     render(<LeadEmailsForm api={{ request }} />);
 
-    await fillIn(user, "m1");
+    await fillIn(user, "m11ae");
     await user.click(screen.getByRole("button", { name: "Send me this week's leads" }));
 
-    expect(await screen.findByRole("heading", { name: "We don't cover M1 yet" })).toHaveFocus();
+    expect(await screen.findByRole("heading", { name: "We don't cover M1 1AE yet" })).toHaveFocus();
     expect(screen.getByText(/8 councils around Bromley/)).toHaveTextContent("Tandridge");
     await user.click(screen.getByRole("button", { name: "Try another postcode" }));
     expect(screen.getByLabelText("Your postcode")).toBeInTheDocument();
