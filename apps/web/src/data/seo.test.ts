@@ -27,7 +27,13 @@ describe("what search engines read", () => {
   it("keeps private pages out of search and points to the sitemap", () => {
     const robots = read("public/robots.txt");
 
-    for (const path of ["/api/", "/pricing", "/reset-password", "/verify-email"])
+    for (const path of [
+      "/api/",
+      "/pricing",
+      "/reset-password",
+      "/verify-email",
+      "/leads-by-email/",
+    ])
       expect(robots).toContain(`Disallow: ${path}\n`);
     for (const link of SITE_LINKS) expect(robots).not.toContain(`Disallow: ${link.href}`);
     expect(robots).toContain("Sitemap: https://kestlow.co.uk/sitemap.xml");

@@ -1,5 +1,6 @@
 import { Check } from "lucide-react";
 import { useEffect } from "react";
+import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
 import { LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
 import { PLANS, PROMISES } from "../../data/waitlist";
@@ -9,6 +10,7 @@ import { SIGN_IN_HREF, signUpHref } from "../../logic/signUp";
 import { BrandLogo } from "../ui/BrandLogo";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PlanCard } from "../waitlist/PlanCard";
+import { LeadEmailsForm } from "./LeadEmailsForm";
 import { LivePreview } from "./launch/LivePreview";
 import { PhoneMockup } from "./launch/PhoneMockup";
 import { Faq, Features, LeadAnatomy, PlanComparison } from "./launch/Sections";
@@ -30,6 +32,9 @@ const STEPS = [
 ];
 
 const defaultLoadPreview = createPreviewLoader();
+const defaultLeadEmailsApi = createHttpLeadEmailsApi();
+/** The free weekly leads form's place on the page, which the header's button jumps to. */
+const FREE_LEADS = "free-leads";
 
 interface LaunchPageProps {
   /** The ?ref= the page was opened with, such as a counter card's shop code or an ad (KES-125). */
@@ -38,6 +43,8 @@ interface LaunchPageProps {
   recordStep?: RecordStep;
   /** Loads the live local numbers and leads (KES-131); tests and stories pass their own. */
   loadPreview?: LoadPreview;
+  /** Asks for free weekly leads by email (KES-137); tests and stories pass their own. */
+  leadEmailsApi?: Pick<LeadEmailsApi, "request">;
 }
 
 /**
@@ -50,6 +57,7 @@ export function LaunchPage({
   source,
   recordStep = defaultRecordStep,
   loadPreview = defaultLoadPreview,
+  leadEmailsApi = defaultLeadEmailsApi,
 }: LaunchPageProps) {
   const start = signUpHref(source);
   // Which card or ad brought people here, and how many go on to the trial (KES-130).
@@ -101,7 +109,7 @@ export function LaunchPage({
                 {[
                   "New applications from 8 councils around Bromley",
                   "Picked out for your trade, with the distance",
-                  "Pro free for 14 days, no card needed",
+                  "This week's leads free by email, no account needed",
                 ].map((point) => (
                   <li key={point} className="flex list-none gap-2">
                     <Check size={20} strokeWidth={2.5} className="mt-0.5 shrink-0 text-amber" />
@@ -109,9 +117,20 @@ export function LaunchPage({
                   </li>
                 ))}
               </ul>
-              {trialButton("mt-7 inline-block flex-none px-6")}
+              {/* The lighter step first (KES-137): the ad test showed people weren't ready to
+                  make an account, so the main button asks only for an email. */}
+              <a
+                href={`#${FREE_LEADS}`}
+                className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
+              >
+                Get this week's leads free
+              </a>
               <p className="mt-3 mb-0 text-sm text-side-link">
-                Then choose a plan, or carry on free. No contract.
+                Or{" "}
+                <a href={start} onClick={tapped} className="font-semibold text-white underline">
+                  Start your free 14-day trial
+                </a>{" "}
+                of Pro, with no card needed.
               </p>
             </div>
             {/* On wider screens, the app on a phone, over the photo. */}
@@ -123,6 +142,27 @@ export function LaunchPage({
       </header>
 
       <main className="mx-auto max-w-6xl px-4">
+        <section
+          id={FREE_LEADS}
+          aria-labelledby={`${FREE_LEADS}-heading`}
+          className="grid scroll-mt-4 gap-6 py-8 desk:grid-cols-2 desk:items-start desk:py-12"
+        >
+          <div>
+            <h2 id={`${FREE_LEADS}-heading`} className="m-0 text-2xl font-bold">
+              Get this week's leads near you, free
+            </h2>
+            <p className="mt-3 mb-0 text-lg">
+              No account and no password. Tell us your trade and postcode, and every Monday we'll
+              email you the new planning applications near you that could need you.
+            </p>
+            <p className="mt-3 mb-0 text-muted">
+              They come as the free plan shows them: a week after they're in, and by area rather
+              than the full address. Pro sends them the morning they're in.
+            </p>
+          </div>
+          <LeadEmailsForm api={leadEmailsApi} source={source} />
+        </section>
+
         <LivePreview load={loadPreview} start={start} onStart={tapped} />
         <Features />
 
@@ -198,6 +238,13 @@ export function LaunchPage({
             14 days of Pro, free, with no card. If it's not for you, just stop.
           </p>
           {trialButton("mt-6 inline-block px-6")}
+          <p className="mt-4 mb-0 text-side-link">
+            Not ready yet?{" "}
+            <a href={`#${FREE_LEADS}`} className="font-semibold text-white underline">
+              Get this week's leads free by email
+            </a>
+            .
+          </p>
         </section>
       </main>
 

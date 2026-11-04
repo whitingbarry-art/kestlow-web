@@ -14,6 +14,7 @@ import { AccessibilityPage } from "./AccessibilityPage";
 import { AreaPage } from "./AreaPage";
 import { AreasIndexPage } from "./AreasIndexPage";
 import { ContactPage } from "./ContactPage";
+import { LeadEmailsPage } from "./LeadEmailsPage";
 import { LegalPage } from "./LegalPage";
 
 // Both pages read who's signed in, to fill in the contact form; here nobody is.
@@ -61,6 +62,7 @@ const areaPage = (
     {...areaPageFor("/roofing-leads/bromley")!}
     load={() => Promise.resolve(COUNCIL_PREVIEW)}
     recordStep={() => {}}
+    leadEmailsApi={{ request: () => Promise.resolve({ ok: true, status: "sent" }) }}
   />
 );
 
@@ -115,6 +117,43 @@ export const ContactSent: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Send message" }));
     await expect(
       await canvas.findByRole("heading", { name: "Thanks, your message is on its way" }),
+    ).toBeVisible();
+  },
+};
+
+// The pages the free weekly leads emails' links open (KES-137).
+const leadEmails = (confirm: { ok: true; sent: boolean } | { ok: false }) => ({
+  confirm: () => Promise.resolve(confirm),
+  stop: () => Promise.resolve(),
+});
+
+export const FreeLeadsConfirmed: Story = {
+  render: () => (
+    <LeadEmailsPage action="confirm" token="t" api={leadEmails({ ok: true, sent: true })} />
+  ),
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(/This week's leads are in your inbox now/),
+    ).toBeVisible();
+  },
+};
+
+export const FreeLeadsConfirmedOnMobile: Story = {
+  globals: mobileViewport,
+  render: () => (
+    <LeadEmailsPage action="confirm" token="t" api={leadEmails({ ok: true, sent: true })} />
+  ),
+};
+
+export const FreeLeadsLinkExpired: Story = {
+  render: () => <LeadEmailsPage action="confirm" token="t" api={leadEmails({ ok: false })} />,
+};
+
+export const FreeLeadsStopped: Story = {
+  render: () => <LeadEmailsPage action="stop" token="t" api={leadEmails({ ok: false })} />,
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(/you won't get any more emails from us/),
     ).toBeVisible();
   },
 };
