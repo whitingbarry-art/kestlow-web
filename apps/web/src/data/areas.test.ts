@@ -6,14 +6,16 @@ describe("the town and trade pages", () => {
       trade: { trade: "Roofing" },
       council: { name: "Bromley" },
     });
-    expect(areaPageFor("/groundworks-leads/tandridge")?.council.region).toBe("Surrey");
+    expect(areaPageFor("/groundworks-leads/dartford")?.council.region).toBe("Kent");
+    // Paused after the council refused automated collection (KES-141).
+    expect(areaPageFor("/groundworks-leads/tandridge")).toBeUndefined();
     for (const path of ["/roofing-leads/leeds", "/plumbing-leads/bromley", "/roofing-leads", "/"])
       expect(areaPageFor(path)).toBeUndefined();
   });
 
-  it("has a page for each of the 4 trades in each of the 8 councils", () => {
-    expect(AREA_PAGES).toHaveLength(32);
-    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(32);
+  it("has a page for each of the 4 trades in each of the 7 councils", () => {
+    expect(AREA_PAGES).toHaveLength(28);
+    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(28);
   });
 
   it("gives each one a title and a description that fits in a search result", () => {

@@ -20,8 +20,8 @@ describe("what search engines read", () => {
       "https://kestlow.co.uk/planning-leads",
       "https://kestlow.co.uk/roofing-leads/bromley",
     ]);
-    expect(listed).toHaveLength(1 + SITE_LINKS.length + 1 + 8 * 4);
-    expect(listed).toContain("https://kestlow.co.uk/groundworks-leads/tandridge");
+    expect(listed).toHaveLength(1 + SITE_LINKS.length + 1 + 7 * 4);
+    expect(listed).toContain("https://kestlow.co.uk/groundworks-leads/dartford");
   });
 
   it("keeps private pages out of search and points to the sitemap", () => {

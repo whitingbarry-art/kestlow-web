@@ -44,8 +44,8 @@ export function AboutPage() {
               PlanIt
             </a>
             , which gathers councils' registers in one place, and every lead links to the council's
-            own page so you can check the details. We're starting with eight councils in south-east
-            London, Kent and Surrey, and adding more as we grow.
+            own page so you can check the details. We're starting with seven councils in south-east
+            London and Kent, and adding more as we grow.
           </p>
           <p className="mt-3 mb-0">
             When an application doesn't give a full address, we work out where it is from the street

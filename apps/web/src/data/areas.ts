@@ -21,7 +21,6 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "croydon", name: "Croydon", region: "south London" },
   { slug: "dartford", name: "Dartford", region: "Kent" },
   { slug: "sevenoaks", name: "Sevenoaks", region: "Kent" },
-  { slug: "tandridge", name: "Tandridge", region: "Surrey" },
 ];
 
 export interface AreaTrade {

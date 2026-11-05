@@ -12,7 +12,6 @@ export const COUNCILS = [
   "Croydon",
   "Dartford",
   "Sevenoaks",
-  "Tandridge",
 ];
 
 export type FeatureIcon =
@@ -140,4 +139,4 @@ export const FAQS: { question: string; answer: string }[] = [
  */
 export const LAUNCH_TITLE = "Kestlow: planning leads for tradespeople";
 export const LAUNCH_DESCRIPTION =
-  "Planning leads for roofers, electricians, landscapers and groundworkers in south-east London, Kent and Surrey, sent to your phone. Try Pro free for 14 days.";
+  "Planning leads for roofers, electricians, landscapers and groundworkers in south-east London and Kent, sent to your phone. Try Pro free for 14 days.";

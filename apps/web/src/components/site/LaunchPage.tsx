@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
-import { LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
+import { COUNCILS, LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
 import { PLANS, PROMISES } from "../../data/waitlist";
 import { usePageMeta } from "../../hooks/usePageMeta";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
@@ -107,7 +107,7 @@ export function LaunchPage({
               </p>
               <ul className="mt-5 mb-0 flex flex-col gap-2 pl-0">
                 {[
-                  "New applications from 8 councils around Bromley",
+                  `New applications from ${COUNCILS.length} councils around Bromley`,
                   "Picked out for your trade, with the distance",
                   "This week's leads free by email, no account needed",
                 ].map((point) => (
