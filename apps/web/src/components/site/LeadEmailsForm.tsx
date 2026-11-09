@@ -25,6 +25,8 @@ interface LeadEmailsFormProps {
   source?: string;
   /** Chosen already, on a trade's own page. */
   trade?: Trade;
+  /** Given already, on the jobs page (KES-155). */
+  postcode?: string;
 }
 
 /**
@@ -32,7 +34,7 @@ interface LeadEmailsFormProps {
  * not ready to make an account. Trade, postcode and email; the API emails a link to confirm.
  * Anything that needs fixing is listed in a summary that takes focus, as on Contact us.
  */
-export function LeadEmailsForm({ api, source, trade }: LeadEmailsFormProps) {
+export function LeadEmailsForm({ api, source, trade, postcode }: LeadEmailsFormProps) {
   const id = useId();
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<LeadEmailsErrors>({});
@@ -179,6 +181,7 @@ export function LeadEmailsForm({ api, source, trade }: LeadEmailsFormProps) {
           id={fieldId("postcode")}
           name="postcode"
           type="text"
+          defaultValue={postcode}
           autoComplete="postal-code"
           autoCapitalize="characters"
           spellCheck={false}

@@ -51,6 +51,45 @@ describe("createErrorReporter", () => {
   });
 });
 
+describe("errors from scripts the browser adds (KES-156)", () => {
+  it.each([
+    [
+      "Facebook's Android in-app browser",
+      new Error("Error invoking postMessage: Java object is gone"),
+    ],
+    [
+      "Facebook's iPhone in-app browser",
+      new TypeError("undefined is not an object (evaluating 'window.webkit.messageHandlers')"),
+    ],
+    ["another site's script", "Script error."],
+  ])("aren't reported: %s", (_, error) => {
+    const { reporter, fetchFn } = reporterWithSpy();
+
+    reporter.report(error);
+
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
+  it("aren't reported when the stack is the in-app browser's", () => {
+    const { reporter, fetchFn } = reporterWithSpy();
+    const error = new Error("Something else");
+    error.stack =
+      "Error: Something else\n    at sendDataToNative (iabjs://navigation_performance_logger_android:1:11722)";
+
+    reporter.report(error);
+
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
+
+  it("leave Kestlow's own errors reported", () => {
+    const { reporter, bodies } = reporterWithSpy();
+
+    reporter.report(new TypeError("Cannot read properties of undefined (reading 'map')"));
+
+    expect(bodies()).toHaveLength(1);
+  });
+});
+
 describe("reportUncaughtErrors", () => {
   it("reports errors and failed promises nothing else handled", () => {
     const report = vi.fn();

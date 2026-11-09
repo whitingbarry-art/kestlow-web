@@ -4,6 +4,7 @@ const PAGES = [
   ["About us", "/about", "About us – Kestlow"],
   ["Contact us", "/contact", "Contact us – Kestlow"],
   ["Accessibility", "/accessibility", "Accessibility – Kestlow"],
+  ["Jobs near you", "/jobs", "Jobs near you – Kestlow"],
   ["Terms", "/terms", "Terms of service – Kestlow"],
   ["Privacy", "/privacy", "Privacy notice – Kestlow"],
   ["Refunds", "/refunds", "Refund policy – Kestlow"],
