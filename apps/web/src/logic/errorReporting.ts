@@ -6,6 +6,20 @@
 /** No more than this many reports from one page load, so a loop can't flood the API. */
 const MAX_REPORTS = 5;
 
+/**
+ * Errors from scripts the browser adds, not Kestlow's (KES-156), which only waste the morning
+ * error email: Facebook's in-app browser on Android ("Java object is gone", from its iabjs://
+ * logger) and on iPhone (window.webkit.messageHandlers), and "Script error.", which is all a
+ * browser says about another site's script; ours come from our own site, so they say more.
+ */
+const NOT_OURS = [/Java object is gone/, /window\.webkit\.messageHandlers/, /^Script error\.?$/];
+const NOT_OUR_STACK = /iabjs:\/\//;
+
+/** Whether an error came from a script the browser added rather than from Kestlow. */
+export function notOurs(message: string, stack?: string): boolean {
+  return NOT_OURS.some((pattern) => pattern.test(message)) || NOT_OUR_STACK.test(stack ?? "");
+}
+
 export interface ErrorReporter {
   report: (error: unknown) => void;
 }
@@ -25,7 +39,9 @@ export function createErrorReporter({
     report(error) {
       const message =
         error instanceof Error ? error.message : typeof error === "string" ? error : String(error);
-      if (!message || seen.has(message) || seen.size >= MAX_REPORTS) return;
+      const stack = error instanceof Error ? error.stack : undefined;
+      if (!message || notOurs(message, stack) || seen.has(message) || seen.size >= MAX_REPORTS)
+        return;
       seen.add(message);
       // keepalive, so a report still goes if the page is closing; failures are ignored, as
       // there's nowhere left to report them.
@@ -34,7 +50,7 @@ export function createErrorReporter({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message,
-          stack: error instanceof Error ? error.stack : undefined,
+          stack,
           page: page(),
         }),
         keepalive: true,

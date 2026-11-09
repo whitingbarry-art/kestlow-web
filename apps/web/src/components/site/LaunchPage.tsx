@@ -2,6 +2,7 @@ import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
+import { JOBS_PATH } from "../../data/jobs";
 import { COUNCILS, LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
 import { PLANS, PROMISES } from "../../data/waitlist";
 import { usePageMeta } from "../../hooks/usePageMeta";
@@ -117,16 +118,19 @@ export function LaunchPage({
                   </li>
                 ))}
               </ul>
-              {/* The lighter step first (KES-137): the ad test showed people weren't ready to
-                  make an account, so the main button asks only for an email. */}
+              {/* Show the jobs first, asking for nothing (KES-155): in the ad tests no one gave an
+                  email or made an account from here, so the main button goes to real local jobs. */}
               <a
-                href={`#${FREE_LEADS}`}
+                href={source ? `${JOBS_PATH}?ref=${encodeURIComponent(source)}` : JOBS_PATH}
                 className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
               >
-                Get this week's leads free
+                See jobs near you
               </a>
               <p className="mt-3 mb-0 text-sm text-side-link">
-                Or{" "}
+                <a href={`#${FREE_LEADS}`} className="font-semibold text-white underline">
+                  Get this week's leads free
+                </a>{" "}
+                by email, or{" "}
                 <a href={start} onClick={tapped} className="font-semibold text-white underline">
                   Start your free 14-day trial
                 </a>{" "}

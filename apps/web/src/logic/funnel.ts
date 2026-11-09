@@ -1,6 +1,15 @@
-/** The steps from the launch page to an account that Kestlow counts (KES-130). */
+/**
+ * The steps to an account that Kestlow counts (KES-130), from the jobs page (KES-155) or the
+ * launch page.
+ */
 export type FunnelStep =
-  "launch_viewed" | "trial_tapped" | "register_viewed" | "register_tried" | "register_refused";
+  | "jobs_viewed"
+  | "jobs_searched"
+  | "launch_viewed"
+  | "trial_tapped"
+  | "register_viewed"
+  | "register_tried"
+  | "register_refused";
 
 export interface StepDetails {
   /** The page's ?ref=, such as a counter card's shop code or an ad's. */
