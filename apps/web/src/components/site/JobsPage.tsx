@@ -133,7 +133,6 @@ export function JobsPage({
               id={`${id}-postcode`}
               name="postcode"
               type="text"
-              inputMode="text"
               autoComplete="postal-code"
               autoCapitalize="characters"
               spellCheck={false}
