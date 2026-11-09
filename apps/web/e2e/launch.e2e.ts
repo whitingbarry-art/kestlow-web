@@ -2,10 +2,19 @@ import { expect, test } from "@playwright/test";
 import { PASSWORD, signUp, testEmail } from "./helpers";
 
 test.describe("the launch page (KES-125)", () => {
-  test("a counter card's QR code leads to the free trial, keeping the shop's code", async ({
+  test("a counter card's QR code goes to the jobs page, keeping the shop's code (KES-155)", async ({
     page,
   }) => {
     await page.goto("/waitlist/?ref=e2e-card");
+
+    await expect(page).toHaveURL(/\/jobs\?ref=e2e-card$/);
+    await expect(page.getByRole("heading", { level: 1, name: "Jobs near you" })).toBeVisible();
+  });
+
+  test("the launch page leads to the free trial, keeping the card or ad's code", async ({
+    page,
+  }) => {
+    await page.goto("/?ref=e2e-card");
     await expect(page).toHaveTitle("Kestlow: planning leads for tradespeople");
 
     await page.getByRole("link", { name: "Start your free 14-day trial" }).first().click();

@@ -2,7 +2,7 @@ import { Check } from "lucide-react";
 import { useEffect } from "react";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { createPreviewLoader, type LoadPreview } from "../../api/preview";
-import { JOBS_PATH } from "../../data/jobs";
+import { jobsHref } from "../../data/jobs";
 import { COUNCILS, LAUNCH_DESCRIPTION, LAUNCH_TITLE } from "../../data/launch";
 import { PLANS, PROMISES } from "../../data/waitlist";
 import { usePageMeta } from "../../hooks/usePageMeta";
@@ -121,7 +121,7 @@ export function LaunchPage({
               {/* Show the jobs first, asking for nothing (KES-155): in the ad tests no one gave an
                   email or made an account from here, so the main button goes to real local jobs. */}
               <a
-                href={source ? `${JOBS_PATH}?ref=${encodeURIComponent(source)}` : JOBS_PATH}
+                href={jobsHref(source)}
                 className={buttonClassName("primary", "mt-7 inline-block flex-none px-6")}
               >
                 See jobs near you
