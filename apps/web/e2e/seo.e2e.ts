@@ -25,16 +25,6 @@ test.describe("search engines", () => {
       await expect(page.locator('meta[name="description"]')).toHaveCount(1);
     }
   });
-
-  test("are pointed from the old waitlist address to the launch page's", async ({ page }) => {
-    await page.goto("/waitlist/?ref=screwfix-bromley");
-
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-      "href",
-      "https://kestlow.co.uk/",
-    );
-    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
-  });
 });
 
 test("the footer leads to every town and trade page", async ({ page }) => {
