@@ -67,7 +67,7 @@ export function JobsPage({
     if (!postcode)
       return setState({
         status: "error",
-        error: "Type your postcode, like BR1.",
+        error: "Type your postcode, like BR6.",
         field: "postcode",
       });
     setState({ status: "loading" });

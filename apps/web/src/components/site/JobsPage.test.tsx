@@ -116,7 +116,7 @@ describe("JobsPage (KES-155)", () => {
     await user.click(screen.getByRole("radio", { name: "Electrical" }));
     await user.clear(screen.getByRole("textbox", { name: "2. Your postcode" }));
     await user.click(screen.getByRole("button", { name: "Show me the jobs" }));
-    expect(screen.getByRole("alert")).toHaveTextContent("Type your postcode, like BR1.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Type your postcode, like BR6.");
     expect(screen.getByRole("textbox", { name: "2. Your postcode" })).toHaveAttribute(
       "aria-invalid",
       "true",
