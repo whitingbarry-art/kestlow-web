@@ -35,7 +35,9 @@ test.describe("the pages anyone can read", () => {
       .poll(() => page.locator("address").innerText())
       .toBe("Kestlow\n4th Floor\n18 St. Cross Street\nLondon\nEC1N 8UN");
     const footer = page.locator("footer");
-    await expect(footer).toContainText("Kestlow™, 4th Floor, 18 St. Cross Street, London, EC1N 8UN");
+    await expect(footer).toContainText(
+      "Kestlow™, 4th Floor, 18 St. Cross Street, London, EC1N 8UN",
+    );
     await expect(footer).not.toContainText("Barry Whiting");
 
     await footer.getByRole("link", { name: "Terms" }).click();
