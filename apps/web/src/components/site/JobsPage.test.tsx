@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { JobsNear, LoadJobs } from "../../api/jobs";
 import { SAMPLE_LEADS } from "../../data/leads";
+import type { Trade } from "../../types/lead";
 import { JobsPage } from "./JobsPage";
 
 const JOBS: JobsNear = {
@@ -19,9 +20,15 @@ const JOBS: JobsNear = {
 
 const leadEmailsApi = { request: vi.fn() };
 
-function renderPage(load: LoadJobs, recordStep = vi.fn()) {
+function renderPage(load: LoadJobs, recordStep = vi.fn(), trade?: Trade) {
   render(
-    <JobsPage source="ad-jobs" load={load} recordStep={recordStep} leadEmailsApi={leadEmailsApi} />,
+    <JobsPage
+      source="ad-jobs"
+      trade={trade}
+      load={load}
+      recordStep={recordStep}
+      leadEmailsApi={leadEmailsApi}
+    />,
   );
   return { recordStep, user: userEvent.setup() };
 }
@@ -79,6 +86,24 @@ describe("JobsPage (KES-155)", () => {
       ["jobs_searched", { source: "ad-jobs" }],
       ["trial_tapped", { source: "ad-jobs" }],
     ]);
+  });
+
+  it("starts with the trade the link was for, so it's one step fewer (KES-160)", async () => {
+    const load = vi.fn<LoadJobs>(() => Promise.resolve({ ok: true, jobs: JOBS }));
+    const { user } = renderPage(load, vi.fn(), "Roofing");
+
+    expect(screen.getByRole("radio", { name: "Roofing" })).toBeChecked();
+    await lookUp(user, "", "BR6");
+
+    expect(load).toHaveBeenCalledWith("BR6", "Roofing");
+  });
+
+  it("shows an example postcode beside the box, not in it (KES-160)", () => {
+    renderPage(vi.fn<LoadJobs>());
+
+    const postcode = screen.getByRole("textbox", { name: "2. Your postcode" });
+    expect(postcode).not.toHaveAttribute("placeholder");
+    expect(postcode).toHaveAccessibleDescription("Like BR6 or SE9 2AB");
   });
 
   it("asks for a trade and a postcode before looking", async () => {

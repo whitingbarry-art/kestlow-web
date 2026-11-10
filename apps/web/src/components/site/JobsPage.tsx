@@ -21,6 +21,8 @@ const defaultLeadEmailsApi = createHttpLeadEmailsApi();
 interface JobsPageProps {
   /** The page's ?ref=, such as an ad's or a counter card's code. */
   source?: string;
+  /** The trade the link was for, picked to start with (KES-160). */
+  trade?: Trade;
   load?: LoadJobs;
   recordStep?: RecordStep;
   leadEmailsApi?: Pick<LeadEmailsApi, "request">;
@@ -41,12 +43,13 @@ type State =
  */
 export function JobsPage({
   source,
+  trade: linkedTrade,
   load = defaultLoad,
   recordStep = defaultRecordStep,
   leadEmailsApi = defaultLeadEmailsApi,
 }: JobsPageProps) {
   const id = useId();
-  const [trade, setTrade] = useState<Trade | null>(null);
+  const [trade, setTrade] = useState<Trade | null>(linkedTrade ?? null);
   const [state, setState] = useState<State>({ status: "idle" });
   const answer = useRef<HTMLHeadingElement>(null);
   const problem = useRef<HTMLParagraphElement>(null);
@@ -80,6 +83,7 @@ export function JobsPage({
 
   const error = state.status === "error" ? state : undefined;
   const errorId = `${id}-error`;
+  const hintId = `${id}-hint`;
 
   return (
     <PublicLayout
@@ -126,9 +130,13 @@ export function JobsPage({
           </fieldset>
 
           <div>
-            <label htmlFor={`${id}-postcode`} className="mb-3 block text-xl font-bold">
+            <label htmlFor={`${id}-postcode`} className="block text-xl font-bold">
               2. Your postcode
             </label>
+            {/* A hint, not a placeholder: a grey "BR1" in the box looked filled in (KES-160). */}
+            <p id={hintId} className="mt-1 mb-3 text-base text-muted">
+              Like BR6 or SE9 2AB
+            </p>
             <input
               id={`${id}-postcode`}
               name="postcode"
@@ -136,9 +144,8 @@ export function JobsPage({
               autoComplete="postal-code"
               autoCapitalize="characters"
               spellCheck={false}
-              placeholder="BR1"
               aria-invalid={error?.field === "postcode" || undefined}
-              aria-describedby={error?.field === "postcode" ? errorId : undefined}
+              aria-describedby={error?.field === "postcode" ? `${hintId} ${errorId}` : hintId}
               className={inputClassName(error?.field === "postcode", "max-w-48 text-xl")}
             />
           </div>
