@@ -1,7 +1,7 @@
 // What the launch page says (KES-131). Every claim here is true of Kestlow today: check it
 // against the API's PLAN_LIMITS and the councils we collect from before changing it.
 
-import { AREA_COUNCILS, COVERAGE, LONDON_COUNCIL_COUNT } from "./areas";
+import { AREA_COUNCILS, COVERAGE } from "./areas";
 import { CONTACT } from "./contact";
 import { BRAND } from "./site";
 
@@ -30,7 +30,7 @@ export const FEATURES: { icon: FeatureIcon; title: string; text: string }[] = [
   {
     icon: "councils",
     title: COVERAGE,
-    text: `${LONDON_COUNCIL_COUNT} of London's 33 councils, plus Dartford and Sevenoaks in Kent, with more to come.`,
+    text: "Every London council, plus Dartford and Sevenoaks in Kent, with more to come.",
   },
   {
     icon: "bell",
@@ -94,7 +94,7 @@ export const FAQS: { question: string; answer: string }[] = [
   },
   {
     question: "Which areas do you cover?",
-    answer: `${COVERAGE}: ${COUNCILS.join(", ").replace(/, ([^,]*)$/, " and $1")}. We're adding the rest of London next.`,
+    answer: `${COVERAGE}: ${COUNCILS.join(", ").replace(/, ([^,]*)$/, " and $1")}. That's every London council, and we're adding more of the South East next.`,
   },
   {
     question: "Does a lead mean I'll get the job?",

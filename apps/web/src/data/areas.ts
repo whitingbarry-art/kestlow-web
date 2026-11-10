@@ -26,6 +26,7 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "merton", name: "Merton", region: "south-west London" },
   { slug: "kingston", name: "Kingston", region: "south-west London" },
   { slug: "richmond", name: "Richmond", region: "south-west London" },
+  { slug: "wandsworth", name: "Wandsworth", region: "south-west London" },
   { slug: "westminster", name: "Westminster", region: "central London" },
   { slug: "city-of-london", name: "City of London", region: "central London" },
   { slug: "camden", name: "Camden", region: "north London" },
@@ -39,6 +40,7 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "hammersmith-and-fulham", name: "Hammersmith & Fulham", region: "west London" },
   { slug: "hounslow", name: "Hounslow", region: "west London" },
   { slug: "hillingdon", name: "Hillingdon", region: "west London" },
+  { slug: "ealing", name: "Ealing", region: "west London" },
   { slug: "tower-hamlets", name: "Tower Hamlets", region: "east London" },
   { slug: "hackney", name: "Hackney", region: "east London" },
   { slug: "newham", name: "Newham", region: "east London" },
@@ -50,10 +52,7 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "sevenoaks", name: "Sevenoaks", region: "Kent" },
 ];
 
-/** How many of the councils are London's, of its 33 (32 boroughs and the City). */
-export const LONDON_COUNCIL_COUNT = AREA_COUNCILS.filter((c) => c.region !== "Kent").length;
-
-/** "26 councils across London and Kent", as every page says it. */
+/** "35 councils across London and Kent", as every page says it. */
 export const COVERAGE = `${AREA_COUNCILS.length} councils across London and Kent`;
 
 export interface AreaTrade {

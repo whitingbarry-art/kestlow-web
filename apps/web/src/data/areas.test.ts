@@ -1,4 +1,4 @@
-import { AREA_PAGES, AREAS_INDEX_META, areaPageFor, areaPageMeta } from "./areas";
+import { AREA_COUNCILS, AREA_PAGES, AREAS_INDEX_META, areaPageFor, areaPageMeta } from "./areas";
 
 describe("the town and trade pages", () => {
   it("finds the page for a path, and nothing for any other", () => {
@@ -13,9 +13,15 @@ describe("the town and trade pages", () => {
       expect(areaPageFor(path)).toBeUndefined();
   });
 
-  it("has a page for each of the 4 trades in each of the 33 councils (KES-161)", () => {
-    expect(AREA_PAGES).toHaveLength(132);
-    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(132);
+  it("covers all 33 London councils, so the pages can say every London council (KES-161)", () => {
+    const london = AREA_COUNCILS.filter((council) => council.region !== "Kent");
+    expect(london).toHaveLength(33);
+    expect(new Set(london.map((council) => council.name)).size).toBe(33);
+  });
+
+  it("has a page for each of the 4 trades in each of the 35 councils (KES-161)", () => {
+    expect(AREA_PAGES).toHaveLength(140);
+    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(140);
   });
 
   it("gives each one a title and a description that fits in a search result", () => {

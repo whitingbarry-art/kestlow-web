@@ -46,8 +46,9 @@ export function AboutPage() {
               PlanIt
             </a>
             , which gathers councils' registers in one place, and every lead links to the council's
-            own page so you can check the details. We cover {COVERAGE} so far, and we're adding the
-            rest of London next. Contains public sector information licensed under the{" "}
+            own page so you can check the details. We cover {COVERAGE}: every London council, and
+            we're adding more of the South East next. Contains public sector information licensed
+            under the{" "}
             <a
               href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
               className={linkClass}
