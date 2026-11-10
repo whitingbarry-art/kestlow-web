@@ -18,7 +18,7 @@ import { LaunchPage } from "./components/site/LaunchPage";
 import { LeadEmailsPage } from "./components/site/LeadEmailsPage";
 import { LegalPage } from "./components/site/LegalPage";
 import { AREAS_INDEX_PATH, areaPageFor } from "./data/areas";
-import { JOBS_PATH } from "./data/jobs";
+import { JOBS_PATH, tradeFrom } from "./data/jobs";
 import { PRIVACY, REFUNDS, TERMS } from "./data/legal";
 import { createErrorReporter, reportUncaughtErrors } from "./logic/errorReporting";
 import { askedForAccount, sourceFrom } from "./logic/signUp";
@@ -42,7 +42,12 @@ const pages: Record<string, ReactNode> = {
   "/leads-by-email/confirm": <LeadEmailsPage action="confirm" token={token} />,
   "/leads-by-email/stop": <LeadEmailsPage action="stop" token={token} />,
   // Jobs near a postcode, with nothing to sign up for (KES-155): where the ads and cards point.
-  [JOBS_PATH]: <JobsPage source={sourceFrom(window.location.search)} />,
+  [JOBS_PATH]: (
+    <JobsPage
+      source={sourceFrom(window.location.search)}
+      trade={tradeFrom(window.location.search)}
+    />
+  ),
   "/about": <AboutPage />,
   "/contact": <ContactPage />,
   "/accessibility": <AccessibilityPage />,
