@@ -22,7 +22,7 @@ describe("the town and trade pages", () => {
     expect(areaPageMeta(areaPageFor("/electrical-leads/sevenoaks")!)).toEqual({
       path: "/electrical-leads/sevenoaks",
       heading: "Electrical leads in Sevenoaks",
-      title: "Electrical leads in Sevenoaks – Kestlow",
+      title: "Electrical leads in Sevenoaks – Kestlow™",
       description:
         "Planning applications in Sevenoaks that could need an electrician, sent to your phone every morning. For electricians in Kent. Try Pro free.",
     });

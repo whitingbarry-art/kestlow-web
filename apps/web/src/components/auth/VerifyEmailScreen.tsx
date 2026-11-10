@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
 import type { AuthResult } from "../../api/auth";
+import { pageTitle } from "../../data/site";
 import { SESSION_KEY } from "../../hooks/useSession";
 import { buttonClassName } from "../ui/buttonStyles";
 import { AuthLayout } from "./AuthLayout";
@@ -21,7 +22,7 @@ export function VerifyEmailScreen({ token }: VerifyEmailScreenProps) {
   const asked = useRef(false);
 
   useEffect(() => {
-    document.title = "Confirm your email – Kestlow";
+    document.title = pageTitle("Confirm your email");
     // Once, even in React's development double run: a used token can't be used again.
     if (!token || asked.current) return;
     asked.current = true;

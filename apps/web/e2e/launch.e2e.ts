@@ -15,7 +15,7 @@ test.describe("the launch page (KES-125)", () => {
     page,
   }) => {
     await page.goto("/?ref=e2e-card");
-    await expect(page).toHaveTitle("Kestlow: planning leads for tradespeople");
+    await expect(page).toHaveTitle("Kestlow™: planning leads for tradespeople");
 
     await page.getByRole("link", { name: "Start your free 14-day trial" }).first().click();
     await expect(page).toHaveURL(/\/\?start=trial&ref=e2e-card$/);

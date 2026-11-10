@@ -2,6 +2,7 @@
 // against the API's PLAN_LIMITS and the councils we collect from before changing it.
 
 import { CONTACT } from "./contact";
+import { BRAND } from "./site";
 
 /** The councils Kestlow collects planning applications from, as of November 2026. */
 export const COUNCILS = [
@@ -137,6 +138,6 @@ export const FAQS: { question: string; answer: string }[] = [
  * The launch page's title and description for search results and link previews (KES-135).
  * index.html and waitlist/index.html repeat them for crawlers that don't run JavaScript.
  */
-export const LAUNCH_TITLE = "Kestlow: planning leads for tradespeople";
+export const LAUNCH_TITLE = `${BRAND}: planning leads for tradespeople`;
 export const LAUNCH_DESCRIPTION =
   "Planning leads for roofers, electricians, landscapers and groundworkers in south-east London and Kent, sent to your phone. Try Pro free for 14 days.";

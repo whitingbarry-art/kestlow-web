@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { pageTitle } from "../../data/site";
 import { usePageMeta } from "../../hooks/usePageMeta";
 import { BrandLogo } from "../ui/BrandLogo";
 import { SiteFooter } from "./SiteFooter";
@@ -13,7 +14,7 @@ interface PublicLayoutProps {
 
 /** The pages anyone can read (KES-116): the brand header, a readable column and the footer. */
 export function PublicLayout({ title, description, children }: PublicLayoutProps) {
-  usePageMeta({ title: `${title} – Kestlow`, description });
+  usePageMeta({ title: pageTitle(title), description });
 
   return (
     <div className="flex min-h-screen flex-col">

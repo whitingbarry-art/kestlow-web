@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { TRADES } from "../../data/leads";
+import { pageTitle } from "../../data/site";
 import { useAlertSettings } from "../../hooks/useAlertSettings";
 import { useSignOut } from "../../hooks/useSession";
 import { useSubscription } from "../../hooks/useSubscription";
@@ -44,7 +45,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
   const moved = useRef(false);
 
   useEffect(() => {
-    document.title = `${TITLES[step]} – Kestlow`;
+    document.title = pageTitle(TITLES[step]);
     // After moving between steps, start screen readers and keyboards at the new question.
     if (moved.current) heading.current?.focus();
   }, [step]);

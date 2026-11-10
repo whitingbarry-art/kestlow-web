@@ -7,7 +7,6 @@ export function BrandLogo({ size = 36 }: BrandLogoProps) {
   return (
     <a
       href="/"
-      aria-label="Kestlow home"
       className="inline-flex items-center gap-2.5 rounded-xl text-[22px] font-bold tracking-[-0.5px] text-white no-underline"
     >
       {/* A roof for building work over an amber K, with the amber dot at the ridge. */}
@@ -22,7 +21,15 @@ export function BrandLogo({ size = 36 }: BrandLogoProps) {
         </g>
         <circle cx="48" cy="16" r="8" fill="#F5A623" />
       </svg>
-      Kestlow
+      {/* Named by what it shows, so its spoken name matches the visible "Kestlow" (WCAG 2.5.3).
+          The ™ (KES-158) is hidden from screen readers, which would say "trade mark" otherwise. */}
+      <span>
+        Kestlow
+        <span aria-hidden="true" className="ml-0.5 align-super text-[0.45em] font-semibold">
+          ™
+        </span>{" "}
+        <span className="sr-only">home</span>
+      </span>
     </a>
   );
 }

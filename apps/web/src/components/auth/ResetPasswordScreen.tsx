@@ -1,6 +1,7 @@
 import { useEffect, useId, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
 import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
+import { pageTitle } from "../../data/site";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PasswordInput } from "../ui/PasswordInput";
@@ -29,7 +30,7 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
   const strength = usePasswordStrength(password, []);
 
   useEffect(() => {
-    document.title = "Choose a new password – Kestlow";
+    document.title = pageTitle("Choose a new password");
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {

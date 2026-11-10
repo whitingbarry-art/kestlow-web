@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
 import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
+import { pageTitle } from "../../data/site";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
 import {
@@ -75,7 +76,7 @@ export function AuthScreen({
   }, [mode, recordStep, source]);
 
   useEffect(() => {
-    document.title = `${TITLES[mode]} – Kestlow`;
+    document.title = pageTitle(TITLES[mode]);
     // Only after a switch: on first load the page starts at the top as usual.
     if (switched.current) heading.current?.focus();
   }, [mode]);
