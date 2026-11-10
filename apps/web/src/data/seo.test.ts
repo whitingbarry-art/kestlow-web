@@ -20,7 +20,7 @@ describe("what search engines read", () => {
       "https://kestlow.co.uk/planning-leads",
       "https://kestlow.co.uk/roofing-leads/bromley",
     ]);
-    expect(listed).toHaveLength(1 + SITE_LINKS.length + 1 + 26 * 4);
+    expect(listed).toHaveLength(1 + SITE_LINKS.length + 1 + 28 * 4);
     expect(listed).toContain("https://kestlow.co.uk/groundworks-leads/dartford");
   });
 
