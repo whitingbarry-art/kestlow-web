@@ -12,6 +12,6 @@ describe("BrandLogo", () => {
     render(<BrandLogo />);
 
     const link = screen.getByRole("link", { name: "Kestlow home" });
-    expect(link).toHaveTextContent("Kestlow™");
+    expect(link).toHaveTextContent(/^Kestlow™/);
   });
 });
