@@ -13,9 +13,9 @@ describe("the town and trade pages", () => {
       expect(areaPageFor(path)).toBeUndefined();
   });
 
-  it("has a page for each of the 4 trades in each of the 28 councils (KES-161)", () => {
-    expect(AREA_PAGES).toHaveLength(112);
-    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(112);
+  it("has a page for each of the 4 trades in each of the 29 councils (KES-161)", () => {
+    expect(AREA_PAGES).toHaveLength(116);
+    expect(new Set(AREA_PAGES.map((page) => areaPageMeta(page).path)).size).toBe(116);
   });
 
   it("gives each one a title and a description that fits in a search result", () => {

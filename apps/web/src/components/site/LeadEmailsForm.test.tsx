@@ -40,7 +40,7 @@ describe("LeadEmailsForm", () => {
     await user.click(screen.getByRole("button", { name: "Send me this week's leads" }));
 
     expect(await screen.findByRole("heading", { name: "We don't cover M1 1AE yet" })).toHaveFocus();
-    expect(screen.getByText(/28 councils across London and Kent/)).toHaveTextContent("Westminster");
+    expect(screen.getByText(/29 councils across London and Kent/)).toHaveTextContent("Westminster");
     await user.click(screen.getByRole("button", { name: "Try another postcode" }));
     expect(screen.getByLabelText("Your postcode")).toBeInTheDocument();
   });

@@ -28,6 +28,7 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "westminster", name: "Westminster", region: "central London" },
   { slug: "city-of-london", name: "City of London", region: "central London" },
   { slug: "camden", name: "Camden", region: "north London" },
+  { slug: "islington", name: "Islington", region: "north London" },
   { slug: "barnet", name: "Barnet", region: "north London" },
   { slug: "haringey", name: "Haringey", region: "north London" },
   { slug: "brent", name: "Brent", region: "north-west London" },
