@@ -1,3 +1,4 @@
+import { COVERAGE } from "../../data/areas";
 import { CONTACT } from "../../data/contact";
 import { PublicLayout } from "./PublicLayout";
 
@@ -39,13 +40,21 @@ export function AboutPage() {
           </h2>
           <p className="m-0">
             Planning applications are public. Councils publish them on their planning registers so
-            anyone can see what's proposed nearby. For now we collect them through{" "}
+            anyone can see what's proposed nearby. We collect most of London's from the Greater
+            London Authority's Planning London Datahub and the rest through{" "}
             <a href="https://www.planit.org.uk" className={linkClass}>
               PlanIt
             </a>
             , which gathers councils' registers in one place, and every lead links to the council's
-            own page so you can check the details. We're starting with seven councils in south-east
-            London and Kent, and adding more as we grow.
+            own page so you can check the details. We cover {COVERAGE} so far, and we're adding the
+            rest of London next. Contains public sector information licensed under the{" "}
+            <a
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              className={linkClass}
+            >
+              Open Government Licence v3.0
+            </a>
+            .
           </p>
           <p className="mt-3 mb-0">
             When an application doesn't give a full address, we work out where it is from the street

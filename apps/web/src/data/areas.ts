@@ -13,15 +13,41 @@ export interface AreaCouncil {
   region: string;
 }
 
+/** The councils we collect from (KES-161 added London's from the GLA's London Datahub). */
 export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "bromley", name: "Bromley", region: "south-east London" },
   { slug: "greenwich", name: "Greenwich", region: "south-east London" },
   { slug: "bexley", name: "Bexley", region: "south-east London" },
   { slug: "lewisham", name: "Lewisham", region: "south-east London" },
   { slug: "croydon", name: "Croydon", region: "south London" },
+  { slug: "lambeth", name: "Lambeth", region: "south London" },
+  { slug: "sutton", name: "Sutton", region: "south London" },
+  { slug: "merton", name: "Merton", region: "south-west London" },
+  { slug: "kingston", name: "Kingston", region: "south-west London" },
+  { slug: "westminster", name: "Westminster", region: "central London" },
+  { slug: "camden", name: "Camden", region: "north London" },
+  { slug: "barnet", name: "Barnet", region: "north London" },
+  { slug: "haringey", name: "Haringey", region: "north London" },
+  { slug: "brent", name: "Brent", region: "north-west London" },
+  { slug: "harrow", name: "Harrow", region: "north-west London" },
+  { slug: "hammersmith-and-fulham", name: "Hammersmith & Fulham", region: "west London" },
+  { slug: "hounslow", name: "Hounslow", region: "west London" },
+  { slug: "hillingdon", name: "Hillingdon", region: "west London" },
+  { slug: "tower-hamlets", name: "Tower Hamlets", region: "east London" },
+  { slug: "hackney", name: "Hackney", region: "east London" },
+  { slug: "newham", name: "Newham", region: "east London" },
+  { slug: "waltham-forest", name: "Waltham Forest", region: "east London" },
+  { slug: "barking-and-dagenham", name: "Barking & Dagenham", region: "east London" },
+  { slug: "havering", name: "Havering", region: "east London" },
   { slug: "dartford", name: "Dartford", region: "Kent" },
   { slug: "sevenoaks", name: "Sevenoaks", region: "Kent" },
 ];
+
+/** How many of the councils are London's, of its 33 (32 boroughs and the City). */
+export const LONDON_COUNCIL_COUNT = AREA_COUNCILS.filter((c) => c.region !== "Kent").length;
+
+/** "26 councils across London and Kent", as every page says it. */
+export const COVERAGE = `${AREA_COUNCILS.length} councils across London and Kent`;
 
 export interface AreaTrade {
   slug: string;
@@ -78,7 +104,7 @@ export interface AreaPageInfo {
 
 /** The town and trade page at `pathname`, if it is one. */
 export function areaPageFor(pathname: string): AreaPageInfo | undefined {
-  const match = /^\/([a-z]+)-leads\/([a-z]+)$/.exec(pathname);
+  const match = /^\/([a-z]+)-leads\/([a-z-]+)$/.exec(pathname);
   const trade = AREA_TRADES.find((t) => t.slug === match?.[1]);
   const council = AREA_COUNCILS.find((c) => c.slug === match?.[2]);
   return trade && council ? { trade, council } : undefined;
@@ -111,7 +137,7 @@ export const AREAS_INDEX_META: StaticPageMeta = {
   path: AREAS_INDEX_PATH,
   heading: "Planning leads by town and trade",
   title: pageTitle("Planning leads by town and trade"),
-  description: `Planning leads for roofers, electricians, landscapers and groundworkers in ${AREA_COUNCILS.map((c) => c.name).join(", ")}.`,
+  description: `Planning leads for roofers, electricians, landscapers and groundworkers from ${COVERAGE}, sent to your phone every morning.`,
 };
 
 /** The sitemap's addresses: the launch page, the footer's pages, then the town and trade pages. */

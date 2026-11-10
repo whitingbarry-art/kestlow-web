@@ -2,7 +2,7 @@ import { Lock } from "lucide-react";
 import { useEffect, useId, useRef, useState, type FormEvent, type RefObject } from "react";
 import { createJobsLoader, type JobsNear, type LoadJobs } from "../../api/jobs";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
-import { AREA_COUNCILS } from "../../data/areas";
+import { AREA_COUNCILS, COVERAGE } from "../../data/areas";
 import { TRADES } from "../../data/leads";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
 import { signUpHref } from "../../logic/signUp";
@@ -88,7 +88,7 @@ export function JobsPage({
   return (
     <PublicLayout
       title="Jobs near you"
-      description="See how many planning applications near you need your trade, and three real ones, free. Roofing, electrical, landscaping and groundworks around Bromley."
+      description="See how many planning applications near you need your trade, and three real ones, free. Roofing, electrical, landscaping and groundworks across London and Kent."
     >
       <div className="flex flex-col gap-8 text-lg leading-relaxed">
         <p className="m-0 text-xl">
@@ -207,7 +207,7 @@ function Results({
           No {jobs.trade.toLowerCase()} jobs near {jobs.postcode} yet
         </h2>
         <p className="m-0">
-          Kestlow covers {AREA_COUNCILS.length} councils around Bromley for now:{" "}
+          Kestlow covers {COVERAGE} for now:{" "}
           {AREA_COUNCILS.map((council) => council.name).join(", ")}. More are coming.
         </p>
       </section>
