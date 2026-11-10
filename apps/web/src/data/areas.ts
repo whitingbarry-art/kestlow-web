@@ -32,6 +32,7 @@ export const AREA_COUNCILS: AreaCouncil[] = [
   { slug: "islington", name: "Islington", region: "north London" },
   { slug: "barnet", name: "Barnet", region: "north London" },
   { slug: "haringey", name: "Haringey", region: "north London" },
+  { slug: "enfield", name: "Enfield", region: "north London" },
   { slug: "brent", name: "Brent", region: "north-west London" },
   { slug: "harrow", name: "Harrow", region: "north-west London" },
   { slug: "kensington-and-chelsea", name: "Kensington & Chelsea", region: "west London" },
