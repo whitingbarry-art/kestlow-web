@@ -21,7 +21,7 @@ describe("AccessibilityPage", () => {
       "mailto:support@kestlow.co.uk",
     );
     expect(screen.getByRole("link", { name: "contact form" })).toHaveAttribute("href", "/contact");
-    expect(document.title).toBe("Accessibility – Kestlow");
+    expect(document.title).toBe("Accessibility – Kestlow™");
   });
 
   it("never claims more than we can show (KES-132)", () => {

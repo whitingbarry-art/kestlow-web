@@ -3,7 +3,7 @@
 // claim here must stay true: check it against the API's trade rules before changing it.
 
 import type { Trade } from "../types/lead";
-import { SITE_URL } from "./site";
+import { pageTitle, SITE_URL } from "./site";
 
 export interface AreaCouncil {
   slug: string;
@@ -102,7 +102,7 @@ export function areaPageMeta({ trade, council }: AreaPageInfo): StaticPageMeta {
   return {
     path: areaPath(trade, council),
     heading: `${trade.trade} leads in ${council.name}`,
-    title: `${trade.trade} leads in ${council.name} – Kestlow`,
+    title: pageTitle(`${trade.trade} leads in ${council.name}`),
     description: `Planning applications in ${council.name} that could need ${trade.someone}, sent to your phone every morning. For ${trade.people} in ${council.region}. Try Pro free.`,
   };
 }
@@ -110,7 +110,7 @@ export function areaPageMeta({ trade, council }: AreaPageInfo): StaticPageMeta {
 export const AREAS_INDEX_META: StaticPageMeta = {
   path: AREAS_INDEX_PATH,
   heading: "Planning leads by town and trade",
-  title: "Planning leads by town and trade – Kestlow",
+  title: pageTitle("Planning leads by town and trade"),
   description: `Planning leads for roofers, electricians, landscapers and groundworkers in ${AREA_COUNCILS.map((c) => c.name).join(", ")}.`,
 };
 

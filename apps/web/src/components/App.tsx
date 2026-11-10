@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { NAV_ITEMS } from "../data/navigation";
+import { BRAND, pageTitle } from "../data/site";
 import { useAlertSettings } from "../hooks/useAlertSettings";
 import { useLeads } from "../hooks/useLeads";
 import { useIsDesktop } from "../hooks/useMediaQuery";
@@ -45,7 +46,7 @@ export function App() {
   const viewLabel = NAV_ITEMS.find((item) => item.view === view)?.label;
 
   useEffect(() => {
-    document.title = viewLabel ? `${viewLabel} – Kestlow` : "Kestlow";
+    document.title = viewLabel ? pageTitle(viewLabel) : BRAND;
   }, [viewLabel]);
 
   return (

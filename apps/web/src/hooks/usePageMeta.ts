@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { SITE_URL } from "../data/site";
 
 export interface PageMeta {
-  /** The browser tab's title, whole: "About us – Kestlow". */
+  /** The browser tab's title, whole: "About us – Kestlow™". */
   title: string;
   /** What search results and link previews say about the page; leave out for pages not in search. */
   description?: string;

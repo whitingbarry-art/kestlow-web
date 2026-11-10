@@ -1,5 +1,6 @@
 import { AREAS_INDEX_PATH } from "../../data/areas";
 import { BUSINESS_ADDRESS } from "../../data/contact";
+import { BRAND } from "../../data/site";
 import { SITE_LINKS } from "../../data/navigation";
 import { cn } from "../../utils/cn";
 
@@ -29,7 +30,7 @@ export function SiteFooter({ className }: SiteFooterProps) {
         </a>
       </p>
       <p className="mt-3 mb-0 text-center">
-        {/* The postcode never splits across two lines. */}© {new Date().getFullYear()} Kestlow,{" "}
+        {/* The postcode never splits across two lines. */}© {new Date().getFullYear()} {BRAND},{" "}
         {BUSINESS_ADDRESS.replace(/ (\S+)$/, "\u00a0$1")}
       </p>
     </footer>

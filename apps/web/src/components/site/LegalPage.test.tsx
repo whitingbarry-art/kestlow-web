@@ -25,7 +25,7 @@ describe("LegalPage", () => {
       "One",
       "Two, at hello@kestlow.co.uk",
     ]);
-    expect(document.title).toBe("Test policy – Kestlow");
+    expect(document.title).toBe("Test policy – Kestlow™");
   });
 
   it("makes email and web addresses links, leaving full stops outside them", () => {

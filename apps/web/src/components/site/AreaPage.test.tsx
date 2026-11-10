@@ -36,7 +36,7 @@ describe("AreaPage", () => {
     // Distances are from Bromley town centre, which means nothing on another town's page.
     expect(screen.queryByText(/\bmiles?\b/)).toBeNull();
     expect(load).toHaveBeenCalledWith("Bromley");
-    expect(document.title).toBe("Roofing leads in Bromley – Kestlow");
+    expect(document.title).toBe("Roofing leads in Bromley – Kestlow™");
   });
 
   it("leaves the numbers out if the API can't give them", async () => {

@@ -22,7 +22,11 @@ export function BrandLogo({ size = 36 }: BrandLogoProps) {
         </g>
         <circle cx="48" cy="16" r="8" fill="#F5A623" />
       </svg>
-      Kestlow
+      <span>
+        Kestlow
+        {/* Our trade mark (KES-158); the link's label already names it for screen readers. */}
+        <span className="ml-0.5 align-super text-[0.45em] font-semibold">™</span>
+      </span>
     </a>
   );
 }

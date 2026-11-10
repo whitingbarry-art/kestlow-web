@@ -107,10 +107,10 @@ describe("App", () => {
 
   it("names the page after the current view", async () => {
     render(<App />, { wrapper: providers() });
-    expect(document.title).toBe("Leads – Kestlow");
+    expect(document.title).toBe("Leads – Kestlow™");
     const [mainNav] = screen.getAllByRole("navigation", { name: "Main" });
     await userEvent.click(within(mainNav).getByRole("button", { name: "Alerts" }));
-    expect(document.title).toBe("Alerts – Kestlow");
+    expect(document.title).toBe("Alerts – Kestlow™");
   });
 
   it("shows saved leads and alert settings", async () => {
