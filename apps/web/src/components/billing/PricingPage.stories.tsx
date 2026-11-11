@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { withLeadsApi } from "../../stories/withLeadsApi";
-import { apiOnPlan, PAYING, TRIALING } from "./billingStories";
+import { ADMIN, apiOnPlan, PAYING, TRIALING } from "./billingStories";
 import { PricingPage } from "./PricingPage";
 
 const meta = {
@@ -19,3 +19,6 @@ export const TrialOnOffer: Story = { decorators: [withLeadsApi(apiOnPlan({}))] }
 export const DuringTrial: Story = { decorators: [withLeadsApi(apiOnPlan(TRIALING))] };
 
 export const AlreadyPaying: Story = { decorators: [withLeadsApi(apiOnPlan(PAYING))] };
+
+/** Someone who runs Kestlow (KES-164): Pro, with nothing to choose or pay. */
+export const Admin: Story = { decorators: [withLeadsApi(apiOnPlan(ADMIN))] };

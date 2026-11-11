@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { withLeadsApi } from "../../stories/withLeadsApi";
 import { Card } from "../ui/Card";
-import { apiOnPlan, PAYING, TRIALING } from "./billingStories";
+import { ADMIN, apiOnPlan, PAYING, TRIALING } from "./billingStories";
 import { PlanSummary } from "./PlanSummary";
 
 const meta = {
@@ -26,3 +26,5 @@ export const Free: Story = { decorators: [withLeadsApi(apiOnPlan({ trialAvailabl
 export const Trial: Story = { decorators: [withLeadsApi(apiOnPlan(TRIALING))] };
 
 export const FoundingMember: Story = { decorators: [withLeadsApi(apiOnPlan(PAYING))] };
+
+export const Admin: Story = { decorators: [withLeadsApi(apiOnPlan(ADMIN))] };

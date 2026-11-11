@@ -19,4 +19,6 @@ export interface SubscriptionSummary {
   foundingMember: boolean;
   /** Whether they can still start the free trial: never had one, and no subscription now. */
   trialAvailable: boolean;
+  /** Whether they run Kestlow (KES-164), so have Pro with nothing to pay or manage. */
+  admin: boolean;
 }

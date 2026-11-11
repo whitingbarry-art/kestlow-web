@@ -44,4 +44,9 @@ describe("describePlan", () => {
       "Paused: the Free plan until it restarts",
     );
   });
+
+  it("says an admin has Pro as an admin account, whatever Stripe still has (KES-164)", () => {
+    expect(describePlan({ ...FREE_PLAN, plan: "pro", admin: true })).toBe("Pro (admin account)");
+    expect(describePlan({ ...trial, admin: true })).toBe("Pro (admin account)");
+  });
 });

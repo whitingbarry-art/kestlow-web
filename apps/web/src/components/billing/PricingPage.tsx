@@ -89,7 +89,12 @@ export function PricingPage({ goTo = (url) => window.location.assign(url) }: Pri
         </div>
       )}
 
-      {subscribed ? (
+      {current.admin ? (
+        // Admins run Kestlow (KES-164): Pro, with no plan to choose or pay for.
+        <p className="mt-6 mb-0 rounded-card bg-card p-4">
+          You run Kestlow, so you have every Pro feature with nothing to pay.
+        </p>
+      ) : subscribed ? (
         // Changing or cancelling happens in Stripe's Customer Portal (KES-51).
         <div className="mt-6 rounded-card bg-card p-4">
           <ManagePlanButton goTo={goTo} />

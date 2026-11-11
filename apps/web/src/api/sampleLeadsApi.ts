@@ -26,6 +26,7 @@ export const FREE_PLAN: SubscriptionSummary = {
   paymentFailedAt: null,
   foundingMember: false,
   trialAvailable: true,
+  admin: false,
 };
 
 export function createSampleLeadsApi(
