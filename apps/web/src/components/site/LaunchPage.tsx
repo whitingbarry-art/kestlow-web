@@ -108,7 +108,7 @@ export function LaunchPage({
               </p>
               <ul className="mt-5 mb-0 flex flex-col gap-2 pl-0">
                 {[
-                  `New applications from ${COUNCILS.length} councils around Bromley`,
+                  `New applications from ${COUNCILS.length} councils across London and Kent`,
                   "Picked out for your trade, with the distance",
                   "This week's leads free by email, no account needed",
                 ].map((point) => (

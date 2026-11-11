@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import type { LeadEmailsApi, LeadEmailsErrors } from "../../api/leadEmails";
-import { AREA_COUNCILS } from "../../data/areas";
+import { AREA_COUNCILS, COVERAGE } from "../../data/areas";
 import { CONTACT } from "../../data/contact";
 import { TRADES } from "../../data/leads";
 import type { Trade } from "../../types/lead";
@@ -94,7 +94,7 @@ export function LeadEmailsForm({ api, source, trade, postcode }: LeadEmailsFormP
           We don't cover {sentTo.postcode} yet
         </h3>
         <p className="mt-2 mb-0">
-          For now, Kestlow covers {AREA_COUNCILS.length} councils around Bromley:{" "}
+          For now, Kestlow covers {COVERAGE}:{" "}
           {AREA_COUNCILS.map((council) => council.name).join(", ")}. More are coming.
         </p>
         <button

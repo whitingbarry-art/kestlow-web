@@ -1,19 +1,12 @@
 // What the launch page says (KES-131). Every claim here is true of Kestlow today: check it
 // against the API's PLAN_LIMITS and the councils we collect from before changing it.
 
+import { AREA_COUNCILS, COVERAGE } from "./areas";
 import { CONTACT } from "./contact";
 import { BRAND } from "./site";
 
-/** The councils Kestlow collects planning applications from, as of November 2026. */
-export const COUNCILS = [
-  "Bromley",
-  "Greenwich",
-  "Bexley",
-  "Lewisham",
-  "Croydon",
-  "Dartford",
-  "Sevenoaks",
-];
+/** The councils Kestlow collects planning applications from. */
+export const COUNCILS = AREA_COUNCILS.map((council) => council.name);
 
 export type FeatureIcon =
   "sunrise" | "trade" | "map" | "councils" | "bell" | "search" | "save" | "phone";
@@ -36,8 +29,8 @@ export const FEATURES: { icon: FeatureIcon; title: string; text: string }[] = [
   },
   {
     icon: "councils",
-    title: `${COUNCILS.length} councils around Bromley`,
-    text: `${COUNCILS.join(", ").replace(/, ([^,]*)$/, " and $1")}, with more to come.`,
+    title: COVERAGE,
+    text: "Every London council, plus Dartford and Sevenoaks in Kent, with more to come.",
   },
   {
     icon: "bell",
@@ -97,11 +90,11 @@ export const FAQS: { question: string; answer: string }[] = [
   {
     question: "Where do the leads come from?",
     answer:
-      "From the councils' public planning registers. Planning applications are public records: anyone can look them up. We collect the new ones every night, with help from PlanIt, a public planning data service, and pick out the ones that need your trade.",
+      "From the councils' public planning registers. Planning applications are public records: anyone can look them up. We collect the new ones every night, most of London's from the Greater London Authority's Planning London Datahub and the rest with help from PlanIt, a public planning data service, and pick out the ones that need your trade. Contains public sector information licensed under the Open Government Licence v3.0.",
   },
   {
     question: "Which areas do you cover?",
-    answer: `${COUNCILS.join(", ").replace(/, ([^,]*)$/, " and $1")} councils. We're adding more, starting with the councils around these.`,
+    answer: `${COVERAGE}: ${COUNCILS.join(", ").replace(/, ([^,]*)$/, " and $1")}. That's every London council, and we're adding more of the South East next.`,
   },
   {
     question: "Does a lead mean I'll get the job?",
@@ -140,4 +133,4 @@ export const FAQS: { question: string; answer: string }[] = [
  */
 export const LAUNCH_TITLE = `${BRAND}: planning leads for tradespeople`;
 export const LAUNCH_DESCRIPTION =
-  "Planning leads for roofers, electricians, landscapers and groundworkers in south-east London and Kent, sent to your phone. Try Pro free for 14 days.";
+  "Planning leads for roofers, electricians, landscapers and groundworkers across London and Kent, sent to your phone. Try Pro free for 14 days.";

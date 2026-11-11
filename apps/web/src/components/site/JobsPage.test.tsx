@@ -158,7 +158,9 @@ describe("JobsPage (KES-155)", () => {
     await lookUp(user, "Roofing", "M1");
 
     const answer = await screen.findByRole("region", { name: "No roofing jobs near M1 yet" });
-    expect(within(answer).getByText(/Kestlow covers \d+ councils around Bromley/)).toBeVisible();
+    expect(
+      within(answer).getByText(/Kestlow covers \d+ councils across London and Kent/),
+    ).toBeVisible();
     expect(screen.queryByRole("link", { name: "See them all free" })).toBeNull();
   });
 });

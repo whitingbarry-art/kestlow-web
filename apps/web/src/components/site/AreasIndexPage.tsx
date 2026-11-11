@@ -1,4 +1,4 @@
-import { AREA_COUNCILS, AREA_TRADES, AREAS_INDEX_META, areaPath } from "../../data/areas";
+import { AREA_COUNCILS, AREA_TRADES, AREAS_INDEX_META, areaPath, COVERAGE } from "../../data/areas";
 import { PublicLayout } from "./PublicLayout";
 
 const linkClass = "font-semibold text-ink underline";
@@ -9,8 +9,8 @@ export function AreasIndexPage() {
     <PublicLayout title={AREAS_INDEX_META.heading} description={AREAS_INDEX_META.description}>
       <div className="flex flex-col gap-6 text-lg leading-relaxed">
         <p className="m-0">
-          Kestlow covers {AREA_COUNCILS.length} councils in south-east London and Kent, with more to
-          come. Pick your area and trade to see last month's planning applications.
+          Kestlow covers {COVERAGE}, with more to come. Pick your area and trade to see last month's
+          planning applications.
         </p>
         {AREA_COUNCILS.map((council) => (
           <section key={council.slug} aria-labelledby={`areas-${council.slug}`}>

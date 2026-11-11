@@ -253,7 +253,7 @@ export const TERMS: LegalDocument = {
     {
       heading: "Who owns what",
       blocks: [
-        "Kestlow's software, design and name are ours. Planning information belongs to the councils and others who publish it. Kestlow also uses Ordnance Survey and OpenStreetMap data, which they're credited for where it appears.",
+        "Kestlow's software, design and name are ours. Planning information belongs to the councils and others who publish it. Most of London's comes from the Greater London Authority's Planning London Datahub, and contains public sector information licensed under the Open Government Licence v3.0. Kestlow also uses Ordnance Survey and OpenStreetMap data, which they're credited for where it appears.",
       ],
     },
     {
