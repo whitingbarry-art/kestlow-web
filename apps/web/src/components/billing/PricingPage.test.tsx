@@ -55,6 +55,16 @@ describe("PricingPage", () => {
     expect(screen.queryByRole("button", { name: "Start my free trial" })).not.toBeInTheDocument();
   });
 
+  it("offers an admin no plan, trial or Customer Portal: there's nothing to pay (KES-164)", async () => {
+    renderPricing(withPlan({ ...FREE_PLAN, plan: "pro", trialAvailable: false, admin: true }));
+
+    expect(await screen.findByText("Pro (admin account)")).toBeVisible();
+    expect(screen.getByText(/every Pro feature with nothing to pay/)).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: /Choose|free trial|Manage/ }),
+    ).not.toBeInTheDocument();
+  });
+
   it("doesn't sell a plan to someone already paying, but opens the Customer Portal (KES-51)", async () => {
     const user = userEvent.setup();
     const goTo = renderPricing(

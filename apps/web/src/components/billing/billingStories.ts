@@ -25,3 +25,10 @@ export const PAYING: Partial<SubscriptionSummary> = {
   foundingMember: true,
   trialAvailable: false,
 };
+
+/** Someone who runs Kestlow (KES-164): Pro, with no subscription. */
+export const ADMIN: Partial<SubscriptionSummary> = {
+  plan: "pro",
+  trialAvailable: false,
+  admin: true,
+};
