@@ -101,8 +101,11 @@ test.describe("leads", () => {
     const right = page.getByTestId("scroll-right");
     test.skip(!(await right.isVisible()), "Every trade fits, so there's no fade to tap through.");
     const fade = (await right.locator("..").boundingBox())!;
-    // The first trade button that the fade covers part of.
-    const buttons = page.getByRole("group", { name: "Filter by trade" }).getByRole("button");
+    // The first locked trade button that the fade covers part of; a new account is on the free
+    // plan, so tapping it says why it's locked.
+    const buttons = page
+      .getByRole("group", { name: "Filter by trade" })
+      .getByRole("button", { name: /not on your plan/ });
     let covered: { name: string; x: number; y: number } | undefined;
     for (const button of await buttons.all()) {
       const box = (await button.boundingBox())!;
@@ -120,7 +123,6 @@ test.describe("leads", () => {
 
     await page.mouse.click(covered!.x, covered!.y);
 
-    // A new account is on the free plan, so the covered trade is locked and says why.
     await expect(
       page.getByRole("status").filter({ hasText: "Pro covers all four trades" }),
     ).toHaveText(`${covered!.name} isn't on your plan. Pro covers all four trades. See plans`);
