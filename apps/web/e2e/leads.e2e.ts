@@ -93,4 +93,36 @@ test.describe("leads", () => {
       page.getByRole("status").filter({ hasText: "Pro covers all four trades" }),
     ).toHaveText("Landscaping isn't on your plan. Pro covers all four trades. See plans");
   });
+
+  test("a trade button can be tapped even where the row fades out at the edge (KES-163)", async ({
+    page,
+  }) => {
+    await signUp(page, { name: "Fade Tester" });
+    const right = page.getByTestId("scroll-right");
+    test.skip(!(await right.isVisible()), "Every trade fits, so there's no fade to tap through.");
+    const fade = (await right.locator("..").boundingBox())!;
+    // The first trade button that the fade covers part of.
+    const buttons = page.getByRole("group", { name: "Filter by trade" }).getByRole("button");
+    let covered: { name: string; x: number; y: number } | undefined;
+    for (const button of await buttons.all()) {
+      const box = (await button.boundingBox())!;
+      if (box.x + box.width > fade.x + 4 && box.x < fade.x + fade.width) {
+        // A point inside both, clear of the triangle at the far end.
+        covered = {
+          name: (await button.textContent())!.replace(" (not on your plan)", ""),
+          x: Math.max(box.x, fade.x) + 4,
+          y: box.y + box.height / 2,
+        };
+        break;
+      }
+    }
+    expect(covered, "a trade button under the fade").toBeDefined();
+
+    await page.mouse.click(covered!.x, covered!.y);
+
+    // A new account is on the free plan, so the covered trade is locked and says why.
+    await expect(
+      page.getByRole("status").filter({ hasText: "Pro covers all four trades" }),
+    ).toHaveText(`${covered!.name} isn't on your plan. Pro covers all four trades. See plans`);
+  });
 });
