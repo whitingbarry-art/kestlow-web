@@ -90,7 +90,9 @@ export function ScrollRow({ className, children, ...props }: ComponentProps<"div
               key={side}
               aria-hidden="true"
               className={cn(
-                "absolute inset-y-0 flex w-14 items-center",
+                // Taps go through the fade to the buttons under it (KES-163); only the triangle
+                // takes them.
+                "pointer-events-none absolute inset-y-0 flex w-14 items-center",
                 side === "left"
                   ? "left-0 justify-start bg-linear-to-r from-page from-40% to-transparent pl-1.5"
                   : "right-0 justify-end bg-linear-to-l from-page from-40% to-transparent pr-1.5",
@@ -102,7 +104,7 @@ export function ScrollRow({ className, children, ...props }: ComponentProps<"div
                 onClick={() => glide(side)}
                 data-testid={`scroll-${side}`}
                 data-moving={moving || undefined}
-                className="group grid size-8 place-items-center"
+                className="group pointer-events-auto grid size-8 place-items-center"
               >
                 <Triangle side={side} filled={moving} />
               </button>
