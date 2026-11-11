@@ -26,6 +26,7 @@ export function trialDaysLeft(subscription: SubscriptionSummary, now = new Date(
 /** The plan's name and where it stands, as the Account page shows it (KES-50). */
 export function describePlan(subscription: SubscriptionSummary): string {
   const name = PLAN_NAMES[subscription.plan];
+  if (subscription.admin) return `${name} (admin account)`;
   const { status, trialEndsAt, currentPeriodEnd, cancelAtPeriodEnd } = subscription;
   if (status === "trialing" && trialEndsAt)
     return `Free ${name} trial, until ${formatBillingDate(trialEndsAt)}`;
