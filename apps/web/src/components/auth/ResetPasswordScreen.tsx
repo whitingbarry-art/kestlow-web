@@ -1,10 +1,11 @@
-import { useEffect, useId, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
-import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
+import { PASSWORD_HINT, WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
 import { pageTitle } from "../../data/site";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { buttonClassName } from "../ui/buttonStyles";
 import { PasswordInput } from "../ui/PasswordInput";
+import { Spinner } from "../ui/Spinner";
 import { AuthLayout } from "./AuthLayout";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 
@@ -14,7 +15,7 @@ interface ResetPasswordScreenProps {
 }
 
 /**
- * Where a reset email's link opens (KES-41): choose a new password, which must reach Strong. Every
+ * Where a reset email's link opens (KES-41): choose a new password, Good or Strong (KES-167). Every
  * device is signed out, so the next step is signing in with it.
  */
 export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
@@ -27,25 +28,37 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
   );
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
+  const busy = useRef(false);
   const strength = usePasswordStrength(password, []);
 
   useEffect(() => {
     document.title = pageTitle("Choose a new password");
   }, []);
 
+  // Off from the first tap, while the password checker loads too, so it's never sent twice.
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy.current || !token) return;
+    busy.current = true;
+    setSending(true);
     setShown(false);
-    if (!token) return;
+    try {
+      await send(token);
+    } finally {
+      busy.current = false;
+      setSending(false);
+    }
+  }
+
+  async function send(token: string) {
     const checker = await import("../../logic/password").catch(() => null);
     if (
       password.length >= 8 &&
       checker &&
-      checker.checkPassword(password, []).strength !== "strong"
+      !checker.isAcceptable(checker.checkPassword(password, []).strength)
     )
       return setError(WEAK_PASSWORD_MESSAGE);
 
-    setSending(true);
     setError(null);
     let result: AuthResult;
     try {
@@ -53,7 +66,6 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
     } catch {
       result = { ok: false, message: "We couldn't reach Kestlow. Please try again in a minute." };
     }
-    setSending(false);
     if (result.ok) setDone(true);
     else setError(result.message);
   }
@@ -84,7 +96,7 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
             New password
           </label>
           <p id={`${id}-hint`} className="mt-0.5 mb-0 text-sm text-muted">
-            It must reach Strong. Three random words, like ladder-teapot-rain, work well.
+            {PASSWORD_HINT}
           </p>
           <PasswordInput
             id={`${id}-password`}
@@ -109,6 +121,7 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
           disabled={sending || !token}
           className={buttonClassName("primary", "w-full")}
         >
+          {sending && <Spinner />}
           {sending ? "Saving…" : "Save new password"}
         </button>
       </form>

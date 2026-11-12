@@ -49,7 +49,11 @@ export interface AuthApi {
 }
 
 export const WEAK_PASSWORD_MESSAGE =
-  "Not strong enough yet. Try three random words, like ladder-teapot-rain.";
+  "That password is too easy to guess. Try three random words, like ladder-teapot-rain.";
+
+/** Above every new-password box (KES-167): Good or Strong passwords are accepted. */
+export const PASSWORD_HINT =
+  "Use at least 8 characters that aren't easy to guess. Three random words, like ladder-teapot-rain, work well.";
 
 /** Better Auth's error codes, in words a tradesperson would use. */
 const MESSAGES: Record<string, string> = {

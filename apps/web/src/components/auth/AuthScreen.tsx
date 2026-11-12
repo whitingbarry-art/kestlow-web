@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useAuthApi } from "../../api/AuthApiContext";
-import { WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
+import { PASSWORD_HINT, WEAK_PASSWORD_MESSAGE, type AuthResult } from "../../api/auth";
 import { pageTitle } from "../../data/site";
 import { usePasswordStrength } from "../../hooks/usePasswordStrength";
 import { SESSION_KEY } from "../../hooks/useSession";
@@ -12,6 +12,7 @@ import {
 } from "../../logic/funnel";
 import { openedToSignUp, sourceFrom, withoutSignUp } from "../../logic/signUp";
 import { buttonClassName } from "../ui/buttonStyles";
+import { Spinner } from "../ui/Spinner";
 import { inputClassName } from "../ui/inputStyles";
 import { PasswordInput } from "../ui/PasswordInput";
 import { AuthLayout } from "./AuthLayout";
@@ -56,6 +57,7 @@ export function AuthScreen({
   );
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
+  const busy = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const switched = useRef(false);
   // Kept as they're typed only for the strength meter, which counts the person's own name and
@@ -88,10 +90,23 @@ export function AuthScreen({
     setMode(next);
   }
 
+  // The button is off from the first tap until the answer comes back, including the moment the
+  // password checker takes to load, so a second tap can't send it twice (KES-167).
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (busy.current) return;
+    busy.current = true;
+    setSending(true);
     setShowPassword(false);
-    const form = new FormData(event.currentTarget);
+    try {
+      await send(new FormData(event.currentTarget));
+    } finally {
+      busy.current = false;
+      setSending(false);
+    }
+  }
+
+  async function send(form: FormData) {
     const text = (name: string) => {
       const value = form.get(name);
       return typeof value === "string" ? value : "";
@@ -103,21 +118,20 @@ export function AuthScreen({
       return setError("Enter your name.");
     }
     if (mode === "register") {
-      // Only strong passwords are accepted; the API checks too, this saves the round trip. If the
+      // Weak passwords are refused (KES-167); the API checks too, this saves the round trip. If the
       // checker can't load (a bad signal, or a new deploy replaced it), the API's check is enough.
       const checker = await import("../../logic/password").catch(() => null);
       const password = text("password");
       if (
         checker &&
         password.length >= 8 &&
-        checker.checkPassword(password, [name, text("email")]).strength !== "strong"
+        !checker.isAcceptable(checker.checkPassword(password, [name, text("email")]).strength)
       ) {
         refused("password-too-weak");
         return setError(WEAK_PASSWORD_MESSAGE);
       }
     }
 
-    setSending(true);
     setError(null);
     let result: AuthResult;
     try {
@@ -133,7 +147,6 @@ export function AuthScreen({
     } catch {
       result = { ok: false, message: "We couldn't reach Kestlow. Please try again in a minute." };
     }
-    setSending(false);
     if (!result.ok) {
       if (mode === "register") refused(reasonFromCode(result.code));
       return setError(result.message);
@@ -207,8 +220,7 @@ export function AuthScreen({
             </label>
             {mode === "register" && (
               <p id={`${id}-password-hint`} className="mt-0.5 mb-0 text-sm text-muted">
-                At least 8 characters, and it must reach Strong. Three random words, like
-                ladder-teapot-rain, work well.
+                {PASSWORD_HINT}
               </p>
             )}
             <PasswordInput
@@ -237,6 +249,7 @@ export function AuthScreen({
               disabled={sending}
               className={buttonClassName("primary", "w-full flex-none disabled:opacity-70")}
             >
+              {sending && <Spinner />}
               {sending
                 ? mode === "register"
                   ? "Creating your account…"

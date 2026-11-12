@@ -6,11 +6,25 @@ import * as en from "@zxcvbn-ts/language-en";
 // what the API accepts. This module is about 1 MB of dictionaries, so it's loaded only when
 // someone starts choosing a password (usePasswordStrength).
 
-export type PasswordStrength = "weak" | "medium" | "strong";
+export type PasswordStrength = "weak" | "good" | "strong";
+
+/** The shortest password Better Auth accepts. */
+export const MIN_PASSWORD_LENGTH = 8;
+
+/** What the checklist under the password ticks off (KES-167). */
+export interface PasswordRules {
+  /** At least MIN_PASSWORD_LENGTH characters. */
+  long: boolean;
+  /** Doesn't contain their own name or email address. */
+  notPersonal: boolean;
+  /** Not a common password, word or keyboard pattern: Good or Strong. */
+  hardToGuess: boolean;
+}
 
 export interface PasswordCheck {
   strength: PasswordStrength;
-  /** Why it's weak, or what would make it stronger; null when there's nothing to add. */
+  rules: PasswordRules;
+  /** Why it's weak, or how to make it stronger; null when there's nothing to add. */
   tip: string | null;
 }
 
@@ -30,14 +44,28 @@ function personalWords(inputs: string[]): string[] {
   });
 }
 
+/** Weak is refused; Good and Strong are accepted (KES-167). */
+export const isAcceptable = (strength: PasswordStrength) => strength !== "weak";
+
 /** How hard a password is to guess, judged the way attackers guess, with a tip to improve it. */
 export function checkPassword(password: string, userInputs: string[] = []): PasswordCheck {
-  const { score, feedback } = zxcvbn.check(password, personalWords(userInputs));
-  const strength = score <= 1 ? "weak" : score === 2 ? "medium" : "strong";
-  // Only strong passwords are accepted, so anything less always says what to do next.
+  const { score, feedback, sequence } = zxcvbn.check(password, personalWords(userInputs));
+  const strength = score <= 1 ? "weak" : score === 2 ? "good" : "strong";
+  const rules: PasswordRules = {
+    long: password.length >= MIN_PASSWORD_LENGTH,
+    notPersonal: !sequence.some(
+      (match) => "dictionaryName" in match && match.dictionaryName === "userInputs",
+    ),
+    hardToGuess: isAcceptable(strength),
+  };
+  // zxcvbn's own words for a name or email ("personal or page related data") are clumsy.
   const tip =
-    strength === "strong"
-      ? null
-      : (feedback.warning ?? feedback.suggestions[0] ?? "Add another word to make it strong.");
-  return { strength, tip };
+    strength === "weak"
+      ? !rules.notPersonal
+        ? "Leave out your name and email."
+        : (feedback.warning ?? feedback.suggestions[0] ?? "Add another word or two.")
+      : strength === "good"
+        ? "That will do. Another word would make it Strong."
+        : null;
+  return { strength, rules, tip };
 }
