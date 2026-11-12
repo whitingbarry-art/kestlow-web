@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { AuthApi } from "../../api/auth";
 import { createSampleAuthApi } from "../../api/sampleAuthApi";
@@ -83,7 +83,7 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create an account" }));
 
     expect(screen.getByLabelText("Password")).toHaveAccessibleDescription(
-      "At least 8 characters, and it must reach Strong. Three random words, like ladder-teapot-rain, work well.",
+      "Use at least 8 characters that aren't easy to guess. Three random words, like ladder-teapot-rain, work well.",
     );
     expect(screen.getByLabelText("Password")).toHaveAttribute("autocomplete", "new-password");
   });
@@ -123,7 +123,7 @@ describe("AuthScreen", () => {
     expect(await screen.findByText("Strength: Weak.")).toBeInTheDocument();
   });
 
-  it("refuses a medium password, such as 8 random characters, without asking the API", async () => {
+  it("accepts a Good password, such as 8 random characters (KES-167)", async () => {
     const user = userEvent.setup();
     const authApi = createSampleAuthApi(null);
     const register = vi.spyOn(authApi, "register");
@@ -133,11 +133,76 @@ describe("AuthScreen", () => {
     await user.type(screen.getByLabelText("Your name"), "Kim");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "hG7kq2Lm");
-    expect(await screen.findByText("Strength: Medium.")).toBeInTheDocument();
+    expect(await screen.findByText("Strength: Good.")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
-    expect(await screen.findByText(/Not strong enough yet/)).toBeInTheDocument();
-    expect(register).not.toHaveBeenCalled();
+    expect(register).toHaveBeenCalledWith(expect.objectContaining({ password: "hG7kq2Lm" }));
+  });
+
+  it("ticks off each rule as it's met, with a dash for those not yet (KES-167)", async () => {
+    const user = userEvent.setup();
+    renderScreen();
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    const needs = screen.getByRole("list", { name: "Your password needs" });
+    expect(
+      within(needs)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "Not yet: At least 8 characters",
+      "Not yet: Doesn't use your name or email",
+      "Not yet: Not a common password, word or pattern",
+    ]);
+
+    await user.type(screen.getByLabelText("Your name"), "Dave Roofer");
+    await user.type(screen.getByLabelText("Password"), "daveroofer");
+    await screen.findByText("Strength: Weak.");
+    expect(
+      within(needs)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "Done: At least 8 characters",
+      "Not yet: Doesn't use your name or email",
+      "Not yet: Not a common password, word or pattern",
+    ]);
+
+    await user.clear(screen.getByLabelText("Password"));
+    await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
+    await screen.findByText("Strength: Strong.");
+    expect(
+      within(needs)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "Done: At least 8 characters",
+      "Done: Doesn't use your name or email",
+      "Done: Not a common password, word or pattern",
+    ]);
+  });
+
+  it("sends a sign-up once, however many times the button is tapped (KES-167)", async () => {
+    const user = userEvent.setup();
+    const authApi = createSampleAuthApi(null);
+    let finish: (result: { ok: true }) => void = () => undefined;
+    const register = vi
+      .spyOn(authApi, "register")
+      .mockImplementation(() => new Promise((resolve) => (finish = resolve)));
+    renderScreen(authApi);
+
+    await user.click(screen.getByRole("button", { name: "Create an account" }));
+    await user.type(screen.getByLabelText("Your name"), "Kim");
+    await user.type(screen.getByLabelText("Email address"), "kim@example.com");
+    await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
+    const button = screen.getByRole("button", { name: "Create account" });
+    await user.tripleClick(button);
+
+    const working = await screen.findByRole("button", { name: "Creating your account…" });
+    expect(working).toBeDisabled();
+    await user.click(working);
+    expect(register).toHaveBeenCalledTimes(1);
+    finish({ ok: true });
   });
 
   it("refuses a weak password without asking the API", async () => {
@@ -153,7 +218,7 @@ describe("AuthScreen", () => {
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
+      "That password is too easy to guess. Try three random words, like ladder-teapot-rain.",
     );
     expect(register).not.toHaveBeenCalled();
   });

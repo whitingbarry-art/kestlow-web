@@ -68,7 +68,7 @@ describe("AccountView", () => {
 
     expect(
       await screen.findByText(
-        "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
+        "That password is too easy to guess. Try three random words, like ladder-teapot-rain.",
       ),
     ).toBeVisible();
     expect(changePassword).not.toHaveBeenCalled();

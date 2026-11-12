@@ -18,12 +18,42 @@ type Story = StoryObj<typeof meta>;
 
 export const Empty: Story = { args: { check: null } };
 
+const rules = (long: boolean, notPersonal: boolean, hardToGuess: boolean) => ({
+  long,
+  notPersonal,
+  hardToGuess,
+});
+
 export const Weak: Story = {
-  args: { check: { strength: "weak", tip: "This is similar to a commonly used password." } },
+  args: {
+    check: {
+      strength: "weak",
+      rules: rules(true, true, false),
+      tip: "This is similar to a commonly used password.",
+    },
+  },
 };
 
-export const Medium: Story = {
-  args: { check: { strength: "medium", tip: "Add more words that are less common." } },
+export const UsesTheirName: Story = {
+  args: {
+    check: {
+      strength: "weak",
+      rules: rules(true, false, false),
+      tip: "Avoid using your name or email address.",
+    },
+  },
 };
 
-export const Strong: Story = { args: { check: { strength: "strong", tip: null } } };
+export const Good: Story = {
+  args: {
+    check: {
+      strength: "good",
+      rules: rules(true, true, true),
+      tip: "That will do. Another word would make it Strong.",
+    },
+  },
+};
+
+export const Strong: Story = {
+  args: { check: { strength: "strong", rules: rules(true, true, true), tip: null } },
+};

@@ -72,7 +72,7 @@ describe("createHttpAuthApi", () => {
     [
       "PASSWORD_TOO_WEAK",
       400,
-      "Not strong enough yet. Try three random words, like ladder-teapot-rain.",
+      "That password is too easy to guess. Try three random words, like ladder-teapot-rain.",
     ],
     ["TOO_MANY_ATTEMPTS", 429, "Too many tries. Wait a minute and try again."],
     ["SOMETHING_NEW", 500, "Something went wrong. Please try again."],

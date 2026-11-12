@@ -1,16 +1,27 @@
-import type { PasswordCheck } from "../../logic/password";
+import { Check, Minus } from "lucide-react";
+import type { PasswordCheck, PasswordRules } from "../../logic/password";
 import { cn } from "../../utils/cn";
 
-const LEVELS = { weak: 1, medium: 2, strong: 3 } as const;
-const LABELS = { weak: "Weak", medium: "Medium", strong: "Strong" } as const;
-const COLOURS = { weak: "bg-error", medium: "bg-selected", strong: "bg-match-text" } as const;
+const LEVELS = { weak: 1, good: 2, strong: 3 } as const;
+const LABELS = { weak: "Weak", good: "Good", strong: "Strong" } as const;
+const COLOURS = { weak: "bg-error", good: "bg-match-text", strong: "bg-match-text" } as const;
+
+/** What a password needs, in the order the checklist shows it (KES-167). */
+const RULES: { rule: keyof PasswordRules; label: string }[] = [
+  { rule: "long", label: "At least 8 characters" },
+  { rule: "notPersonal", label: "Doesn't use your name or email" },
+  { rule: "hardToGuess", label: "Not a common password, word or pattern" },
+];
 
 interface PasswordStrengthMeterProps {
   /** Null while there's nothing to judge yet. */
   check: PasswordCheck | null;
 }
 
-/** Three bars and a word, plus a tip; the words carry the meaning, so colour isn't needed. */
+/**
+ * Three bars and a word, a tip, and a checklist with a green tick for each rule met and a dash
+ * for each not yet. The words carry the meaning, so colour isn't needed.
+ */
 export function PasswordStrengthMeter({ check }: PasswordStrengthMeterProps) {
   const filled = check ? LEVELS[check.strength] : 0;
 
@@ -35,6 +46,24 @@ export function PasswordStrengthMeter({ check }: PasswordStrengthMeterProps) {
           </>
         )}
       </p>
+      <ul aria-label="Your password needs" className="m-0 mt-1 list-none space-y-1 p-0 text-sm">
+        {RULES.map(({ rule, label }) => {
+          const met = check?.rules[rule] ?? false;
+          const Icon = met ? Check : Minus;
+          return (
+            <li
+              key={rule}
+              className={cn("flex items-center gap-2", met ? "text-match-text" : "text-muted")}
+            >
+              <Icon size={16} strokeWidth={met ? 3 : 2} aria-hidden="true" className="shrink-0" />
+              <span>
+                <span className="sr-only">{met ? "Done: " : "Not yet: "}</span>
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }
