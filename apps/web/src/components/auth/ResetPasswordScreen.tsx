@@ -50,7 +50,7 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
     }
   }
 
-  async function send(token: string) {
+  async function send(resetToken: string) {
     const checker = await import("../../logic/password").catch(() => null);
     if (
       password.length >= 8 &&
@@ -62,7 +62,7 @@ export function ResetPasswordScreen({ token }: ResetPasswordScreenProps) {
     setError(null);
     let result: AuthResult;
     try {
-      result = await api.resetPassword({ token, newPassword: password });
+      result = await api.resetPassword({ token: resetToken, newPassword: password });
     } catch {
       result = { ok: false, message: "We couldn't reach Kestlow. Please try again in a minute." };
     }
