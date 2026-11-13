@@ -299,6 +299,12 @@ describe("AuthScreen", () => {
     renderScreen(authApi, recordStep);
 
     expect(recordStep).toHaveBeenCalledWith("register_viewed", { source: "ad-free" });
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Enter your email address.");
+    expect(recordStep).toHaveBeenCalledWith("register_refused", {
+      source: "ad-free",
+      reason: "email-missing",
+    });
 
     await user.type(screen.getByLabelText("Email address"), "dave@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
@@ -310,7 +316,7 @@ describe("AuthScreen", () => {
         reason: "user-already-exists",
       }),
     );
-    expect(recordStep.mock.calls.filter(([step]) => step === "register_tried")).toHaveLength(1);
+    expect(recordStep.mock.calls.filter(([step]) => step === "register_tried")).toHaveLength(2);
     window.history.replaceState(null, "", "/");
   });
 });

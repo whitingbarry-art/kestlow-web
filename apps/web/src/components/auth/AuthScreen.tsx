@@ -111,6 +111,11 @@ export function AuthScreen({
       return typeof value === "string" ? value : "";
     };
     if (mode === "register") recordStep("register_tried", { source });
+    // Caught here, as the name used to be, so an empty form gets an answer at once (KES-169).
+    if (mode === "register" && !text("email").trim()) {
+      refused("email-missing");
+      return setError("Enter your email address.");
+    }
     if (mode === "register") {
       // Weak passwords are refused (KES-167); the API checks too, this saves the round trip. If the
       // checker can't load (a bad signal, or a new deploy replaced it), the API's check is enough.
