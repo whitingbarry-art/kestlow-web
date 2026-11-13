@@ -4,6 +4,7 @@ import { createJobsLoader, type JobsNear, type LoadJobs } from "../../api/jobs";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { AREA_COUNCILS, COVERAGE } from "../../data/areas";
 import { TRADES } from "../../data/leads";
+import { PLANS } from "../../data/waitlist";
 import { recordStep as defaultRecordStep, type RecordStep } from "../../logic/funnel";
 import { signUpHref } from "../../logic/signUp";
 import type { Trade } from "../../types/lead";
@@ -15,6 +16,7 @@ import { LeadEmailsForm } from "./LeadEmailsForm";
 import { PublicLayout } from "./PublicLayout";
 
 const nothing = () => {};
+const SOLO_PRICE = PLANS.find((plan) => plan.name === "Solo")!.monthly;
 const defaultLoad = createJobsLoader();
 const defaultLeadEmailsApi = createHttpLeadEmailsApi();
 
@@ -40,6 +42,10 @@ type State =
  * and see straight away how many jobs there were near them and three real ones, with nothing to
  * sign up for first. The address and the rest of the jobs are what the trial and plans are for;
  * the weekly email is the easy next step. Big buttons and few words, for a thumb on a phone.
+ *
+ * An ad visitor's trade comes with the link, so the postcode box and button fit the first screen
+ * of a phone with the trade folded away (KES-168): 6 in 7 of them left without searching when
+ * the first screen was a heading and four trade buttons.
  */
 export function JobsPage({
   source,
@@ -50,6 +56,8 @@ export function JobsPage({
 }: JobsPageProps) {
   const id = useId();
   const [trade, setTrade] = useState<Trade | null>(linkedTrade ?? null);
+  const [choosingTrade, setChoosingTrade] = useState(!linkedTrade);
+  const tradeChoice = useRef<HTMLFieldSetElement>(null);
   const [state, setState] = useState<State>({ status: "idle" });
   const answer = useRef<HTMLHeadingElement>(null);
   const problem = useRef<HTMLParagraphElement>(null);
@@ -58,6 +66,14 @@ export function JobsPage({
     if (state.status === "found") answer.current?.focus();
     if (state.status === "error" || state.status === "failed") problem.current?.focus();
   }, [state]);
+
+  function changeTrade() {
+    setChoosingTrade(true);
+    // Once the buttons are showing, start from the one picked.
+    requestAnimationFrame(() => {
+      tradeChoice.current?.querySelector<HTMLInputElement>("input:checked")?.focus();
+    });
+  }
 
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,12 +103,13 @@ export function JobsPage({
 
   return (
     <PublicLayout
-      title="Jobs near you"
+      title={linkedTrade ? `${linkedTrade} jobs near you` : "Jobs near you"}
       description="See how many planning applications near you need your trade, and three real ones, free. Roofing, electrical, landscaping and groundworks across London and Kent."
+      homeLink={false}
     >
       <div className="flex flex-col gap-8 text-lg leading-relaxed">
         <p className="m-0 text-xl">
-          New building work near you, from the council's planning list. Free to look.
+          Real building work near you, from the council's planning list. Free to look, no sign-up.
         </p>
 
         <form
@@ -100,38 +117,55 @@ export function JobsPage({
           onSubmit={(event) => void search(event)}
           className="flex flex-col gap-6 rounded-card bg-card p-5 text-ink shadow-card"
         >
-          <fieldset
-            className="m-0 border-0 p-0"
-            aria-describedby={error?.field === "trade" ? errorId : undefined}
-          >
-            <legend className="mb-3 text-xl font-bold">1. Your trade</legend>
-            <div className="grid grid-cols-2 gap-3">
-              {TRADES.map((option) => (
-                <label
-                  key={option}
-                  className={cn(
-                    "flex min-h-14 cursor-pointer items-center justify-center rounded-xl border-2 p-3 text-center font-bold",
-                    "has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)]",
-                    trade === option ? "border-ink bg-ink text-card" : "border-muted bg-chip",
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="trade"
-                    value={option}
-                    checked={trade === option}
-                    onChange={() => setTrade(option)}
-                    className="sr-only"
-                  />
-                  {option}
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          {choosingTrade ? (
+            <fieldset
+              ref={tradeChoice}
+              className="m-0 border-0 p-0"
+              aria-describedby={error?.field === "trade" ? errorId : undefined}
+            >
+              <legend className="mb-3 text-xl font-bold">Your trade</legend>
+              <div className="grid grid-cols-2 gap-3">
+                {TRADES.map((option) => (
+                  <label
+                    key={option}
+                    className={cn(
+                      "flex min-h-14 cursor-pointer items-center justify-center rounded-xl border-2 p-3 text-center font-bold",
+                      "has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus)]",
+                      trade === option ? "border-ink bg-ink text-card" : "border-muted bg-chip",
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="trade"
+                      value={option}
+                      checked={trade === option}
+                      onChange={() => setTrade(option)}
+                      className="sr-only"
+                    />
+                    {option}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : (
+            <p className="m-0 flex flex-wrap items-baseline gap-x-3 text-xl">
+              <span>
+                Your trade: <strong>{trade}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={changeTrade}
+                aria-label="Change trade"
+                className="cursor-pointer rounded-lg border-0 bg-transparent p-0 text-lg font-semibold text-ink underline"
+              >
+                Change
+              </button>
+            </p>
+          )}
 
           <div>
             <label htmlFor={`${id}-postcode`} className="block text-xl font-bold">
-              2. Your postcode
+              Your postcode
             </label>
             {/* A hint, not a placeholder: a grey "BR1" in the box looked filled in (KES-160). */}
             <p id={hintId} className="mt-1 mb-3 text-base text-muted">
@@ -218,12 +252,10 @@ function Results({
     <section aria-labelledby="jobs-answer" className="flex flex-col gap-6">
       <div>
         <h2 ref={answer} id="jobs-answer" tabIndex={-1} className="m-0 text-2xl font-bold">
-          <span className="text-5xl">{jobs.total.toLocaleString("en-GB")}</span> {work} near{" "}
-          {jobs.postcode}
+          <span className="text-5xl">{jobs.total.toLocaleString("en-GB")}</span> {work} within{" "}
+          {jobs.radiusMiles} miles of {jobs.postcode}
         </h2>
-        <p className="mt-1 mb-0 text-muted">
-          Within {jobs.radiusMiles} miles, in the last {jobs.days} days.
-        </p>
+        <p className="mt-1 mb-0 text-muted">In the last {jobs.days} days.</p>
       </div>
 
       {jobs.examples.length > 0 && (
@@ -240,6 +272,7 @@ function Results({
                   onOpen={nothing}
                   onToggleSave={nothing}
                   actions={false}
+                  addressNote="Address shown in the free trial"
                 />
               </li>
             ))}
@@ -253,16 +286,20 @@ function Results({
           {more > 0 ? `${more.toLocaleString("en-GB")} more, with the address` : "See the address"}
         </h3>
         <p className="m-0">
-          Get every job the morning it's in, with the full address and the council's page. Free for
-          14 days, no card needed.
+          Get every job the morning it's in, with the full address and the council's page.
         </p>
         <a
           href={signUpHref(source)}
           onClick={() => recordStep("trial_tapped", { source })}
           className={buttonClassName("primary", "flex-none py-4 text-xl")}
         >
-          See them all free
+          Try it free for 14 days
         </a>
+        {/* The price up front (KES-168): "with Solo or Pro" and no price read like a catch. */}
+        <p className="m-0 text-base">
+          No card needed. After 14 days, keep it for {SOLO_PRICE} a month, or stay on our free plan
+          and pay nothing.
+        </p>
       </div>
 
       <div className="flex flex-col gap-3">
