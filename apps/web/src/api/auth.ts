@@ -20,12 +20,8 @@ export interface AuthApi {
   getMe: () => Promise<SessionUser | null>;
   signIn: (details: { email: string; password: string }) => Promise<AuthResult>;
   /** `source` is where they found Kestlow, such as a counter card's shop code (KES-125). */
-  register: (details: {
-    name: string;
-    email: string;
-    password: string;
-    source?: string;
-  }) => Promise<AuthResult>;
+  /** No name: Kestlow asks for none (KES-169), so the API is sent an empty one. */
+  register: (details: { email: string; password: string; source?: string }) => Promise<AuthResult>;
   signOut: () => Promise<void>;
   /** Changes the password and signs out every other device (KES-43). */
   changePassword: (details: {
@@ -106,8 +102,8 @@ export function createHttpAuthApi(baseUrl = import.meta.env.VITE_API_URL || "/ap
     },
     signIn: async ({ email, password }) =>
       result(await post("/sign-in/email", { email, password })),
-    register: async ({ name, email, password, source }) =>
-      result(await post("/sign-up/email", { name, email, password, source })),
+    register: async ({ email, password, source }) =>
+      result(await post("/sign-up/email", { name: "", email, password, source })),
     signOut: async () => {
       const res = await post("/sign-out", {});
       if (!res.ok) throw new ApiError(res.status, `POST /auth/sign-out failed with ${res.status}`);

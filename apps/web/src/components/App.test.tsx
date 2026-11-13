@@ -21,12 +21,14 @@ describe("App", () => {
       expect(button.querySelector("svg")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("shows who's signed in, above Sign out", async () => {
+  it("shows who's signed in by their email, above Sign out (KES-169)", async () => {
     render(<App />, { wrapper: providers() });
 
     const sidebar = screen.getByRole("complementary");
-    expect(await within(sidebar).findByText("Dave Roofer")).toBeInTheDocument();
-    expect(within(sidebar).getByText(/Signed in as/)).toHaveTextContent("Signed in as Dave Roofer");
+    expect(await within(sidebar).findByText("dave@example.com")).toBeInTheDocument();
+    expect(within(sidebar).getByText(/Signed in as/)).toHaveTextContent(
+      "Signed in as dave@example.com",
+    );
   });
 
   it("renders the leads view with every lead", async () => {

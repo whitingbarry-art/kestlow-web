@@ -40,7 +40,8 @@ export function App() {
   const signOut = useSignOut();
   useStartTrial();
   // SignedInGate only shows the app once someone's signed in, so there's always a user here.
-  const userName = useSession().data?.name ?? "";
+  // Their email: sign-up asks for no name (KES-169).
+  const userEmail = useSession().data?.email ?? "";
   // On mobile the open detail panel covers everything else, so the rest of the page goes inert.
   const coveredByDetail = !isDesktop && leads.isDetailOpen;
   const viewLabel = NAV_ITEMS.find((item) => item.view === view)?.label;
@@ -65,7 +66,7 @@ export function App() {
         onNavigate={navigate}
         onToggleTheme={toggleTheme}
         onSignOut={() => signOut.mutate()}
-        userName={userName}
+        userEmail={userEmail}
       />
 
       <main

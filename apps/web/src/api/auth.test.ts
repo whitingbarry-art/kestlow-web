@@ -42,7 +42,7 @@ describe("createHttpAuthApi", () => {
     await expect(api.signIn({ email: "dave@example.com", password: "pw" })).resolves.toEqual({
       ok: true,
     });
-    await api.register({ name: "Dave", email: "dave@example.com", password: "pw" });
+    await api.register({ email: "dave@example.com", password: "pw" });
 
     const [[signInUrl, signIn], [registerUrl, register]] = fetch.mock.calls;
     expect(signInUrl).toBe("/api/auth/sign-in/email");
@@ -53,8 +53,9 @@ describe("createHttpAuthApi", () => {
       password: "pw",
     });
     expect(registerUrl).toBe("/api/auth/sign-up/email");
+    // Better Auth wants a name; Kestlow asks for none, so it's sent empty (KES-169).
     expect(JSON.parse(register?.body as string)).toEqual({
-      name: "Dave",
+      name: "",
       email: "dave@example.com",
       password: "pw",
     });

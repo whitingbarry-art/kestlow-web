@@ -37,10 +37,10 @@ export function createSampleAuthApi(user: SessionUser | null = SAMPLE_USER): Aut
       current = SAMPLE_USER;
       return Promise.resolve({ ok: true });
     },
-    register: ({ name, email, password }) => {
+    register: ({ email, password }) => {
       if (password.length < 8)
         return Promise.resolve({ ok: false, message: "Use a password of at least 8 characters." });
-      current = { id: "new-user", name, email, emailVerified: false };
+      current = { id: "new-user", name: "", email, emailVerified: false };
       return Promise.resolve({ ok: true });
     },
     signOut: () => {

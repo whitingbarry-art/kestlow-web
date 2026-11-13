@@ -15,7 +15,7 @@ export const MIN_PASSWORD_LENGTH = 8;
 export interface PasswordRules {
   /** At least MIN_PASSWORD_LENGTH characters. */
   long: boolean;
-  /** Doesn't contain their own name or email address. */
+  /** Doesn't contain their own email address (or name, for older accounts that gave one). */
   notPersonal: boolean;
   /** Not a common password, word or keyboard pattern: Good or Strong. */
   hardToGuess: boolean;
@@ -62,7 +62,7 @@ export function checkPassword(password: string, userInputs: string[] = []): Pass
   const tip =
     strength === "weak"
       ? !rules.notPersonal
-        ? "Leave out your name and email."
+        ? "Leave out your email address."
         : (feedback.warning ?? feedback.suggestions[0] ?? "Add another word or two.")
       : strength === "good"
         ? "That will do. Another word would make it Strong."

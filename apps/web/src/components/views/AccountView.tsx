@@ -25,10 +25,6 @@ export function AccountView() {
       <SectionTitle>Your details</SectionTitle>
       <Card>
         <dl className="m-0 py-1.5">
-          <div className="flex justify-between gap-3 border-b border-line py-2">
-            <dt className="text-muted">Name</dt>
-            <dd className="m-0 font-semibold">{user?.name}</dd>
-          </div>
           <div className="flex justify-between gap-3 py-2">
             <dt className="text-muted">Email</dt>
             <dd className="m-0 font-semibold break-all">{user?.email}</dd>
