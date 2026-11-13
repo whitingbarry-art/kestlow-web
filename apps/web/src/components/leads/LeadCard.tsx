@@ -22,6 +22,8 @@ interface LeadCardProps {
    * the town and trade pages (KES-136).
    */
   distance?: boolean;
+  /** What a masked card says about its address; the jobs page points to the trial (KES-168). */
+  addressNote?: string;
 }
 
 export function LeadCard({
@@ -33,6 +35,7 @@ export function LeadCard({
   onToggleSave,
   actions = true,
   distance = true,
+  addressNote = "Exact address with Solo or Pro",
 }: LeadCardProps) {
   const handleView = (event: MouseEvent) => {
     event.stopPropagation();
@@ -53,9 +56,7 @@ export function LeadCard({
             {distance && <> &middot; {formatLeadDistance(lead)}</>}
           </div>
           {lead.masked && (
-            <div className="mt-0.5 text-sm font-semibold text-ink">
-              Exact address with Solo or Pro
-            </div>
+            <div className="mt-0.5 text-sm font-semibold text-ink">{addressNote}</div>
           )}
         </div>
         {lead.isNew && <NewBadge />}

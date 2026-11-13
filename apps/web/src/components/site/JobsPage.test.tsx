@@ -8,7 +8,7 @@ import { JobsPage } from "./JobsPage";
 const JOBS: JobsNear = {
   postcode: "BR1",
   trade: "Roofing",
-  radiusMiles: 15,
+  radiusMiles: 5,
   days: 30,
   total: 23,
   examples: [
@@ -35,8 +35,7 @@ function renderPage(load: LoadJobs, recordStep = vi.fn(), trade?: Trade) {
 
 async function lookUp(user: ReturnType<typeof userEvent.setup>, trade: string, postcode: string) {
   if (trade) await user.click(screen.getByRole("radio", { name: trade }));
-  if (postcode)
-    await user.type(screen.getByRole("textbox", { name: "2. Your postcode" }), postcode);
+  if (postcode) await user.type(screen.getByRole("textbox", { name: "Your postcode" }), postcode);
   await user.click(screen.getByRole("button", { name: "Show me the jobs" }));
 }
 
@@ -51,10 +50,10 @@ describe("JobsPage (KES-155)", () => {
     expect(load).toHaveBeenCalledWith("br1", "Roofing");
     const answer = await screen.findByRole("heading", {
       level: 2,
-      name: "23 roofing jobs near BR1",
+      name: "23 roofing jobs within 5 miles of BR1",
     });
     expect(answer).toHaveFocus();
-    expect(screen.getByText("Within 15 miles, in the last 30 days.")).toBeVisible();
+    expect(screen.getByText("In the last 30 days.")).toBeVisible();
     expect(screen.getByRole("heading", { name: "Here are 3 of them" })).toBeVisible();
     expect(screen.getByText("Loft conversion with rear dormer")).toBeVisible();
     expect(screen.getByText("Two storey side extension")).toBeVisible();
@@ -66,20 +65,27 @@ describe("JobsPage (KES-155)", () => {
     await lookUp(user, "Roofing", "BR1");
 
     expect(await screen.findByRole("heading", { name: "20 more, with the address" })).toBeVisible();
-    expect(screen.getByRole("link", { name: "See them all free" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Try it free for 14 days" })).toHaveAttribute(
       "href",
       "/?start=trial&ref=ad-jobs",
     );
+    // The price beside the button, so nothing reads like a catch (KES-168).
+    expect(
+      screen.getByText(
+        "No card needed. After 14 days, keep it for £29 a month, or stay on our free plan and pay nothing.",
+      ),
+    ).toBeVisible();
+    expect(screen.getAllByText("Address shown in the free trial")).toHaveLength(3);
     // The email form already has their trade and postcode.
     expect(screen.getByRole("combobox", { name: "Your trade" })).toHaveValue("Roofing");
-    expect(screen.getByRole("textbox", { name: "Your postcode" })).toHaveValue("BR1");
+    expect(screen.getAllByRole("textbox", { name: "Your postcode" })[1]).toHaveValue("BR1");
   });
 
   it("counts the visit, the look-up and the trial tap under the ad's code", async () => {
     const { user, recordStep } = renderPage(() => Promise.resolve({ ok: true, jobs: JOBS }));
 
     await lookUp(user, "Roofing", "BR1");
-    await user.click(await screen.findByRole("link", { name: "See them all free" }));
+    await user.click(await screen.findByRole("link", { name: "Try it free for 14 days" }));
 
     expect(recordStep.mock.calls).toEqual([
       ["jobs_viewed", { source: "ad-jobs" }],
@@ -88,20 +94,39 @@ describe("JobsPage (KES-155)", () => {
     ]);
   });
 
-  it("starts with the trade the link was for, so it's one step fewer (KES-160)", async () => {
+  it("starts with the trade the link was for, folded away, so the box is on the first screen (KES-160, KES-168)", async () => {
     const load = vi.fn<LoadJobs>(() => Promise.resolve({ ok: true, jobs: JOBS }));
     const { user } = renderPage(load, vi.fn(), "Roofing");
 
-    expect(screen.getByRole("radio", { name: "Roofing" })).toBeChecked();
+    expect(screen.getByRole("heading", { level: 1, name: "Roofing jobs near you" })).toBeVisible();
+    expect(screen.queryByRole("radio")).toBeNull();
+    expect(screen.getByText("Roofing", { selector: "strong" })).toBeVisible();
     await lookUp(user, "", "BR6");
 
     expect(load).toHaveBeenCalledWith("BR6", "Roofing");
   });
 
+  it("lets someone from an ad change the trade (KES-168)", async () => {
+    const load = vi.fn<LoadJobs>(() => Promise.resolve({ ok: true, jobs: JOBS }));
+    const { user } = renderPage(load, vi.fn(), "Roofing");
+
+    await user.click(screen.getByRole("button", { name: "Change trade" }));
+    expect(screen.getByRole("radio", { name: "Roofing" })).toBeChecked();
+    await lookUp(user, "Landscaping", "BR6");
+
+    expect(load).toHaveBeenCalledWith("BR6", "Landscaping");
+  });
+
+  it("has no way off the page above the search (KES-168)", () => {
+    renderPage(vi.fn<LoadJobs>());
+
+    expect(screen.queryByRole("link", { name: "Back to Kestlow" })).toBeNull();
+  });
+
   it("shows an example postcode beside the box, not in it (KES-160)", () => {
     renderPage(vi.fn<LoadJobs>());
 
-    const postcode = screen.getByRole("textbox", { name: "2. Your postcode" });
+    const postcode = screen.getByRole("textbox", { name: "Your postcode" });
     expect(postcode).not.toHaveAttribute("placeholder");
     expect(postcode).toHaveAccessibleDescription("Like BR6 or SE9 2AB");
   });
@@ -114,10 +139,10 @@ describe("JobsPage (KES-155)", () => {
     expect(screen.getByRole("alert")).toHaveTextContent("Pick your trade.");
 
     await user.click(screen.getByRole("radio", { name: "Electrical" }));
-    await user.clear(screen.getByRole("textbox", { name: "2. Your postcode" }));
+    await user.clear(screen.getByRole("textbox", { name: "Your postcode" }));
     await user.click(screen.getByRole("button", { name: "Show me the jobs" }));
     expect(screen.getByRole("alert")).toHaveTextContent("Type your postcode, like BR6.");
-    expect(screen.getByRole("textbox", { name: "2. Your postcode" })).toHaveAttribute(
+    expect(screen.getByRole("textbox", { name: "Your postcode" })).toHaveAttribute(
       "aria-invalid",
       "true",
     );
@@ -161,6 +186,6 @@ describe("JobsPage (KES-155)", () => {
     expect(
       within(answer).getByText(/Kestlow covers \d+ councils across London and Kent/),
     ).toBeVisible();
-    expect(screen.queryByRole("link", { name: "See them all free" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Try it free for 14 days" })).toBeNull();
   });
 });
