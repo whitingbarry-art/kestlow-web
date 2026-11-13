@@ -11,7 +11,7 @@ function Account() {
   const user = useSession().data;
   return (
     <>
-      <p>{user ? `Signed in as ${user.name}` : "Signed out"}</p>
+      <p>{user ? `Signed in as ${user.email}` : "Signed out"}</p>
       <AccountView />
     </>
   );
@@ -24,11 +24,11 @@ const renderAccount = (authApi = createSampleAuthApi()) => {
 };
 
 describe("AccountView", () => {
-  it("shows the signed-in person's name and email", async () => {
+  it("shows the signed-in person's email, and no name (KES-169)", async () => {
     renderAccount();
 
-    expect(await screen.findByText("Dave Roofer")).toBeVisible();
-    expect(screen.getByText("dave@example.com")).toBeVisible();
+    expect(await screen.findByText("dave@example.com")).toBeVisible();
+    expect(screen.queryByText("Name")).toBeNull();
   });
 
   it("changes the password", async () => {
@@ -92,7 +92,7 @@ describe("AccountView", () => {
     await user.type(password, "not my password");
     await user.click(screen.getByRole("button", { name: "Delete my account" }));
     expect(await screen.findByText("That isn't your current password.")).toBeVisible();
-    expect(screen.getByText("Signed in as Dave Roofer")).toBeVisible();
+    expect(screen.getByText("Signed in as dave@example.com")).toBeVisible();
 
     await user.clear(password);
     await user.type(password, SAMPLE_PASSWORD);

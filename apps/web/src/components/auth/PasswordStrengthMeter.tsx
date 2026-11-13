@@ -9,7 +9,7 @@ const COLOURS = { weak: "bg-error", good: "bg-match-text", strong: "bg-match-tex
 /** What a password needs, in the order the checklist shows it (KES-167). */
 const RULES: { rule: keyof PasswordRules; label: string }[] = [
   { rule: "long", label: "At least 8 characters" },
-  { rule: "notPersonal", label: "Doesn't use your name or email" },
+  { rule: "notPersonal", label: "Doesn't use your email address" },
   { rule: "hardToGuess", label: "Not a common password, word or pattern" },
 ];
 

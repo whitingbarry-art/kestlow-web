@@ -36,6 +36,6 @@ describe("checking a new password (KES-167)", () => {
     expect(checkPassword("hG7kq2Lm").tip).toBe("That will do. Another word would make it Strong.");
     expect(checkPassword("password123").tip).toMatch(/commonly used password/);
     expect(checkPassword("ladder teapot rain").tip).toBeNull();
-    expect(checkPassword("daveroofer", ["Dave Roofer"]).tip).toBe("Leave out your name and email.");
+    expect(checkPassword("daveroofer", ["Dave Roofer"]).tip).toBe("Leave out your email address.");
   });
 });

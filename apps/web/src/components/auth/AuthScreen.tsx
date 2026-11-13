@@ -60,13 +60,12 @@ export function AuthScreen({
   const busy = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const switched = useRef(false);
-  // Kept as they're typed only for the strength meter, which counts the person's own name and
-  // email as easy to guess; the form itself is read on submit.
-  const [details, setDetails] = useState({ name: "", email: "", password: "" });
+  // Kept as they're typed only for the strength meter, which counts the person's own email as
+  // easy to guess; the form itself is read on submit. No name: we don't need one (KES-169).
+  const [details, setDetails] = useState({ email: "", password: "" });
   // Hidden again on every submit and screen switch, so a password isn't left on show.
   const [showPassword, setShowPassword] = useState(false);
   const strength = usePasswordStrength(mode === "register" ? details.password : "", [
-    details.name,
     details.email,
   ]);
 
@@ -111,11 +110,11 @@ export function AuthScreen({
       const value = form.get(name);
       return typeof value === "string" ? value : "";
     };
-    const name = text("name").trim();
     if (mode === "register") recordStep("register_tried", { source });
-    if (mode === "register" && !name) {
-      refused("name-missing");
-      return setError("Enter your name.");
+    // Caught here, as the name used to be, so an empty form gets an answer at once (KES-169).
+    if (mode === "register" && !text("email").trim()) {
+      refused("email-missing");
+      return setError("Enter your email address.");
     }
     if (mode === "register") {
       // Weak passwords are refused (KES-167); the API checks too, this saves the round trip. If the
@@ -125,7 +124,7 @@ export function AuthScreen({
       if (
         checker &&
         password.length >= 8 &&
-        !checker.isAcceptable(checker.checkPassword(password, [name, text("email")]).strength)
+        !checker.isAcceptable(checker.checkPassword(password, [text("email")]).strength)
       ) {
         refused("password-too-weak");
         return setError(WEAK_PASSWORD_MESSAGE);
@@ -138,7 +137,6 @@ export function AuthScreen({
       result =
         mode === "register"
           ? await api.register({
-              name,
               email: text("email"),
               password: text("password"),
               source,
@@ -183,22 +181,6 @@ export function AuthScreen({
           onSubmit={(event) => void submit(event)}
           className="mt-6 flex flex-col gap-5 rounded-card bg-card p-5 shadow-card"
         >
-          {mode === "register" && (
-            <div>
-              <label htmlFor={`${id}-name`} className="block font-bold">
-                Your name
-              </label>
-              <input
-                id={`${id}-name`}
-                name="name"
-                type="text"
-                autoComplete="name"
-                onChange={(event) => setDetails({ ...details, name: event.target.value })}
-                className={inputClassName()}
-              />
-            </div>
-          )}
-
           <div>
             <label htmlFor={`${id}-email`} className="block font-bold">
               Email address

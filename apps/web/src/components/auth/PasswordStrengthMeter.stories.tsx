@@ -39,7 +39,7 @@ export const UsesTheirName: Story = {
     check: {
       strength: "weak",
       rules: rules(true, false, false),
-      tip: "Avoid using your name or email address.",
+      tip: "Leave out your email address.",
     },
   },
 };

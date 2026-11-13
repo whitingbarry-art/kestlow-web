@@ -11,7 +11,7 @@ interface SidebarProps {
   onToggleTheme: () => void;
   onSignOut: () => void;
   /** The signed-in user's name, shown above Sign out. */
-  userName: string;
+  userEmail: string;
 }
 
 const LINK_CLASSES =
@@ -23,7 +23,7 @@ export function Sidebar({
   onNavigate,
   onToggleTheme,
   onSignOut,
-  userName,
+  userEmail,
 }: SidebarProps) {
   return (
     <aside className="hidden flex-col gap-1.5 overflow-y-auto brand-surface px-4 py-[22px] text-white [--focus:#fff] desk:flex">
@@ -78,7 +78,7 @@ export function Sidebar({
         Change theme
       </button>
       <p className="mt-2 mb-0 px-3.5 text-sm text-side-link">
-        Signed in as <b className="font-semibold text-white">{userName}</b>
+        Signed in as <b className="font-semibold break-all text-white">{userEmail}</b>
       </p>
       <button
         type="button"

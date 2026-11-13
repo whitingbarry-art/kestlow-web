@@ -30,7 +30,6 @@ describe("AuthScreen", () => {
     renderScreen(authApi);
 
     expect(screen.getByRole("heading", { name: "Create your account" })).toBeVisible();
-    await user.type(screen.getByLabelText("Your name"), "Dave");
     await user.type(screen.getByLabelText("Email address"), "dave@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     await user.click(screen.getByRole("button", { name: "Create account" }));
@@ -41,14 +40,14 @@ describe("AuthScreen", () => {
     await vi.waitFor(() => expect(window.location.search).toBe(""));
   });
 
-  it("registers with a name, email and password", async () => {
+  it("registers with just an email and password, no name (KES-169)", async () => {
     const user = userEvent.setup();
     const authApi = createSampleAuthApi(null);
     const register = vi.spyOn(authApi, "register");
     renderScreen(authApi);
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "  Kim  ");
+    expect(screen.queryByLabelText("Your name")).toBeNull();
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     await user.click(screen.getByRole("button", { name: "Create account" }));
@@ -56,24 +55,10 @@ describe("AuthScreen", () => {
     // The submit loads the password checker first, so the call comes a moment later.
     await vi.waitFor(() =>
       expect(register).toHaveBeenCalledWith({
-        name: "Kim",
         email: "kim@example.com",
         password: "ladder teapot rain",
       }),
     );
-  });
-
-  it("asks for a name before registering", async () => {
-    const user = userEvent.setup();
-    const authApi = createSampleAuthApi(null);
-    const register = vi.spyOn(authApi, "register");
-    renderScreen(authApi);
-
-    await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.click(screen.getByRole("button", { name: "Create account" }));
-
-    expect(screen.getByRole("alert")).toHaveTextContent("Enter your name.");
-    expect(register).not.toHaveBeenCalled();
   });
 
   it("describes the password rules when registering", async () => {
@@ -112,12 +97,12 @@ describe("AuthScreen", () => {
     expect(screen.getByText(/commonly used password/)).toBeInTheDocument();
   });
 
-  it("counts their own name as easy to guess", async () => {
+  it("counts their own email as easy to guess", async () => {
     const user = userEvent.setup();
     renderScreen();
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "Dave Roofer");
+    await user.type(screen.getByLabelText("Email address"), "daveroofer@example.com");
     await user.type(screen.getByLabelText("Password"), "daveroofer1");
 
     expect(await screen.findByText("Strength: Weak.")).toBeInTheDocument();
@@ -130,7 +115,6 @@ describe("AuthScreen", () => {
     renderScreen(authApi);
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "Kim");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "hG7kq2Lm");
     expect(await screen.findByText("Strength: Good.")).toBeInTheDocument();
@@ -151,11 +135,11 @@ describe("AuthScreen", () => {
         .map((item) => item.textContent),
     ).toEqual([
       "Not yet: At least 8 characters",
-      "Not yet: Doesn't use your name or email",
+      "Not yet: Doesn't use your email address",
       "Not yet: Not a common password, word or pattern",
     ]);
 
-    await user.type(screen.getByLabelText("Your name"), "Dave Roofer");
+    await user.type(screen.getByLabelText("Email address"), "daveroofer@example.com");
     await user.type(screen.getByLabelText("Password"), "daveroofer");
     await screen.findByText("Strength: Weak.");
     expect(
@@ -164,7 +148,7 @@ describe("AuthScreen", () => {
         .map((item) => item.textContent),
     ).toEqual([
       "Done: At least 8 characters",
-      "Not yet: Doesn't use your name or email",
+      "Not yet: Doesn't use your email address",
       "Not yet: Not a common password, word or pattern",
     ]);
 
@@ -177,7 +161,7 @@ describe("AuthScreen", () => {
         .map((item) => item.textContent),
     ).toEqual([
       "Done: At least 8 characters",
-      "Done: Doesn't use your name or email",
+      "Done: Doesn't use your email address",
       "Done: Not a common password, word or pattern",
     ]);
   });
@@ -192,7 +176,6 @@ describe("AuthScreen", () => {
     renderScreen(authApi);
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "Kim");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     const button = screen.getByRole("button", { name: "Create account" });
@@ -212,7 +195,6 @@ describe("AuthScreen", () => {
     renderScreen(authApi);
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "Kim");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "Password1!");
     await user.click(screen.getByRole("button", { name: "Create account" }));
@@ -318,12 +300,12 @@ describe("AuthScreen", () => {
 
     expect(recordStep).toHaveBeenCalledWith("register_viewed", { source: "ad-free" });
     await user.click(screen.getByRole("button", { name: "Create account" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("Enter your email address.");
     expect(recordStep).toHaveBeenCalledWith("register_refused", {
       source: "ad-free",
-      reason: "name-missing",
+      reason: "email-missing",
     });
 
-    await user.type(screen.getByLabelText("Your name"), "Dave");
     await user.type(screen.getByLabelText("Email address"), "dave@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     await user.click(screen.getByRole("button", { name: "Create account" }));

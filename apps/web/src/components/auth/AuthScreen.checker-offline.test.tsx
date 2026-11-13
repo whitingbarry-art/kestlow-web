@@ -18,14 +18,12 @@ describe("AuthScreen when the password checker can't load", () => {
     render(<AuthScreen />, { wrapper: providers(undefined, authApi) });
 
     await user.click(screen.getByRole("button", { name: "Create an account" }));
-    await user.type(screen.getByLabelText("Your name"), "Kim");
     await user.type(screen.getByLabelText("Email address"), "kim@example.com");
     await user.type(screen.getByLabelText("Password"), "ladder teapot rain");
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     await vi.waitFor(() =>
       expect(register).toHaveBeenCalledWith({
-        name: "Kim",
         email: "kim@example.com",
         password: "ladder teapot rain",
       }),
