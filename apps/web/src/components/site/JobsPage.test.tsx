@@ -78,7 +78,8 @@ describe("JobsPage (KES-155)", () => {
     expect(screen.getAllByText("Address shown in the free trial")).toHaveLength(3);
     // The email form already has their trade and postcode.
     expect(screen.getByRole("combobox", { name: "Your trade" })).toHaveValue("Roofing");
-    expect(screen.getAllByRole("textbox", { name: "Your postcode" })[1]).toHaveValue("BR1");
+    const emailForm = screen.getByRole("combobox", { name: "Your trade" }).closest("form")!;
+    expect(within(emailForm).getByRole("textbox", { name: "Your postcode" })).toHaveValue("BR1");
   });
 
   it("counts the visit, the look-up and the trial tap under the ad's code", async () => {

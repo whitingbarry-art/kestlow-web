@@ -16,7 +16,7 @@ import { LeadEmailsForm } from "./LeadEmailsForm";
 import { PublicLayout } from "./PublicLayout";
 
 const nothing = () => {};
-const SOLO_PRICE = PLANS.find((plan) => plan.name === "Solo")?.monthly;
+const SOLO_PRICE = PLANS.find((plan) => plan.name === "Solo")!.monthly;
 const defaultLoad = createJobsLoader();
 const defaultLeadEmailsApi = createHttpLeadEmailsApi();
 
