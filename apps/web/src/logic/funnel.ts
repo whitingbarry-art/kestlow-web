@@ -5,6 +5,7 @@
 export type FunnelStep =
   | "jobs_viewed"
   | "jobs_searched"
+  | "job_tapped"
   | "launch_viewed"
   | "trial_tapped"
   | "register_viewed"
