@@ -262,8 +262,8 @@ function Results({
         <div className="flex flex-col gap-3">
           <h3 className="m-0 text-xl font-bold">Here are {jobs.examples.length} of them</h3>
           <ul className="m-0 flex flex-col gap-3 p-0">
-            {/* A job is what people tap, so each one opens sign-up and is counted. Before this,
-                tapping did nothing: 17 of 99 London ad visitors looked jobs up and none went on. */}
+            {/* A job is what people tap, so each one opens sign-up and is counted (job_tapped).
+                The cards stay masked: the address is still only in the trial. */}
             {jobs.examples.map((lead) => (
               <li key={lead.id} className="list-none">
                 <a
