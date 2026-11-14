@@ -34,14 +34,14 @@ describe("PricingPage", () => {
   });
 
   it("says how many first-20 places are left at the Solo price, only while there are some", async () => {
-    const offer = { placesLeft: 3, places: 20, monthlyPence: 1900 };
+    const offer = { placesLeft: 3, places: 20, monthlyPence: 1900, fullPence: 2900 };
     renderPricing(withPlan({ ...FREE_PLAN, trialAvailable: false }), vi.fn(), () =>
       Promise.resolve(offer),
     );
 
     expect(
       await screen.findByText(
-        "First 20 customers: Solo for £19 a month, monthly, for as long as you stay on it. 3 of 20 places left. Choose Solo, Monthly and it's taken off at checkout.",
+        "First 20 customers: Solo Monthly for £19 a month instead of £29, for as long as you stay on it. 3 of 20 places left. Choose Solo, Monthly and it's taken off at checkout.",
       ),
     ).toBeVisible();
   });

@@ -151,9 +151,10 @@ export function PricingPage({
         {/* The first-20 offer, only while Stripe says places are left (it adds it at checkout). */}
         {founding && (
           <li className="font-semibold text-ink">
-            First {founding.places} customers: Solo for {poundsOf(founding.monthlyPence)} a month,
-            monthly, for as long as you stay on it. {founding.placesLeft} of {founding.places}{" "}
-            places left. Choose Solo, Monthly and it's taken off at checkout.
+            First {founding.places} customers: Solo Monthly for {poundsOf(founding.monthlyPence)} a
+            month instead of {poundsOf(founding.fullPence)}, for as long as you stay on it.{" "}
+            {founding.placesLeft} of {founding.places} places left. Choose Solo, Monthly and
+            it&apos;s taken off at checkout.
           </li>
         )}
         <li>

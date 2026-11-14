@@ -105,7 +105,7 @@ describe("JobsPage (KES-155)", () => {
   });
 
   it("offers the first-20 price beside the trial while places are left, and says nothing after", async () => {
-    const offer = { placesLeft: 17, places: 20, monthlyPence: 1900 };
+    const offer = { placesLeft: 17, places: 20, monthlyPence: 1900, fullPence: 2900 };
     const { user } = renderPage(
       () => Promise.resolve({ ok: true, jobs: JOBS }),
       vi.fn(),

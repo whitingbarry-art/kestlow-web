@@ -330,8 +330,8 @@ function Results({
             <b>
               First {founding.places} customers: Solo for {poundsOf(founding.monthlyPence)} a month
             </b>{" "}
-            instead of {SOLO_PRICE}, for as long as you stay on Solo monthly. {founding.placesLeft}{" "}
-            of {founding.places} places left.
+            instead of {poundsOf(founding.fullPence)}, for as long as you stay on Solo monthly.{" "}
+            {founding.placesLeft} of {founding.places} places left.
           </p>
         )}
       </div>

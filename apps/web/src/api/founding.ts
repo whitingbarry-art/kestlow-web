@@ -9,6 +9,8 @@ export interface FoundingOffer {
   places: number;
   /** What a founding member pays each month, in pence. */
   monthlyPence: number;
+  /** Solo monthly's usual price, in pence, from Stripe. */
+  fullPence: number;
 }
 
 export type LoadFounding = () => Promise<FoundingOffer | null>;
