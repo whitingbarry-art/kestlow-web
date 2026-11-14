@@ -1,6 +1,12 @@
 import { Lock } from "lucide-react";
 import { useEffect, useId, useRef, useState, type FormEvent, type RefObject } from "react";
 import { createJobsLoader, type JobsNear, type LoadJobs } from "../../api/jobs";
+import {
+  poundsOf,
+  useFoundingOffer,
+  type FoundingOffer,
+  type LoadFounding,
+} from "../../api/founding";
 import { createHttpLeadEmailsApi, type LeadEmailsApi } from "../../api/leadEmails";
 import { AREA_COUNCILS, COVERAGE } from "../../data/areas";
 import { TRADES } from "../../data/leads";
@@ -28,6 +34,7 @@ interface JobsPageProps {
   load?: LoadJobs;
   recordStep?: RecordStep;
   leadEmailsApi?: Pick<LeadEmailsApi, "request">;
+  loadFounding?: LoadFounding;
 }
 
 type State =
@@ -53,8 +60,10 @@ export function JobsPage({
   load = defaultLoad,
   recordStep = defaultRecordStep,
   leadEmailsApi = defaultLeadEmailsApi,
+  loadFounding,
 }: JobsPageProps) {
   const id = useId();
+  const founding = useFoundingOffer(loadFounding);
   const [trade, setTrade] = useState<Trade | null>(linkedTrade ?? null);
   const [choosingTrade, setChoosingTrade] = useState(!linkedTrade);
   const tradeChoice = useRef<HTMLFieldSetElement>(null);
@@ -212,6 +221,7 @@ export function JobsPage({
             source={source}
             recordStep={recordStep}
             leadEmailsApi={leadEmailsApi}
+            founding={founding}
           />
         )}
       </div>
@@ -225,12 +235,14 @@ function Results({
   source,
   recordStep,
   leadEmailsApi,
+  founding,
 }: {
   jobs: JobsNear;
   answer: RefObject<HTMLHeadingElement | null>;
   source?: string;
   recordStep: RecordStep;
   leadEmailsApi: Pick<LeadEmailsApi, "request">;
+  founding: FoundingOffer | null;
 }) {
   const work = `${jobs.trade.toLowerCase()} ${jobs.total === 1 ? "job" : "jobs"}`;
 
@@ -312,6 +324,16 @@ function Results({
           No card needed. After 14 days, keep it for {SOLO_PRICE} a month, or stay on our free plan
           and pay nothing.
         </p>
+        {/* The first-20 offer, only while Stripe says places are left, so it's always true. */}
+        {founding && (
+          <p className="m-0 rounded-xl bg-chip p-3 text-base">
+            <b>
+              First {founding.places} customers: Solo for {poundsOf(founding.monthlyPence)} a month
+            </b>{" "}
+            instead of {poundsOf(founding.fullPence)}, for as long as you stay on Solo monthly.{" "}
+            {founding.placesLeft} of {founding.places} places left.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col gap-3">

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { poundsOf, useFoundingOffer, type LoadFounding } from "../../api/founding";
 import { useState } from "react";
 import { useLeadsApi } from "../../api/LeadsApiContext";
 import { PLANS } from "../../data/waitlist";
@@ -24,14 +25,19 @@ const SUBSCRIBED = new Set(["active", "past_due", "paused"]);
 interface PricingPageProps {
   /** Leaves for Stripe Checkout or the app; tests pass a spy. */
   goTo?: (url: string) => void;
+  loadFounding?: LoadFounding;
 }
 
 /**
  * Plans and prices for someone signed in (KES-50): Solo or Pro, monthly or yearly, each with a
  * button to Stripe Checkout, and the free trial for anyone who hasn't had one (KES-49).
  */
-export function PricingPage({ goTo = (url) => window.location.assign(url) }: PricingPageProps) {
+export function PricingPage({
+  goTo = (url) => window.location.assign(url),
+  loadFounding,
+}: PricingPageProps) {
   const api = useLeadsApi();
+  const founding = useFoundingOffer(loadFounding);
   const queryClient = useQueryClient();
   const subscription = useSubscription();
   const [payEvery, setPayEvery] = useState<BillingInterval>("month");
@@ -142,6 +148,15 @@ export function PricingPage({ goTo = (url) => window.location.assign(url) }: Pri
       </p>
 
       <ul className="mt-6 mb-0 flex flex-col gap-2 pl-5 text-muted">
+        {/* The first-20 offer, only while Stripe says places are left (it adds it at checkout). */}
+        {founding && (
+          <li className="font-semibold text-ink">
+            First {founding.places} customers: Solo Monthly for {poundsOf(founding.monthlyPence)} a
+            month instead of {poundsOf(founding.fullPence)}, for as long as you stay on it.{" "}
+            {founding.placesLeft} of {founding.places} places left. Choose Solo, Monthly and
+            it&apos;s taken off at checkout.
+          </li>
+        )}
         <li>
           Founding members: the first 100 paying customers keep their launch price for as long as
           they stay subscribed.
