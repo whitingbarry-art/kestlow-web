@@ -75,7 +75,7 @@ describe("JobsPage (KES-155)", () => {
         "No card needed. After 14 days, keep it for £29 a month, or stay on our free plan and pay nothing.",
       ),
     ).toBeVisible();
-    expect(screen.getAllByText("Address shown in the free trial")).toHaveLength(3);
+    expect(screen.getAllByText("Tap to see the address in the free trial")).toHaveLength(3);
     // The email form already has their trade and postcode.
     expect(screen.getByRole("combobox", { name: "Your trade" })).toHaveValue("Roofing");
     const emailForm = screen.getByRole("combobox", { name: "Your trade" }).closest("form")!;
@@ -92,6 +92,27 @@ describe("JobsPage (KES-155)", () => {
       ["jobs_viewed", { source: "ad-jobs" }],
       ["jobs_searched", { source: "ad-jobs" }],
       ["trial_tapped", { source: "ad-jobs" }],
+    ]);
+  });
+
+  it("opens sign-up from any example job, and counts the tap under the ad's code", async () => {
+    const { user, recordStep } = renderPage(() => Promise.resolve({ ok: true, jobs: JOBS }));
+
+    await lookUp(user, "Roofing", "BR1");
+    const job = await screen.findByRole("link", {
+      name: /^New roof and roof lights, .+\. See the address in the free trial$/,
+    });
+    expect(job).toHaveAttribute("href", "/?start=trial&ref=ad-jobs");
+    expect(
+      screen.getAllByRole("link", { name: /See the address in the free trial$/ }),
+    ).toHaveLength(3);
+
+    await user.click(job);
+
+    expect(recordStep.mock.calls).toEqual([
+      ["jobs_viewed", { source: "ad-jobs" }],
+      ["jobs_searched", { source: "ad-jobs" }],
+      ["job_tapped", { source: "ad-jobs" }],
     ]);
   });
 
