@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { LoadFounding } from "../../api/founding";
 import type { LeadsApi } from "../../api/leads";
 import { createSampleLeadsApi, FREE_PLAN } from "../../api/sampleLeadsApi";
 import { SAMPLE_LEADS } from "../../data/leads";
@@ -10,8 +11,10 @@ import { PricingPage } from "./PricingPage";
 const withPlan = (subscription: SubscriptionSummary) =>
   createSampleLeadsApi(SAMPLE_LEADS, 20, [], "BR1 1AA", subscription);
 
-const renderPricing = (api: LeadsApi, goTo = vi.fn()) => {
-  render(<PricingPage goTo={goTo} />, { wrapper: providers(api) });
+const noOffer: LoadFounding = () => Promise.resolve(null);
+
+const renderPricing = (api: LeadsApi, goTo = vi.fn(), loadFounding = noOffer) => {
+  render(<PricingPage goTo={goTo} loadFounding={loadFounding} />, { wrapper: providers(api) });
   return goTo;
 };
 
@@ -28,6 +31,26 @@ describe("PricingPage", () => {
 
     expect(checkout).toHaveBeenCalledWith("pro", "year");
     expect(goTo).toHaveBeenCalledWith("https://checkout.stripe.com/c/pay/sample");
+  });
+
+  it("says how many first-20 places are left at the Solo price, only while there are some", async () => {
+    const offer = { placesLeft: 3, places: 20, monthlyPence: 1900 };
+    renderPricing(withPlan({ ...FREE_PLAN, trialAvailable: false }), vi.fn(), () =>
+      Promise.resolve(offer),
+    );
+
+    expect(
+      await screen.findByText(
+        "First 20 customers: Solo for £19 a month, monthly, for as long as you stay on it. 3 of 20 places left. Choose Solo, Monthly and it's taken off at checkout.",
+      ),
+    ).toBeVisible();
+  });
+
+  it("says nothing about first-20 places when there's no offer", async () => {
+    renderPricing(withPlan({ ...FREE_PLAN, trialAvailable: false }));
+
+    await screen.findByRole("button", { name: "Choose Solo" });
+    expect(screen.queryByText(/First 20 customers/)).toBeNull();
   });
 
   it("offers the free trial to someone who hasn't had one, then goes to their leads", async () => {

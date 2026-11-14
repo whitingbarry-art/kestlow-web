@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { LoadFounding } from "../../api/founding";
 import type { JobsNear, LoadJobs } from "../../api/jobs";
 import { SAMPLE_LEADS } from "../../data/leads";
 import type { Trade } from "../../types/lead";
@@ -20,7 +21,14 @@ const JOBS: JobsNear = {
 
 const leadEmailsApi = { request: vi.fn() };
 
-function renderPage(load: LoadJobs, recordStep = vi.fn(), trade?: Trade) {
+const noOffer = () => Promise.resolve(null);
+
+function renderPage(
+  load: LoadJobs,
+  recordStep = vi.fn(),
+  trade?: Trade,
+  loadFounding: LoadFounding = noOffer,
+) {
   render(
     <JobsPage
       source="ad-jobs"
@@ -28,6 +36,7 @@ function renderPage(load: LoadJobs, recordStep = vi.fn(), trade?: Trade) {
       load={load}
       recordStep={recordStep}
       leadEmailsApi={leadEmailsApi}
+      loadFounding={loadFounding}
     />,
   );
   return { recordStep, user: userEvent.setup() };
@@ -93,6 +102,34 @@ describe("JobsPage (KES-155)", () => {
       ["jobs_searched", { source: "ad-jobs" }],
       ["trial_tapped", { source: "ad-jobs" }],
     ]);
+  });
+
+  it("offers the first-20 price beside the trial while places are left, and says nothing after", async () => {
+    const offer = { placesLeft: 17, places: 20, monthlyPence: 1900 };
+    const { user } = renderPage(
+      () => Promise.resolve({ ok: true, jobs: JOBS }),
+      vi.fn(),
+      undefined,
+      () => Promise.resolve(offer),
+    );
+
+    await lookUp(user, "Roofing", "BR1");
+
+    expect(await screen.findByText("First 20 customers: Solo for £19 a month")).toBeVisible();
+    expect(
+      screen.getByText(
+        /instead of £29, for as long as you stay on Solo monthly\. 17 of 20 places left\./,
+      ),
+    ).toBeVisible();
+  });
+
+  it("says nothing about a first-20 price when there's no offer", async () => {
+    const { user } = renderPage(() => Promise.resolve({ ok: true, jobs: JOBS }));
+
+    await lookUp(user, "Roofing", "BR1");
+
+    await screen.findByRole("link", { name: "Try it free for 14 days" });
+    expect(screen.queryByText(/First 20 customers/)).toBeNull();
   });
 
   it("opens sign-up from any example job, and counts the tap under the ad's code", async () => {
